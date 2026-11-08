@@ -97,10 +97,10 @@ body[data-f="Event"] .proj[data-c~="Event"],body[data-f="Identity"] .proj[data-c
 @media (hover:none){ .proj.in h2,.proj.in .cap{opacity:1;transform:none} .proj h2{font-size:14px;color:var(--g1)} #cur{display:none} }
 .proj.in .sq img,.proj.in .sq video{opacity:1}
 .proj:hover .sq{transform:scale(1.03)}
-.proj.empty .sq{background:transparent;border:1px dashed var(--g2);display:grid;place-items:center;text-align:center;padding:20px;font-size:15px;line-height:1.4}
+.proj.empty .sq{background:transparent;border:1px dashed var(--g2);display:grid;place-items:center;text-align:center;padding:20px;font-size:19px;line-height:1.4}
 .proj.empty .sq > div{opacity:0;transition:opacity 1s ease-out}
 .proj.empty.in .sq > div{opacity:1}
-.proj.empty .sq b{display:block;font-weight:500;font-size:18px;margin-bottom:6px}
+.proj.empty .sq b{display:block;font-weight:500;font-size:27px;letter-spacing:-.02em;margin-bottom:8px}
 .proj.src-hidden .sq{visibility:hidden}
 
 #traces{position:absolute;left:0;top:0;width:1px;height:1px;overflow:visible;pointer-events:none}
@@ -244,11 +244,11 @@ form.contact button{justify-self:start;background:var(--fg);color:var(--bg);padd
 .proj.unlock{transition:opacity 1.4s var(--quint),filter 1.4s var(--quint)}
 /* four tiny arrows around the figure: you can walk it with the keys or by clicking */
 #keys{position:absolute;left:50%;top:50%;width:0;height:0;transition:opacity .6s var(--quint)}
-#keys i{position:absolute;width:0;height:0;border:4px solid transparent;opacity:.55;animation:kp 2.4s ease-in-out infinite}
-#keys i:nth-child(1){left:-4px;top:-46px;border-bottom:5px solid var(--fg);border-top:0}
-#keys i:nth-child(2){left:-4px;top:41px;border-top:5px solid var(--fg);border-bottom:0}
-#keys i:nth-child(3){left:-44px;top:-4px;border-right:5px solid var(--fg);border-left:0}
-#keys i:nth-child(4){left:39px;top:-4px;border-left:5px solid var(--fg);border-right:0}
+#keys i{position:absolute;width:0;height:0;border:5px solid transparent;opacity:.6;animation:kp 2.4s ease-in-out infinite}
+#keys i:nth-child(1){left:-5px;top:-46px;border-bottom:7px solid var(--fg);border-top:0}
+#keys i:nth-child(2){left:-5px;top:39px;border-top:7px solid var(--fg);border-bottom:0}
+#keys i:nth-child(3){left:-44px;top:-5px;border-right:7px solid var(--fg);border-left:0}
+#keys i:nth-child(4){left:37px;top:-5px;border-left:7px solid var(--fg);border-right:0}
 @keyframes kp{0%,100%{opacity:.25}50%{opacity:.7}}
 #fig.walked #keys{opacity:0}
 /* filters + map/list: top row, under the name */
@@ -267,12 +267,17 @@ form.contact button{justify-self:start;background:var(--fg);color:var(--bg);padd
 .media img{height:auto}
 
 /* "you can move the map": a soft white hand swiping (no box, no label) */
-#gest{position:fixed;left:50%;bottom:60px;z-index:21;width:44px;height:52px;margin-left:-22px;pointer-events:none;opacity:0;transition:opacity .7s var(--quint)}
-#gest.on{opacity:.75}
-#gest svg{width:100%;height:100%;overflow:visible;fill:#fff;filter:drop-shadow(0 1px 2px rgba(0,0,0,.28)) drop-shadow(0 4px 10px rgba(0,0,0,.12));
-  transform-origin:50% 90%;animation:swipe 2s cubic-bezier(.65,0,.35,1) infinite}
+#gest{position:fixed;left:0;top:0;z-index:21;width:44px;height:52px;margin:0 0 0 -22px;pointer-events:none;opacity:0;transition:opacity .7s var(--quint)}
+#gest.on{opacity:.8}
+#gest svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;fill:#fff;filter:drop-shadow(0 1px 2px rgba(0,0,0,.3)) drop-shadow(0 4px 10px rgba(0,0,0,.12));transition:opacity .5s}
+#gest .swipe{transform-origin:50% 90%;animation:swipe 2s cubic-bezier(.65,0,.35,1) infinite}
+#gest .pinch{opacity:0}
+#gest.pz .swipe{opacity:0} #gest.pz .pinch{opacity:1}
+#gest .pinch .a{animation:pa 2s cubic-bezier(.65,0,.35,1) infinite} #gest .pinch .b{animation:pb 2s cubic-bezier(.65,0,.35,1) infinite}
 @keyframes swipe{0%,12%{transform:translateX(-16px) rotate(-8deg);opacity:0}24%{opacity:1}66%{transform:translateX(16px) rotate(8deg);opacity:1}82%,100%{transform:translateX(16px) rotate(8deg);opacity:0}}
-@media (prefers-reduced-motion:reduce){ #gest svg{animation:none} }
+@keyframes pa{0%,10%{transform:translate(-12px,-12px);opacity:0}22%{opacity:1}68%{transform:translate(0,0);opacity:1}85%,100%{transform:translate(0,0);opacity:0}}
+@keyframes pb{0%,10%{transform:translate(12px,12px);opacity:0}22%{opacity:1}68%{transform:translate(0,0);opacity:1}85%,100%{transform:translate(0,0);opacity:0}}
+@media (prefers-reduced-motion:reduce){ #gest svg,#gest .pinch circle{animation:none} }
 /* the cursor is a small lamp: the figure's shadow falls away from it */
 #shade{position:absolute;inset:0;pointer-events:none;transform-origin:50% 50%}
 #shade .srot{width:100%;height:100%;transform-origin:50% 50%}
@@ -285,11 +290,11 @@ form.contact button{justify-self:start;background:var(--fg);color:var(--bg);padd
 
 <header>
   <div class="reveal"><button data-home>Lilit Mardanian</button><br><span class="g">mard studio</span></div>
-  <div class="reveal hide-m"></div>
   <div class="reveal hide-m">Graphic designer &amp; art director<br><span class="g">Yerevan, Armenia</span></div>
   <div class="reveal hide-m"></div>
-  <div class="reveal r"><button data-open="about">About</button></div>
-  <div class="reveal r"><button data-open="contact">Contact</button></div>
+  <div class="reveal hide-m"></div>
+  <div class="reveal hide-m"></div>
+  <div class="reveal r"><button data-open="about">About</button>&nbsp;&nbsp;&nbsp;&nbsp;<button data-open="contact">Contact</button></div>
   <div class="reveal hrow"><span class="chips"><button data-f="" class="on">All</button><button data-f="Event">Events</button><button data-f="Identity">Identity</button><button data-f="Illustration">Illustration</button></span>
     <span class="rt"><span style="display:none"><button id="zOut">−</button><span id="zoom">100%</span><button id="zIn">+</button></span><button id="zFit">Fit</button><span class="seg"><button data-map class="on">Map</button><button data-list>List</button></span></span></div>
 </header>
@@ -306,18 +311,17 @@ form.contact button{justify-self:start;background:var(--fg);color:var(--bg);padd
 </div></div>
 <div id="cur"><i><b>↗</b></i></div>
 <div id="bubble">Let’s go</div>
-<div id="gest" aria-hidden="true"><svg viewBox="0 0 40 50"><g>
+<div id="gest" aria-hidden="true"><svg class="swipe" viewBox="0 0 40 50"><g>
   <rect x="11.5" y="3" width="7.4" height="26" rx="3.7"/><rect x="19.6" y="1" width="7.4" height="28" rx="3.7"/>
   <rect x="27.4" y="11" width="6.6" height="20" rx="3.3"/>
   <path d="M8 24c0-2 1.6-3.6 3.6-3.6h20.6c2.6 0 4.4 2.2 4.4 4.8V34c0 8-5.6 14-13.2 14h-1.8C14 48 10 44.6 8.6 39.6L4.2 27.4c-.7-1.9.3-4 2.2-4.6 1.5-.5 3.1.2 3.8 1.6L12 28z"/>
-</g></svg></div>
+</g></svg><svg class="pinch" viewBox="0 0 40 50"><circle class="a" cx="15" cy="20" r="6"/><circle class="b" cx="25" cy="30" r="6"/></svg></div>
 <div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
 
 <footer>
   <div class="reveal">© 2026 mard studio<br><span class="g mono" id="tally">Traces 00 / 11</span></div>
   <div class="reveal hide-m"><a href="https://www.instagram.com/lilitmardanian/" target="_blank" rel="noopener">Instagram</a><br><a href="https://www.linkedin.com/in/lilit-mardanyan-438687136/" target="_blank" rel="noopener">LinkedIn</a></div>
   <div class="reveal hide-m"><a href="https://www.behance.net/lilartulilartu" target="_blank" rel="noopener">Behance</a><br><span class="g">Yerevan <span id="clock">--:--</span></span></div>
-  <div class="reveal r"><a href="mailto:its.mard.studio@gmail.com">Email me</a></div>
 </footer>
 
 <div id="mask"></div>
@@ -349,7 +353,7 @@ const P = [
          MF("pati-henqy","ruben","p","v","Ruben Karapetyan"), MF("pati-henqy","dale","p","v","Dale"), MF("pati-henqy","supacooks","p","v","Supacooks"),
          MF("pati-henqy","process","l","i","Countdown"), MF("pati-henqy","ticket","p","i","Ticket")],
   layout:[["hero"],["night"],["goshacobs","ruben"],["dale","supacooks"],["process"],["ticket"]],
-  canvas:["hero","dale","night","process","ticket"],
+  canvas:["dale","hero","night","process","ticket"],
   role:"Full event identity", built:["Event identity","Poster","DJ cards","Tickets","Wristbands","Badges","VIP packaging","3D loop (Blender)"],
   media:[{video:"assets/pati-henqy/dale.mp4", poster:"assets/pati-henqy/dale-poster.jpg"}, ...gal("pati-henqy",5)], link:"https://www.instagram.com/p/DW64iiliCCq/",
   desc:"Kitchen Recordings and Kitchen Lab’s electronic music event at Hayfilm Studio. One concrete 3D texture system carried across everything a guest touches, from the poster to the wristband to the VIP box, plus a Blender animation loop for social."},
@@ -444,7 +448,8 @@ const tall = a => a.h + (a.deco ? 0 : LABEL);
 const hit = (a, b) => !(a.x + a.w + GAP <= b.x || b.x + b.w + GAP <= a.x || a.y + tall(a) + GAP <= b.y || b.y + tall(b) + GAP <= a.y);
 /* Seamless packing: the map is a tile that wraps at its edges while packing, so copies meet with no empty bands */
 const hitO = (a, b, ox, oy) => !(a.x + a.w + GAP <= b.x + ox || b.x + ox + b.w + GAP <= a.x || a.y + tall(a) + GAP <= b.y + oy || b.y + oy + tall(b) + GAP <= a.y);
-const all = [...shuffle(ring), ...shuffle(extras)];         // the 12 projects first, closest around the figure; the other files further out
+const ringS = shuffle(ring); ringS.unshift(...ringS.splice(ringS.findIndex(p => p.i === 0), 1));   // Pati Henqy's Dale video takes the spot right next to the figure
+const all = [...ringS, ...shuffle(extras)];         // the 12 projects first, closest around the figure; the other files further out
 const AREA = [filler, ...all].reduce((t, p) => t + (p.w + GAP)*(tall(p) + GAP), 0);
 let BW, BH, placed;
 for (let fill = .8; fill > .3; fill -= .03){
@@ -604,17 +609,18 @@ function unlockView(now){
 /* teaching the move: the map nudges once, a small trackpad icon swipes, the figure says it — all gone after the first move */
 const TOUCH = matchMedia("(hover:none)").matches;
 const LOOK = { done: false, acc: 0, since: 0 };
-function looked(){ if (LOOK.done) return; LOOK.done = true; $("#gest").classList.remove("on"); }
+const gest = $("#gest");
+function looked(){ if (LOOK.done) return; LOOK.done = true; gest.classList.remove("on"); clearInterval(LOOK.iv); }
 function teachLook(){
   LOOK.since = performance.now();
   setTimeout(() => { if (LOOK.done || overlay || RM) return;            // the map nudges once, like a sheet of paper pushed and let go
     tgt.x -= 70; setTimeout(() => { if (!LOOK.done && !flying) tgt.x += 70; }, 650); }, 1400);
-  setTimeout(() => { if (!LOOK.done) $("#gest").classList.add("on"); }, 2200);
+  setTimeout(() => { if (LOOK.done) return; gest.classList.add("on"); LOOK.iv = setInterval(() => gest.classList.toggle("pz"), 4000); }, 2200);
 }
 /* ---- input ---- */
 canvas.addEventListener("wheel", e => {
   e.preventDefault(); if (!introDone) return;
-  if (e.ctrlKey || e.metaKey) zoomAt(Math.exp(-e.deltaY*.006), e.clientX, e.clientY);
+  if (e.ctrlKey || e.metaKey){ zoomAt(Math.exp(-e.deltaY*.006), e.clientX, e.clientY); looked(); }
   else if (e.deltaMode === 1) zoomAt(Math.exp(-e.deltaY*.08), e.clientX, e.clientY);
   else { tgt.x -= e.deltaX; tgt.y -= e.deltaY; flying = null; LOOK.acc += Math.abs(e.deltaX) + Math.abs(e.deltaY); if (LOOK.acc > 60) looked(); }
 }, {passive:false});
@@ -634,7 +640,7 @@ canvas.addEventListener("pointermove", e => {
     vel = {x: vel.x*.6 + dx*.4, y: vel.y*.6 + dy*.4}; lastMove = performance.now(); moved += Math.abs(dx)+Math.abs(dy);
   } else if (ptrs.size === 2 && pinch){
     const [a,b] = [...ptrs.values()], d = Math.hypot(a.x-b.x,a.y-b.y);
-    zoomAt(d/pinch.d, (a.x+b.x)/2, (a.y+b.y)/2); pinch.d = d; moved += 10;
+    zoomAt(d/pinch.d, (a.x+b.x)/2, (a.y+b.y)/2); pinch.d = d; moved += 10; looked();
   }
 });
 const up = e => {
@@ -941,7 +947,8 @@ function frame(now){
     if (Math.hypot(wx - F.x, wy - F.y) > 30){ let da = Math.atan2(wy - F.y, wx - F.x) - F.a; da = Math.atan2(Math.sin(da), Math.cos(da)); F.a += da*Math.min(1, dt*6); }
   }
   const flip = walking && Math.floor(F.dist/(F.wander ? 10 : 14)) % 2 ? -1 : 1;          // mirror each step = arms swap sides
-  fig.style.transform = `translate(${F.x}px,${F.y}px)`; fig.classList.toggle("walked", hasWalked);
+  fig.style.transform = `translate(${F.x}px,${F.y}px)`; fig.classList.toggle("walked", hasWalked || LOOK.done);
+  if (!LOOK.done) gest.style.transform = `translate(${(cam.x + F.x*cam.s).toFixed(1)}px,${(cam.y + F.y*cam.s + 58).toFixed(1)}px)`;
   rot.style.transform = `rotate(${F.a + Math.PI/2}rad) scaleX(${flip})`;  // drawing faces up
   // shadow: cast away from the cursor (the light). Farther light = longer, softer shadow. No cursor: soft, down-right
   { const lit = mouse.on && !overlay, lx = lit ? (mouse.x - cam.x)/cam.s : F.x - 260, ly = lit ? (mouse.y - cam.y)/cam.s : F.y - 380;
@@ -956,12 +963,12 @@ function frame(now){
   }
 
   // speech bubble when zoomed in
-  const needWalk = !hasWalked, needLook = !LOOK.done && now - LOOK.since > 2200;
+  const needWalk = !hasWalked && !LOOK.done, needLook = !LOOK.done && now - LOOK.since > 2200;
   const hint = introDone && !overlay && (needWalk || needLook);
   const lookTurn = needLook && (!needWalk || Math.floor((now - LOOK.since)/4500) % 2 === 1);
   const thought = introDone && !overlay && !hint ? think(now, state) : null;
   const zoomed = !overlay && introDone && (hint || thought || cam.s >= fitS*1.35);
-  const txt = hint ? (lookTurn ? (TOUCH ? "Drag to look around" : "Swipe or scroll to look around") : TOUCH ? "Tap anywhere to walk me" : "Click anywhere to walk me") : thought || "Let’s go";
+  const txt = hint ? (lookTurn ? (TOUCH ? "Drag or pinch to look around" : "Swipe to move, pinch to zoom out") : TOUCH ? "Tap anywhere to walk me" : "Click anywhere to walk me") : thought || "Let’s go";
   if (bubble.textContent !== txt) bubble.textContent = txt;
   bubble.classList.toggle("think", !!thought);
   bubble.classList.toggle("on", !!zoomed);
@@ -1114,10 +1121,11 @@ async function openProject(i, el){
   view.innerHTML = projectHTML(i); titleLines(); view.scrollTop = 0;
   view.classList.add("open"); view.setAttribute("aria-hidden","false");
   document.body.classList.add("focus"); mask.classList.add("on");
-  const fmC = el && el.dataset.fm, slots = fmC ? [...view.querySelectorAll(`.media [data-fm="${fmC}"]`)].slice(0, 1) : [];
+  const fmC = el && el.dataset.fm, first = view.querySelector(".media img, .media video"), slots = fmC && first && first.dataset.fm === fmC ? [first] : [];
   slots.forEach(sl => sl.classList.add("wait"));
   // let the first images get their real shape before measuring where they land
-  await Promise.race([Promise.all(slots.filter(sl => sl.tagName === "IMG").map(im => im.decode().catch(() => {}))), new Promise(r => setTimeout(r, 450))]);
+  if (!slots.length) view.classList.add("in");
+  else await Promise.race([Promise.all(slots.filter(sl => sl.tagName === "IMG").map(im => im.decode().catch(() => {}))), new Promise(r => setTimeout(r, 450))]);
   const clicked = el ? { el, rect: el.querySelector(".sq").getBoundingClientRect() } : spotOf(i, CV[i][0].fm);
   flights = []; const used = new Set(), runs = [];
   slots.forEach((slot, n) => {
