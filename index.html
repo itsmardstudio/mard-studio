@@ -288,7 +288,9 @@ form.contact button{justify-self:start;background:var(--fg);color:var(--bg);padd
 @media (prefers-reduced-motion:reduce){ #gest svg,#gest .pinch circle{animation:none} }
 /* the cursor is a small lamp: the figure's shadow falls away from it */
 #shade{display:none}
-#fig .spr{position:absolute;inset:0;background:url(assets/walker.webp) 0 0/1200% 100% no-repeat}
+#fig .spr,#fig .hd{position:absolute;inset:0;-webkit-mask:var(--m) 0 0/1200% 100% no-repeat;mask:var(--m) 0 0/1200% 100% no-repeat;-webkit-mask-position:var(--mp,9.091% 0);mask-position:var(--mp,9.091% 0)}
+#fig .spr{--m:url(assets/walker.webp);background:#b41d22}
+#fig .hd{--m:url(assets/walker-head.webp);background:#6b0f13;transform-origin:40% 27%}
 #shade .srot{width:100%;height:100%;transform-origin:50% 50%}
 
 .case{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--pad);padding:16px 0 4px;border-top:1px solid var(--g2)}
@@ -334,8 +336,8 @@ form.contact .note{min-height:1.2em;font-size:13px}
     <svg id="traces"></svg>
     <div id="blocks"></div>
     <div id="fig"><div id="shade"><div class="srot"></div></div><div id="keys"><i></i><i></i><i></i><i></i></div><div class="rot">
-      <!-- the walker: 12 photo frames of one walk cycle (assets/walker.webp), seen from above -->
-      <div class="spr"></div>
+      <!-- the walker: red silhouette of a filmed walk cycle (12 frames), dark red head on top -->
+      <div class="spr"></div><div class="hd"></div>
     </div></div>
   </div>
 </div></div>
@@ -734,7 +736,7 @@ function checkZoomTrigger(now){
    FIGURE: walks to the top-left of a project and stops there
    ===================================================================== */
 const fig = $("#fig"), rot = fig.querySelector(".rot"), svgT = $("#traces"), bubble = $("#bubble");
-const shade = $("#shade"), srot = shade.querySelector(".srot"), spr = fig.querySelector(".spr");
+const shade = $("#shade"), srot = shade.querySelector(".srot"), spr = fig.querySelector(".spr"), hd = fig.querySelector(".hd");
 const SH = { x: 6, y: 9, len: 10 };
 /* pixel drawings hidden in the gaps (from the stances file) */
 const FIG = {"flower":{"vb":[202.13,83.16,142.57,207.63],"p":[{"d":"M 279.71 290.66 L 266.90 290.79 L 266.91 187.07 L 240.93 186.94 L 240.92 174.10 L 227.76 174.08 L 228.24 148.19 L 215.23 148.17 L 215.23 135.25 L 202.13 135.14 L 202.13 109.17 L 227.98 109.19 L 228.05 121.97 L 240.92 122 L 240.92 109.19 L 253.91 109.14 L 253.99 96.19 L 266.93 96.28 L 266.91 83.21 L 279.91 83.16 L 279.94 96.25 L 292.79 96.23 L 292.78 109.10 L 305.77 109.11 L 305.82 121.98 L 318.67 121.99 L 318.69 109.19 L 344.68 109.20 L 344.69 135.13 L 331.66 135.17 L 331.55 148.17 L 318.79 148.20 L 318.80 174.10 L 305.80 174.16 L 305.78 186.96 L 279.71 187.02Z M 279.71 290.66 ","hole":false},{"d":"M 318.70 258.28 L 318.71 245.25 L 305.82 245.26 L 305.76 258.39Z M 331.80 245.19 L 331.82 232.40 L 318.75 232.33 L 318.89 245.34Z M 305.74 271.29 L 305.67 258.34 L 292.89 258.40 L 292.89 232.44 L 305.67 232.38 L 305.71 219.43 L 344.67 219.42 L 344.67 258.30 L 331.95 258.32 L 331.88 271.26Z M 305.74 271.29 ","hole":false},{"d":"M 228.25 244.35 L 227.89 244.65 L 227.98 257.16 L 240.51 257.30 L 240.91 256.94 L 240.93 244.29Z M 227.84 243.84 L 227.75 231.36 L 214.97 231.39 L 214.91 244.24 L 227.43 244.23Z M 241.00 257.76 L 241.03 270.44 L 215.06 270.45 L 215.00 257.35 L 202.13 257.32 L 202.12 218.37 L 241.01 218.36 L 241.00 231.40 L 254.01 231.36 L 254.03 257.35 L 241.32 257.35Z M 241.00 257.76 ","hole":false}]},"pattern":{"vb":[463.89,134.73,117.61,117.59],"p":[{"d":"M 489.96 147.76 L 490.03 160.85 L 477.01 160.87 L 477.01 147.76 L 463.89 147.76 L 463.88 134.75 L 477.01 134.74 L 477.03 147.76Z M 489.96 147.76 ","hole":false},{"d":"M 529.22 200.07 L 529.22 186.99 L 516.15 186.98 L 516.13 200.07Z M 529.29 147.76 L 529.23 173.87 L 542.25 173.88 L 542.25 186.98 L 568.38 186.90 L 568.38 200.05 L 581.48 200.09 L 581.47 226.19 L 568.33 226.19 L 568.39 200.08 L 542.25 200.08 L 542.25 213.09 L 529.22 213.10 L 529.29 239.20 L 516.14 239.19 L 516.13 252.32 L 490.01 252.32 L 490.02 239.22 L 516.13 239.20 L 516.13 213.10 L 503.12 213.08 L 503.11 200.08 L 476.97 200.08 L 477.01 186.90 L 503.10 186.98 L 503.12 173.88 L 516.12 173.87 L 516.14 147.76 L 489.96 147.76 L 490.04 134.73 L 516.15 134.74 L 516.14 147.76Z M 529.29 147.76 ","hole":false},{"d":"M 555.31 147.76 L 529.29 147.76 L 529.23 134.74 L 555.36 134.75Z M 555.31 147.76 ","hole":false},{"d":"M 568.38 160.87 L 555.36 160.85 L 555.31 147.76 L 568.38 147.76 L 568.38 134.73 L 581.49 134.76 L 581.46 147.75 L 568.38 147.77Z M 568.38 160.87 ","hole":false},{"d":"M 477.01 160.87 L 477.01 186.90 L 463.89 186.97 L 463.89 160.87Z M 477.01 160.87 ","hole":false},{"d":"M 568.38 186.90 L 568.38 160.87 L 581.47 160.85 L 581.48 186.98Z M 568.38 186.90 ","hole":false},{"d":"M 476.97 200.08 L 476.96 226.20 L 463.89 226.21 L 463.89 200.08Z M 476.97 200.08 ","hole":false},{"d":"M 490.02 239.22 L 477.01 239.22 L 477.01 252.31 L 463.89 252.32 L 463.89 239.21 L 477.01 239.21 L 476.96 226.20 L 490.03 226.19Z M 490.02 239.22 ","hole":false},{"d":"M 568.33 226.19 L 568.38 239.03 L 568.49 239.21 L 581.47 239.21 L 581.48 252.31 L 568.38 252.32 L 568.38 239.42 L 568.12 239.21 L 555.32 239.21 L 555.36 226.18Z M 568.33 226.19 ","hole":false},{"d":"M 555.32 239.21 L 555.36 252.32 L 529.23 252.32 L 529.29 239.20Z M 555.32 239.21 ","hole":false}]}};
@@ -982,17 +984,21 @@ function frame(now){
   if (F.sleeping && idleFor < 45000) F.sleeping = false;
   const state = F.sleeping ? "sleep" : walking ? "walk" : "wait";
   if (fig.dataset.state !== state){ fig.dataset.state = state; F.stillSince = now; }
-  // standing still: the figure turns to look at your cursor
-  if (!walking && !F.sleeping && mouse.on && !overlay){
-    const wx = (mouse.x - cam.x)/cam.s, wy = (mouse.y - cam.y)/cam.s;
-    if (Math.hypot(wx - F.x, wy - F.y) > 30){ let da = Math.atan2(wy - F.y, wx - F.x) - F.a; da = Math.atan2(Math.sin(da), Math.cos(da)); F.a += da*Math.min(1, dt*6); }
+  // standing still: only her head turns a little toward your cursor
+  { let ha = 0;
+    if (!walking && !F.sleeping && mouse.on && !overlay){
+      const wx = (mouse.x - cam.x)/cam.s, wy = (mouse.y - cam.y)/cam.s;
+      if (Math.hypot(wx - F.x, wy - F.y) > 30){ ha = Math.atan2(wy - F.y, wx - F.x) - F.a; ha = Math.atan2(Math.sin(ha), Math.cos(ha)); ha = Math.max(-.45, Math.min(.45, ha*.5)); }
+    }
+    F.ha = (F.ha || 0) + (ha - (F.ha || 0))*Math.min(1, dt*5);
+    hd.style.transform = Math.abs(F.ha) > .002 ? `rotate(${F.ha.toFixed(3)}rad)` : "";
   }
   // walk cycle: about 2 steps a second when strolling, up to ~3.4 when hurrying; step, pass, other step, pass
   const spd = walking ? Math.max(F.v || 0, steering ? SPEED*.8 : 0) : 0;
   if (walking) F.ph = (F.ph || 0) + dt*Math.min(20.4, 6.6 + spd/23); else F.ph = 0;   // 12 frames = 2 steps
   const pose = walking ? Math.floor(F.ph) % 12 : 0;
   const frameN = walking ? pose : 1;                 // frame 1: feet together = standing
-  if (F.pose !== frameN){ spr.style.backgroundPosition = `${(frameN/11*100).toFixed(3)}% 0`; F.pose = frameN; }
+  if (F.pose !== frameN){ rot.style.setProperty('--mp', `${(frameN/11*100).toFixed(3)}% 0`); F.pose = frameN; }
   const sway = walking ? Math.sin(F.ph*Math.PI/6)*.05 : 0;   // the shoulders turn a little with each step
   fig.style.transform = `translate(${F.x}px,${F.y}px)`; fig.classList.toggle("walked", hasWalked || LOOK.done);
   if (!LOOK.done) gest.style.transform = `translate(${(cam.x + F.x*cam.s).toFixed(1)}px,${(cam.y + F.y*cam.s + 72).toFixed(1)}px)`;
@@ -1003,7 +1009,7 @@ function frame(now){
     const len = Math.min(9, 3 + d*.008), k = Math.min(1, dt*7);
     SH.x += (dx*len - SH.x)*k; SH.y += (dy*len - SH.y)*k; SH.len += (len - SH.len)*k;
     { const t = -(F.a + Math.PI/2), ox = SH.x*Math.cos(t) - SH.y*Math.sin(t), oy = SH.x*Math.sin(t) + SH.y*Math.cos(t);
-      spr.style.filter = `drop-shadow(${ox.toFixed(1)}px ${oy.toFixed(1)}px 1px rgba(40,30,20,.22))`; }
+      rot.style.filter = `drop-shadow(${ox.toFixed(1)}px ${oy.toFixed(1)}px 1px rgba(40,30,20,.22))`; }
     srot.style.transform = rot.style.transform;
   }
 
