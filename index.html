@@ -1003,15 +1003,6 @@ function frame(now){
   fig.style.transform = `translate(${F.x}px,${F.y}px)`; fig.classList.toggle("walked", hasWalked || LOOK.done);
   if (!LOOK.done) gest.style.transform = `translate(${(cam.x + F.x*cam.s).toFixed(1)}px,${(cam.y + F.y*cam.s + 72).toFixed(1)}px)`;
   rot.style.transform = `rotate(${F.a + Math.PI/2 + sway}rad)`;  // drawing faces up
-  // shadow: cast away from the cursor (the light). Farther light = longer, softer shadow. No cursor: soft, down-right
-  { const lit = mouse.on && !overlay, lx = lit ? (mouse.x - cam.x)/cam.s : F.x - 260, ly = lit ? (mouse.y - cam.y)/cam.s : F.y - 380;
-    let dx = F.x - lx, dy = F.y - ly; const d = Math.hypot(dx, dy) || 1; dx /= d; dy /= d;
-    const len = Math.min(9, 3 + d*.008), k = Math.min(1, dt*7);
-    SH.x += (dx*len - SH.x)*k; SH.y += (dy*len - SH.y)*k; SH.len += (len - SH.len)*k;
-    { const t = -(F.a + Math.PI/2), ox = SH.x*Math.cos(t) - SH.y*Math.sin(t), oy = SH.x*Math.sin(t) + SH.y*Math.cos(t);
-      rot.style.filter = `drop-shadow(${ox.toFixed(1)}px ${oy.toFixed(1)}px 1px rgba(40,30,20,.22))`; }
-    srot.style.transform = rot.style.transform;
-  }
 
   // speech bubble when zoomed in
   const needWalk = !hasWalked && !LOOK.done, needLook = !LOOK.done && now - LOOK.since > 2200;
