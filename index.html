@@ -166,7 +166,7 @@ header,footer,#fig,#traces{transition:opacity .5s var(--quint)}
 #view{position:fixed;inset:0;z-index:34;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;visibility:hidden}
 #view.open{visibility:visible}
 /* the page sits on the right half; the left half shows the map, blurred */
-#view::before{content:"";position:fixed;top:0;bottom:0;left:50%;right:0;background:var(--bg);z-index:-1;transform:translateX(100%);transition:transform .7s var(--expo)}
+#view::before{content:"";position:fixed;top:0;bottom:0;left:50%;right:0;background:var(--bg);z-index:-1;transform:translateX(100%);transition:transform .45s var(--expo)}
 #view.in::before{transform:none}
 #view.out::before{transform:translateX(100%);transition-duration:.45s}
 #view{isolation:isolate}
@@ -267,7 +267,7 @@ form.contact button{justify-self:start;background:var(--fg);color:var(--bg);padd
 .hrow button{white-space:nowrap}
 @media (max-width:760px){ .hrow{flex-wrap:wrap;gap:6px} .hrow .chips{display:flex;width:100%;overflow-x:auto;scrollbar-width:none} .hrow .chips::-webkit-scrollbar{display:none} .hrow button{padding:4px 10px} .hrow .rt{margin-left:auto} #zFit{display:none} }
 /* project page: short texts between the images */
-.media .txt{padding:22px 0 26px;max-width:52ch}
+.media .txt{padding:22px 0 26px}
 .media .txt .k{display:block;color:var(--g1);margin-bottom:8px}
 .media .txt p{font-size:16px;line-height:1.45;letter-spacing:-.01em}
 .media .txt p+p{margin-top:10px}
@@ -306,6 +306,8 @@ form.contact .note{min-height:1.2em;font-size:13px}
 /* a project can open on black */
 #view.dark{--bg:#0a0a0a;--fg:#f1f1f1;--g1:#8d8d8d;--g2:#2a2a2a;--g3:#151515;color:var(--fg)}
 #view.dark a{color:var(--fg)}
+/* the page (its black or grey card) arrives first, then the files fade in */
+#view .media{transition:opacity .45s var(--quint) .18s} #view:not(.in) .media{opacity:0;transition:none}
 </style>
 <script data-goatcounter="https://mardstudio.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </head>
@@ -379,7 +381,7 @@ const P = [
  {slug:"pati-henqy", name:"Pati Henqy Ep. 6", client:"Kitchen Lab", year:"2026", cats:["Event Design","Branding"], size:320, short:"Pati Henqy",
   tiles:[MF("pati-henqy","hero","p","v","Motion poster"), MF("pati-henqy","night","l","i","On the night"), MF("pati-henqy","goshacobs","p","v","Goshacobs"),
          MF("pati-henqy","ruben","p","v","Ruben Karapetyan"), MF("pati-henqy","dale","p","v","Dale"), MF("pati-henqy","supacooks","p","v","Supacooks"),
-         MF("pati-henqy","process","l","i","Countdown"), { ...MF("pati-henqy","ticket","p","i","Ticket"), crop: "1280/1120", pos: "center 78%", w: "58%" }],
+         MF("pati-henqy","process","l","i","Countdown"), { ...MF("pati-henqy","ticket","s","i","Ticket"), w: "58%" }],
   layout:[["hero"],["night"],["goshacobs","ruben"],["dale","supacooks"],["process"],["ticket"]],
   canvas:["dale","hero","night","process","ticket"], dark: true,
   rowNotes:{ goshacobs: ["DJ cards", "Hayfilm Studio is known for its stone intro, so the whole night was built from that same concrete. Every DJ card breaks out of the stone like the poster does, and every one moves: on a busy feed a moving card stops the scroll and gives a feel of the night before anyone arrives. One texture, one motion language, five artists, all recognisable as one event."] },
@@ -1218,7 +1220,7 @@ async function openProject(i, el){
     if (spot.el){ used.add(spot.el); spot.el.classList.add("src-hidden"); }
     const f = { slot, el: spot.el, k: spot.k, bx: spot.bx, by: spot.by, src, home: spot.from ? clicked.rect : null };
     flights.push(f);
-    runs.push(flyCard(src, from, to, 0, 1000, 0).then(c => { slot.classList.remove("wait"); requestAnimationFrame(() => c.remove()); }));
+    runs.push(flyCard(src, from, to, 300, 900, 0).then(c => { slot.classList.remove("wait"); requestAnimationFrame(() => c.remove()); }));
   });
   slots.forEach(sl => { if (!flights.some(f => f.slot === sl)) sl.classList.remove("wait"); });
   setTimeout(() => view.classList.add("in"), 120);        // text rises line by line while the images travel
