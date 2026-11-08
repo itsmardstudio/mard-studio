@@ -1068,7 +1068,7 @@ function enterWalk(h){
   }
 }
 let SEEN = false; try { SEEN = localStorage.getItem("mard-seen") === "1"; } catch (_) {}
-const QUICK = RM || SEEN || location.hash.length > 1;      // been here before, or came for one project: no show
+const QUICK = !/[?&]intro/.test(location.search) && (RM || SEEN || location.hash.length > 1);   // mard.studio/?intro always plays it      // been here before, or came for one project: no show
 let INTRO = null;
 if (!QUICK) document.body.classList.add("pre");             // first visit: an empty field until she walks in
 (function load(){
