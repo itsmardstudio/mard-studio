@@ -986,6 +986,8 @@ function frame(now){
   }
   if (walking) markVisits(now);
   if (F.entering && !F.queue.length){ F.entering = false; F.arrived = now; revealWorld(700); }
+  if (F.arrived && !walking && now - F.arrived < 1500){       // after walking in she turns to stand straight, facing up
+    let da = -Math.PI/2 - F.a; da = Math.atan2(Math.sin(da), Math.cos(da)); F.a += da*Math.min(1, dt*7); }
   if (walking && !F.queue.length && F.targetKey){
     visited.add(F.targetIdx); F.atKey = F.targetKey; F.targetKey = null;
     $("#tally").textContent = `Traces ${pad2(visited.size)} / ${P.length}`;
