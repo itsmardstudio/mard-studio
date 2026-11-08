@@ -20,7 +20,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 <style>
 :root{
   --bg:#ececec; --fg:#111; --red:#ff2a1a; --trail:#ffb3a6; --g1:#888; --g2:#d2d2d2; --g3:#e2e2e2;
@@ -438,12 +438,14 @@ const shuffle = a => { for (let k = a.length - 1; k > 0; k--){ const j = Math.fl
 /* what each project shows on the map, in its own proportions. The first sits around the figure, the rest further out */
 const COVER_R = { "arevot": 1000/572, "bari-bakht": 1000/572 };
 const fmSrc = (p, fm) => fm === "c" ? A(p.slug, "cover") : A(p.slug, fm.slice(1).padStart(2, "0"));
-const CV = P.map(p => {
+const LITE = src => /\.jpg$/.test(src) ? src.replace(/\.jpg$/, "-c.jpg") : src;   // light copy for the map
+const CV0 = P.map(p => {
   if (p.tiles) return p.canvas.map(id => { const m = p.tiles.findIndex(t => t.id === id), t = p.tiles[m], [a, b] = RATIO[t.r];
     return { fm: String(m), r: a/b, kind: t.kind, tile: t.tile, poster: t.poster, label: t.label }; });
   if (p.canvas) return p.canvas.map(c => ({ fm: c.fm, r: c.r, kind: "i", tile: fmSrc(p, c.fm), poster: fmSrc(p, c.fm), label: c.label || "" }));
   return [{ fm: "c", r: COVER_R[p.slug] || 854/1000, kind: "i", tile: A(p.slug, "cover"), poster: A(p.slug, "cover"), label: "" }];
 });
+const CV = CV0.map(list => list.map(c => ({ ...c, tile: LITE(c.tile), poster: LITE(c.poster) })));
 const sizeFor = (S, r) => [Math.round(S*Math.sqrt(r)), Math.round(S/Math.sqrt(r))];
 const ring = [], extras = [];
 CV.forEach((list, i) => list.forEach((c, n) => {
@@ -1278,7 +1280,7 @@ async function sendForm(e){
 }
 
 /* Index */
-const thumbOf = p => p.tiles ? p.tiles[0].poster : A(p.slug,"cover");
+const thumbOf = p => CV[P.indexOf(p)][0].poster;   // light copy
 const rows = list => list.map(p => `<button class="row" data-i="${P.indexOf(p)}"><span class="g">${pad2(P.indexOf(p)+1)}</span><span class="th"><img loading="lazy" src="${thumbOf(p)}" alt=""></span><span>${p.name}</span><span>${p.client}</span><span>${p.cats.join(", ")}</span><span>${p.year}</span></button>`).join("");
 $("#listRows").innerHTML = `<h2>Event design</h2>${rows(P.filter(p=>p.cats[0]==="Event Design"))}<h2>Branding, illustration &amp; direction</h2>${rows(P.filter(p=>p.cats[0]!=="Event Design"))}`;
 $("#listRows").addEventListener("click", e => { const r = e.target.closest(".row"); if(!r) return; const i = +r.dataset.i; closeList(); const el = document.querySelector(`.proj[data-i="${i}"]`); openProject(i, el); });
