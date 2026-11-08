@@ -1268,7 +1268,8 @@ async function sendForm(e){
     const r = await fetch("https://formsubmit.co/ajax/" + EMAIL, { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" },
       body: JSON.stringify({ name: f.get("name"), email: f.get("email"), project: f.get("event") || "-", message: f.get("message"), _subject: "Website enquiry — " + f.get("name"), _replyto: f.get("email"), _template: "table", _captcha: "false" }) });
     const j = await r.json().catch(() => ({}));
-    if (!r.ok || j.success === "false" || j.success === false) throw 0;
+    const pending = /activat/i.test(j.message || "");               // first message ever: FormSubmit asks the owner to activate, the message still counts
+    if (!pending && (!r.ok || j.success === "false" || j.success === false)) throw 0;
     form.reset(); btn.textContent = "Sent ✓"; note.textContent = "Thank you, your message is in my inbox. I’ll reply soon.";
   } catch(_){
     btn.disabled = false; btn.textContent = "Send";
