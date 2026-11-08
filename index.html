@@ -284,7 +284,7 @@ form.contact button{justify-self:start;background:var(--fg);color:var(--bg);padd
 @keyframes pb{0%,10%{transform:translate(12px,12px);opacity:0}22%{opacity:1}68%{transform:translate(0,0);opacity:1}85%,100%{transform:translate(0,0);opacity:0}}
 @media (prefers-reduced-motion:reduce){ #gest svg,#gest .pinch circle{animation:none} }
 /* the cursor is a small lamp: the figure's shadow falls away from it */
-#shade{display:none}   /* shadow switched off: the figure stays flat, like the rest of the site */
+#shade{position:absolute;inset:0;pointer-events:none}   /* flat, crisp offset shadow: a print slightly out of register */
 #shade .srot{width:100%;height:100%;transform-origin:50% 50%}
 
 .case{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--pad);padding:16px 0 4px;border-top:1px solid var(--g2)}
@@ -973,14 +973,12 @@ function frame(now){
   if (!LOOK.done) gest.style.transform = `translate(${(cam.x + F.x*cam.s).toFixed(1)}px,${(cam.y + F.y*cam.s + 66).toFixed(1)}px)`;
   rot.style.transform = `rotate(${F.a + Math.PI/2 + sway}rad)`;  // drawing faces up
   // shadow: cast away from the cursor (the light). Farther light = longer, softer shadow. No cursor: soft, down-right
-  if (false){ const lit = mouse.on && !overlay, lx = lit ? (mouse.x - cam.x)/cam.s : F.x - 260, ly = lit ? (mouse.y - cam.y)/cam.s : F.y - 380;
+  { const lit = mouse.on && !overlay, lx = lit ? (mouse.x - cam.x)/cam.s : F.x - 260, ly = lit ? (mouse.y - cam.y)/cam.s : F.y - 380;
     let dx = F.x - lx, dy = F.y - ly; const d = Math.hypot(dx, dy) || 1; dx /= d; dy /= d;
-    const len = Math.min(24, 3 + d*.03), k = Math.min(1, dt*7);
+    const len = Math.min(6, 2.5 + d*.006), k = Math.min(1, dt*7);
     SH.x += (dx*len - SH.x)*k; SH.y += (dy*len - SH.y)*k; SH.len += (len - SH.len)*k;
-    const ang = Math.atan2(SH.y, SH.x), str = 1 + SH.len*.018;
-    shade.style.transform = `translate(${SH.x.toFixed(2)}px,${SH.y.toFixed(2)}px) rotate(${ang}rad) scale(${str.toFixed(3)},.96) rotate(${-ang}rad)`;
-    shade.style.opacity = (.30 - Math.min(.12, SH.len*.005)).toFixed(3);
-    shade.style.filter = `blur(${(1.2 + SH.len*.09).toFixed(2)}px)`;
+    shade.style.transform = `translate(${SH.x.toFixed(2)}px,${SH.y.toFixed(2)}px)`;
+    shade.style.opacity = ".14";
     srot.style.transform = rot.style.transform;
   }
 
