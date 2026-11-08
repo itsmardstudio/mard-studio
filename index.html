@@ -284,7 +284,13 @@ form.contact button{justify-self:start;background:var(--fg);color:var(--bg);padd
 #shade{position:absolute;inset:0;pointer-events:none;transform-origin:50% 50%}
 #shade .srot{width:100%;height:100%;transform-origin:50% 50%}
 #shade svg{width:100%;height:100%;overflow:visible;fill:#000;stroke:none}
+.case{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--pad);padding:16px 0 4px;border-top:1px solid var(--g2)}
+.case span{display:block;margin-bottom:8px} .case p{font-size:15px;line-height:1.42;letter-spacing:-.01em}
+@media (max-width:760px){ .case{grid-template-columns:1fr;gap:14px} }
+.avail{display:inline-flex;align-items:center;gap:6px;margin-top:3px} .avail i{width:6px;height:6px;background:var(--red);display:inline-block;animation:kp 2.4s ease-in-out infinite}
+form.contact .note{min-height:1.2em;font-size:13px}
 </style>
+<script data-goatcounter="https://mardstudio.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </head>
 <body>
 
@@ -296,7 +302,7 @@ form.contact button{justify-self:start;background:var(--fg);color:var(--bg);padd
   <div class="reveal hide-m"></div>
   <div class="reveal hide-m"></div>
   <div class="reveal hide-m"></div>
-  <div class="reveal r"><button data-open="about">About</button>&nbsp;&nbsp;&nbsp;&nbsp;<button data-open="contact">Contact</button></div>
+  <div class="reveal r"><button data-open="about">About</button>&nbsp;&nbsp;&nbsp;&nbsp;<button data-open="contact">Contact</button><br><span class="avail g"><i></i>Available from 15 November</span></div>
   <div class="reveal hrow"><span class="chips"><button data-f="" class="on">All</button><button data-f="Branding">Branding</button><button data-f="Illustration">Illustration</button><button data-f="Creative-Direction">Creative Direction</button><button data-f="Event-Design">Event Design</button></span>
     <span class="rt"><span style="display:none"><button id="zOut">−</button><span id="zoom">100%</span><button id="zIn">+</button></span><button id="zFit">Fit</button><span class="seg"><button data-map class="on">Map</button><button data-list>List</button></span></span></div>
 </header>
@@ -345,6 +351,9 @@ const MF = (slug, id, r, kind, label) => { const b = `assets/${slug}/m/${id}`;
   return { id, r, kind, label, tile: b + (kind === "v" ? "-t.mp4" : "-t.jpg"), poster: b + (kind === "v" ? "-p.jpg" : "-t.jpg"), full: b + (kind === "v" ? ".mp4" : ".jpg") }; };
 const ARTISTS = [["dale","Dale"],["dave-pad","Dave Pad"],["henna-onna","Henna Onna"],["jino-dollini","Jino Dollini"],["leon","León"],["nouq","Nouq"],["scruscru","Scruscru"]];
 const pad2 = n => String(n).padStart(2,"0");
+/* the case in three lines: what was asked, the idea, what came of it (empty = not shown yet) */
+const CASE = {"pati-henqy": {"brief": "Kitchen Recordings and Kitchen Lab’s electronic music event at Hayfilm Studio.", "idea": "One concrete 3D texture system carried across everything a guest touches: poster, wristband, VIP box, plus a Blender loop for social.", "result": ""}, "arevot": {"brief": "A summer sunset event at Jellyfish Yerevan, with the creative vision mine from concept to final execution.", "idea": "A warm retro palette, a gridded sun, reclining figures and palms, and a bold condensed AREVOT paired with a fluid script, all serving one mood.", "result": "The poster works as promotion and as the identity of the event itself."}, "gaiff": {"brief": "Armenia’s biggest film festival, three editions in a row.", "idea": "Take each year’s artistic direction and make it work on every format and touchpoint.", "result": ""}, "artbox-hub": {"brief": "Ten cultural organisations to bring to life in one campaign.", "idea": "Turn each institution into a character: isometric illustrations, a social campaign and a 20-page booklet.", "result": ""}, "mesrop-sarkisian": {"brief": "An improvisation evening at Arno Babajanyan Concert Hall.", "idea": "Black and white throughout: the portrait anchors the page while the type fragments around it, borrowing from Japanese minimalism.", "result": ""}, "east-west-residency": {"brief": "Creative Armenia’s residency sending Armenian artists to Brussels.", "idea": "Individual portrait cards for each artist, a group announcement and supporting content.", "result": ""}, "state-philharmonic": {"brief": "A full rebrand for one of Armenia’s oldest cultural institutions, founded in 1930.", "idea": "A system drawn from the building’s historic façade columns, running through posters, merch, stationery and guidelines.", "result": ""}, "the-noosh": {"brief": "A Yerevan band blending Armenian folk with contemporary sound.", "idea": "How they look, from one hand: an Armenian logotype, covers, the title design for their live session and film photography.", "result": ""}, "bari-bakht": {"brief": "A TUMO Studios atelier led by London studio Printed Goods.", "idea": "Armenian mythology and folklore in a flat, stamp-like style, designed to be printed on a cushion.", "result": ""}, "christmas-blanket": {"brief": "A Christmas piece for Contrast Foundry.", "idea": "Armenian letterforms blown up, layered and worn as textile: “POPOQ, PNDUK, MANDARIN”.", "result": ""}, "dzen-zine": {"brief": "A zine pairing portraits with hand-drawn Armenian lettering.", "idea": "Link the sound of a word to the shape of the mouth that says it, in both East and West Armenian.", "result": ""}};
+
 
 /* =====================================================================
    PROJECTS (images from "05 Website", resized into ./assets)
@@ -994,6 +1003,7 @@ function startIntro(){
   document.querySelectorAll(".block").forEach(revealBlock);
   setTimeout(() => document.querySelectorAll(".reveal").forEach((r,k) => setTimeout(() => r.classList.add("on"), k*60)), 500);
   teachLook();
+  if (location.hash.length > 1) setTimeout(openFromHash, 650);
 }
 let INTRO = null;
 (function introPan(){                                        // start far away, zoomed out, and stream across the infinite map to the start
@@ -1004,7 +1014,7 @@ let INTRO = null;
   document.body.classList.add("intro"); revealStart = performance.now() - 99999;   // every work already shown
 })();
 (function load(){
-  const srcs = P.flatMap(p => p.tiles ? p.tiles.map(t => t.poster) : [A(p.slug,"cover")]); let n = 0;
+  const srcs = CV.map(list => list[0].poster); let n = 0;
   srcs.forEach(s => { const im = new Image(); im.onload = im.onerror = () => n++; im.src = s; });
   const txt = $("#ldText"), FROM = "A one person studio", TO = "Take a walk.", GLYPHS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
   const t0 = performance.now(), loaded = () => n >= srcs.length*.8;
@@ -1032,8 +1042,8 @@ function heroOf(i, m){
   return p.tiles[m || 0];
 }
 const fullItem = (t, name, m) => t.kind === "v"
-  ? `<video data-fm="${m}" src="${t.full}" poster="${t.poster}" autoplay muted loop playsinline preload="metadata" style="aspect-ratio:${RATIO[t.r].join("/")}"></video>`
-  : `<img data-fm="${m}" src="${t.full}" alt="${name}: ${t.label}" width="${RATIO[t.r][0]*100}" height="${RATIO[t.r][1]*100}">`;
+  ? `<video data-fm="${m}" data-src="${t.full}" poster="${t.poster}" muted loop playsinline preload="none" style="aspect-ratio:${RATIO[t.r].join("/")}"></video>`
+  : `<img data-fm="${m}" src="${t.full}" alt="${name}: ${t.label}" width="${RATIO[t.r][0]*100}" height="${RATIO[t.r][1]*100}"${m > 1 ? ' loading="lazy"' : ""}>`;
 function projectHTML(i){
   const p = P[i];
   const slots = slotsFor(p).map(s => `<div class="slot" style="aspect-ratio:${s.r}"><span class="tag">To add</span><div><b>${s.t}</b><p>${s.d}</p><span class="spec">${s.s}</span></div></div>`);
@@ -1046,10 +1056,11 @@ function projectHTML(i){
       return (html.length > 1 ? `<div class="pair">${html.join("")}</div>` : html[0]) + `<div class="cap2 mono">${its.map(t => t.label).join(" · ")}</div>`; });
   } else rows = [`<img data-fm="c" src="${A(p.slug,"cover")}" alt="${p.name}">`, ...p.media.map(g => mediaItem(g, p.name))];
   // short texts between the images: the story, what was made, credits (and any notes added per project)
-  const paras = p.desc.split("\n\n");
+  const paras = p.desc.split("\n\n"), cs = CASE[p.slug];
   const texts = [...(p.notes || []).map(t => [t[0], t[1]]),
-    ["Story", `<p>${paras[0]}</p>`], ["What I built", `<ul class="built">${p.built.map(b => `<li>${b}</li>`).join("")}</ul>`],
-    ...paras.slice(1).map(t => ["", `<p>${t}</p>`]), ...(p.credits ? [["Credits", `<p class="g">${p.credits}</p>`]] : [])];
+    ...(cs ? [] : [["Story", `<p>${paras[0]}</p>`]]), ["What I built", `<ul class="built">${p.built.map(b => `<li>${b}</li>`).join("")}</ul>`],
+    ...(cs ? [] : paras.slice(1).map(t => ["", `<p>${t}</p>`])), ...(p.credits ? [["Credits", `<p class="g">${p.credits}</p>`]] : [])];
+  const caseHTML = cs ? `<div class="case">${[["The brief", cs.brief], ["The idea", cs.idea], ["The result", cs.result]].filter(x => x[1]).map(([k, v]) => `<div><span class="mono g">${k}</span><p>${v}</p></div>`).join("")}</div>` : "";
   const txt = ([k, h]) => `<div class="txt">${k ? `<span class="k mono">${k}</span>` : ""}${h}</div>`;
   const media = [], gap = Math.max(1, Math.floor((rows.length - 1)/Math.max(1, texts.length - 1)));
   rows.forEach((r, n) => { media.push(r); if (n % gap === 0 && texts.length) media.push(txt(texts.shift())); });
@@ -1062,11 +1073,34 @@ function projectHTML(i){
         ${st(`<h1 class="v-title">${p.name}</h1>`)}
         ${st(`<div class="facts"><span>Client<b>${p.client}</b></span><span>Year<b>${p.year}</b></span><span>Type<b>${p.cats.join(", ")}</b></span><span>${p.link?`Link<b><a href="${p.link}" target="_blank" rel="noopener">See live ↗</a></b>`:""}</span></div>`)}
         ${st(`<div class="row2"><span>My role</span><div>${p.role}</div></div>`)}
+        ${caseHTML ? st(caseHTML) : ""}
         <div class="media">${media.join("")}</div>
         ${st(`<div class="v-foot"><button onclick="stepP(-1)">← Previous</button><button onclick="stepP(1)">Next →</button></div>`)}
       </div>
     </div>`;
 }
+/* videos in a project page start only when they come near the screen, and pause when they leave */
+let vidObs = null;
+function watchVideos(){
+  if (vidObs) vidObs.disconnect();
+  vidObs = new IntersectionObserver(es => es.forEach(e => { const v = e.target;
+    if (e.isIntersecting){ if (!v.src && v.dataset.src) v.src = v.dataset.src; v.play().catch(() => {}); } else if (!v.paused) v.pause(); }), { root: view, rootMargin: "300px 0px" });
+  view.querySelectorAll(".media video[data-src]").forEach(v => vidObs.observe(v));
+}
+/* ---- a link for each project: mard.studio/#the-noosh opens it straight away ---- */
+function setHash(slug, replace){
+  const url = slug ? "#" + slug : location.pathname + location.search;
+  if ((location.hash || "") === (slug ? "#" + slug : "")) return;
+  history[replace || !slug ? "replaceState" : "pushState"](null, "", url);
+  if (slug && window.goatcounter && goatcounter.count) goatcounter.count({ path: "/" + slug, title: (P.find(p => p.slug === slug) || {}).name || slug });
+}
+function openFromHash(){
+  const h = decodeURIComponent(location.hash.slice(1)); if (!h) { if (overlay) closeView(); return; }
+  if (h === "about") return openAbout(); if (h === "contact") return openContact();
+  const i = P.findIndex(p => p.slug === h); if (i < 0 || current === i) return;
+  if (overlay && current >= 0){ current = i - 1; stepP(1); } else openProject(i, null);
+}
+addEventListener("popstate", openFromHash);
 /* The square "flips" off the canvas: it scales to its new place while tilting through 3D, like a card turned toward you */
 const flyImg = flyer.querySelector("img");
 let busy = false;
@@ -1130,7 +1164,7 @@ async function openProject(i, el){
   if (busy) return; busy = true;
   closeList(); current = i; overlay = true; bubble.classList.remove("on");
   view.classList.remove("out","in");
-  view.innerHTML = projectHTML(i); titleLines(); view.scrollTop = 0;
+  view.innerHTML = projectHTML(i); titleLines(); view.scrollTop = 0; watchVideos(); setHash(P[i].slug);
   view.classList.add("open"); view.setAttribute("aria-hidden","false");
   document.body.classList.add("focus"); mask.classList.add("on");
   const fmC = el && el.dataset.fm, first = view.querySelector(".media img, .media video"), slots = fmC && first && first.dataset.fm === fmC ? [first] : [];
@@ -1166,7 +1200,7 @@ async function openProject(i, el){
 }
 async function closeView(){
   if (!view.classList.contains("open") || busy) return; busy = true;
-  view.querySelectorAll("video").forEach(v => v.pause());
+  view.querySelectorAll("video").forEach(v => v.pause()); if (vidObs) vidObs.disconnect(); setHash("");
   const runs = [];
   flights.forEach((f, n) => {                               // every image flies back to where it came from
     const tileEl = f.el && f.el.isConnected ? f.el : null;
@@ -1192,7 +1226,7 @@ function stepP(d){
   setTimeout(() => {
     document.querySelectorAll(".src-hidden").forEach(x => x.classList.remove("src-hidden")); flights = [];
     current = i; view.classList.remove("in","out");
-    view.innerHTML = projectHTML(i); titleLines(); view.scrollTop = 0;
+    view.innerHTML = projectHTML(i); titleLines(); view.scrollTop = 0; watchVideos(); setHash(P[i].slug, true);
     // behind the view: the figure walks to that project
     const el = [...document.querySelectorAll(`.proj[data-i="${i}"]`)].filter(x => !x.classList.contains("ghost")).sort((a,b) => {
       const ra = a.getBoundingClientRect(), rb = b.getBoundingClientRect();
@@ -1224,11 +1258,22 @@ const openContact = () => openText("Contact", st => `
   ${st(`<h1 class="v-title">Let’s build the next one.</h1>`)}
   ${st(`<div class="row2"><span>Business</span><div><a class="big" href="mailto:${EMAIL}">${EMAIL}</a></div></div>`)}
   ${st(`<div class="row2"><span>Social</span><div class="links"><a href="https://www.instagram.com/lilitmardanian/" target="_blank" rel="noopener">Instagram ↗</a><a href="https://www.linkedin.com/in/lilit-mardanyan-438687136/" target="_blank" rel="noopener">LinkedIn ↗</a><a href="https://www.behance.net/lilartulilartu" target="_blank" rel="noopener">Behance ↗</a></div></div>`)}
-  ${st(`<div class="row2"><span>Get in touch</span><form class="contact" onsubmit="sendForm(event)"><input name="name" placeholder="Name" required><input name="email" type="email" placeholder="Email" required><input name="event" placeholder="What are you working on? (event, album, brand…)"><textarea name="message" placeholder="Message" required></textarea><button type="submit">Send</button></form></div>`)}`);
-function sendForm(e){
-  e.preventDefault(); const f = new FormData(e.target);
+  ${st(`<div class="row2"><span>Get in touch</span><form class="contact" onsubmit="sendForm(event)"><input name="name" placeholder="Name" required><input name="email" type="email" placeholder="Email" required><input name="event" placeholder="What are you working on? (event, album, brand…)"><textarea name="message" placeholder="Message" required></textarea><button type="submit">Send</button><p class="note g"></p></form></div>`)}`);
+/* the form sends straight to the inbox (FormSubmit); if that fails, it falls back to the visitor's email app */
+async function sendForm(e){
+  e.preventDefault(); const form = e.target, f = new FormData(form), btn = form.querySelector("button"), note = form.querySelector(".note");
   const body = `${f.get("message")}\n\n— ${f.get("name")} (${f.get("email")})\nProject: ${f.get("event")||"-"}`;
-  location.href = `mailto:${EMAIL}?subject=${encodeURIComponent("Website enquiry — " + f.get("name"))}&body=${encodeURIComponent(body)}`;
+  btn.disabled = true; btn.textContent = "Sending…";
+  try {
+    const r = await fetch("https://formsubmit.co/ajax/" + EMAIL, { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({ name: f.get("name"), email: f.get("email"), project: f.get("event") || "-", message: f.get("message"), _subject: "Website enquiry — " + f.get("name"), _replyto: f.get("email"), _template: "table", _captcha: "false" }) });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok || j.success === "false" || j.success === false) throw 0;
+    form.reset(); btn.textContent = "Sent ✓"; note.textContent = "Thank you, your message is in my inbox. I’ll reply soon.";
+  } catch(_){
+    btn.disabled = false; btn.textContent = "Send";
+    location.href = `mailto:${EMAIL}?subject=${encodeURIComponent("Website enquiry — " + f.get("name"))}&body=${encodeURIComponent(body)}`;
+  }
 }
 
 /* Index */
