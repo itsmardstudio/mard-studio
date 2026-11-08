@@ -112,9 +112,9 @@ body[data-f="Branding"] .proj[data-c~="Branding"],body[data-f="Illustration"] .p
 /* Top-view figure (smaller) */
 #fig{position:absolute;left:0;top:0;width:42px;height:56px;margin:-28px 0 0 -21px;pointer-events:none;z-index:6}
 #fig .rot{width:100%;height:100%;transform-origin:50% 50%}
-#fig svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;display:none}
+#fig svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;opacity:0;transition:opacity .07s linear}
 #fig .rot svg{filter:drop-shadow(0 0 .6px rgba(255,255,255,.9)) drop-shadow(0 1px 2px rgba(0,0,0,.12))}
-#fig[data-pose="st"] .pose-st,#fig[data-pose="s1"] .pose-s1,#fig[data-pose="s2"] .pose-s2,#fig:not([data-pose]) .pose-st{display:block}
+#fig[data-pose="st"] .pose-st,#fig[data-pose="s1"] .pose-s1,#fig[data-pose="s2"] .pose-s2,#fig:not([data-pose]) .pose-st{opacity:1}
 #shade svg path{fill:#000}
 /* small pixel drawings hidden in the gaps: they light up when the figure walks by */
 .deco{position:absolute;pointer-events:none}
@@ -963,11 +963,15 @@ function frame(now){
     const wx = (mouse.x - cam.x)/cam.s, wy = (mouse.y - cam.y)/cam.s;
     if (Math.hypot(wx - F.x, wy - F.y) > 30){ let da = Math.atan2(wy - F.y, wx - F.x) - F.a; da = Math.atan2(Math.sin(da), Math.cos(da)); F.a += da*Math.min(1, dt*6); }
   }
-  const pose = walking ? ["s1", "st", "s2", "st"][Math.floor(F.dist/(F.wander ? 6 : 8)) % 4] : "st";   // step, pass, other step, pass
+  // walk cycle: about 2 steps a second when strolling, up to ~3.4 when hurrying; step, pass, other step, pass
+  const spd = walking ? Math.max(F.v || 0, steering ? SPEED*.8 : 0) : 0;
+  if (walking) F.ph = (F.ph || 0) + dt*Math.min(6.8, 2.2 + spd/70); else F.ph = 0;
+  const beat = Math.floor(F.ph) % 4, pose = walking ? ["s1", "st", "s2", "st"][beat] : "st";
   if (fig.dataset.pose !== pose) fig.dataset.pose = pose;
+  const sway = walking ? Math.sin(F.ph*Math.PI/2)*.06 : 0;   // the shoulders turn a little with each step
   fig.style.transform = `translate(${F.x}px,${F.y}px)`; fig.classList.toggle("walked", hasWalked || LOOK.done);
   if (!LOOK.done) gest.style.transform = `translate(${(cam.x + F.x*cam.s).toFixed(1)}px,${(cam.y + F.y*cam.s + 58).toFixed(1)}px)`;
-  rot.style.transform = `rotate(${F.a + Math.PI/2}rad)`;  // drawing faces up
+  rot.style.transform = `rotate(${F.a + Math.PI/2 + sway}rad)`;  // drawing faces up
   // shadow: cast away from the cursor (the light). Farther light = longer, softer shadow. No cursor: soft, down-right
   { const lit = mouse.on && !overlay, lx = lit ? (mouse.x - cam.x)/cam.s : F.x - 260, ly = lit ? (mouse.y - cam.y)/cam.s : F.y - 380;
     let dx = F.x - lx, dy = F.y - ly; const d = Math.hypot(dx, dy) || 1; dx /= d; dy /= d;
