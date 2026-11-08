@@ -176,7 +176,7 @@ header,footer,#fig,#traces{transition:opacity .5s var(--quint)}
 .v-hero img,.v-hero video{display:block;width:100%;height:100%;object-fit:cover;visibility:hidden}
 .v-hero.show img,.v-hero.show video{visibility:visible}
 .v-text{padding-top:4px}
-.v-title{font-size:clamp(28px,3.4vw,48px);line-height:1;letter-spacing:-.035em;font-weight:500;margin-bottom:26px}
+.v-title{font-size:clamp(30px,3.6vw,52px);line-height:1;letter-spacing:-.035em;font-weight:700;margin-bottom:26px}
 .facts{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--pad);margin-bottom:30px}
 .facts span{color:var(--g1)} .facts b{display:block;color:var(--fg);font-weight:400;margin-top:3px}
 .row2{display:grid;grid-template-columns:1fr 3fr;gap:var(--pad);padding:14px 0;border-top:1px solid var(--g2)}
@@ -273,6 +273,7 @@ form.contact button{justify-self:start;background:var(--fg);color:var(--bg);padd
 .media .txt p+p{margin-top:10px}
 .media .cap2{margin:-2px 0 6px;color:var(--g1)}
 .media img{height:auto}
+.media img:not([style]){width:auto;max-width:100%;max-height:calc(100vh - 150px);margin-inline:auto}
 
 /* "you can move the map": a soft white hand swiping (no box, no label) */
 #gest{position:fixed;left:0;top:0;z-index:21;width:44px;height:52px;margin:0 0 0 -22px;pointer-events:none;opacity:0;transition:opacity .7s var(--quint)}
@@ -294,6 +295,17 @@ form.contact button{justify-self:start;background:var(--fg);color:var(--bg);padd
 @media (max-width:760px){ .case{grid-template-columns:1fr;gap:14px} }
 .avail{display:inline-flex;align-items:center;gap:6px;margin-top:3px} .avail i{width:6px;height:6px;background:var(--red);display:inline-block;animation:kp 2.4s ease-in-out infinite}
 form.contact .note{min-height:1.2em;font-size:13px}
+/* project page: bigger reading text */
+.facts{font-size:16px} .facts b{font-size:17px}
+.v-text .row2{font-size:17px}
+.case p{font-size:18px;line-height:1.4}
+.media .txt p{font-size:19px;line-height:1.42}
+.media .txt.wide{max-width:none}
+.built.wide{gap:8px} .built.wide li{font-size:16px;padding:7px 15px}
+.media .txt:has(.built){max-width:none}
+/* a project can open on black */
+#view.dark{--bg:#0a0a0a;--fg:#f1f1f1;--g1:#8d8d8d;--g2:#2a2a2a;--g3:#151515;color:var(--fg)}
+#view.dark a{color:var(--fg)}
 </style>
 <script data-goatcounter="https://mardstudio.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </head>
@@ -367,9 +379,10 @@ const P = [
  {slug:"pati-henqy", name:"Pati Henqy Ep. 6", client:"Kitchen Lab", year:"2026", cats:["Event Design","Branding"], size:320, short:"Pati Henqy",
   tiles:[MF("pati-henqy","hero","p","v","Motion poster"), MF("pati-henqy","night","l","i","On the night"), MF("pati-henqy","goshacobs","p","v","Goshacobs"),
          MF("pati-henqy","ruben","p","v","Ruben Karapetyan"), MF("pati-henqy","dale","p","v","Dale"), MF("pati-henqy","supacooks","p","v","Supacooks"),
-         MF("pati-henqy","process","l","i","Countdown"), MF("pati-henqy","ticket","p","i","Ticket")],
+         MF("pati-henqy","process","l","i","Countdown"), { ...MF("pati-henqy","ticket","p","i","Ticket"), crop: "1280/1120", pos: "center 78%", w: "58%" }],
   layout:[["hero"],["night"],["goshacobs","ruben"],["dale","supacooks"],["process"],["ticket"]],
-  canvas:["dale","hero","night","process","ticket"],
+  canvas:["dale","hero","night","process","ticket"], dark: true,
+  rowNotes:{ goshacobs: ["DJ cards", "Hayfilm Studio is known for its stone intro, so the whole night was built from that same concrete. Every DJ card breaks out of the stone like the poster does, and every one moves: on a busy feed a moving card stops the scroll and gives a feel of the night before anyone arrives. One texture, one motion language, five artists, all recognisable as one event."] },
   role:"Full event identity", built:["Event identity","Poster","DJ cards","Tickets","Wristbands","Badges","VIP packaging","3D loop (Blender)"],
   media:[{video:"assets/pati-henqy/dale.mp4", poster:"assets/pati-henqy/dale-poster.jpg"}, ...gal("pati-henqy",5)], link:"https://www.instagram.com/p/DW64iiliCCq/",
   desc:"Kitchen Recordings and Kitchen Lab’s electronic music event at Hayfilm Studio. One concrete 3D texture system carried across everything a guest touches, from the poster to the wristband to the VIP box, plus a Blender animation loop for social."},
@@ -1051,9 +1064,12 @@ function heroOf(i, m){
   if (!p.tiles) return { id: null, r: "s", kind: "i", poster: A(p.slug,"cover"), full: A(p.slug,"cover") };
   return p.tiles[m || 0];
 }
+/* every file fits on one screen: its width is capped by the screen height × its proportion. t.crop / t.w / t.pos trim or shrink a file */
+const fitStyle = t => { const ar = t.crop || RATIO[t.r].join("/"), [a, b] = ar.split("/").map(Number);
+  return `aspect-ratio:${ar};width:${t.w ? `min(${t.w}, calc((100vh - 150px)*${(a/b).toFixed(4)}))` : `min(100%, calc((100vh - 150px)*${(a/b).toFixed(4)}))`};margin-inline:auto;object-fit:cover;${t.pos ? `object-position:${t.pos};` : ""}`; };
 const fullItem = (t, name, m) => t.kind === "v"
-  ? `<video data-fm="${m}" data-src="${t.full}" poster="${t.poster}" muted loop playsinline preload="none" style="aspect-ratio:${RATIO[t.r].join("/")}"></video>`
-  : `<img data-fm="${m}" src="${t.full}" alt="${name}: ${t.label}" width="${RATIO[t.r][0]*100}" height="${RATIO[t.r][1]*100}"${m > 1 ? ' loading="lazy"' : ""}>`;
+  ? `<video data-fm="${m}" data-src="${t.full}" poster="${t.poster}" muted loop playsinline preload="none" style="${fitStyle(t)}"></video>`
+  : `<img data-fm="${m}" src="${t.full}" alt="${name}: ${t.label}" style="${fitStyle(t)}"${m > 1 ? ' loading="lazy"' : ""}>`;
 function projectHTML(i){
   const p = P[i];
   const slots = slotsFor(p).map(s => `<div class="slot" style="aspect-ratio:${s.r}"><span class="tag">To add</span><div><b>${s.t}</b><p>${s.d}</p><span class="spec">${s.s}</span></div></div>`);
@@ -1063,15 +1079,16 @@ function projectHTML(i){
     const byId = Object.fromEntries(p.tiles.map(t => [t.id, t])), mi = t => p.tiles.indexOf(t);
     rows = p.layout.map(row => { const its = row.map(id => byId[id]);
       const html = its.map(t => fullItem(t, p.name, mi(t)));
-      return (html.length > 1 ? `<div class="pair">${html.join("")}</div>` : html[0]) + `<div class="cap2 mono">${its.map(t => t.label).join(" · ")}</div>`; });
+      const note = row.map(id => (p.rowNotes || {})[id]).filter(Boolean).map(([k, h]) => `<div class="txt">${k ? `<span class="k mono">${k}</span>` : ""}<p>${h}</p></div>`).join("");
+      return (html.length > 1 ? `<div class="pair">${html.join("")}</div>` : html[0]) + `<div class="cap2 mono">${its.map(t => t.label).join(" · ")}</div>` + note; });
   } else rows = [`<img data-fm="c" src="${A(p.slug,"cover")}" alt="${p.name}">`, ...p.media.map(g => mediaItem(g, p.name))];
   // short texts between the images: the story, what was made, credits (and any notes added per project)
   const paras = p.desc.split("\n\n"), cs = CASE[p.slug];
   const texts = [...(p.notes || []).map(t => [t[0], t[1]]),
-    ...(cs ? [] : [["Story", `<p>${paras[0]}</p>`]]), ["What I built", `<ul class="built">${p.built.map(b => `<li>${b}</li>`).join("")}</ul>`],
+    ...(cs ? [] : [["Story", `<p>${paras[0]}</p>`]]), ["What I built", `<ul class="built wide">${p.built.map(b => `<li>${b}</li>`).join("")}</ul>`],
     ...(cs ? [] : paras.slice(1).map(t => ["", `<p>${t}</p>`])), ...(p.credits ? [["Credits", `<p class="g">${p.credits}</p>`]] : [])];
   const caseHTML = cs ? `<div class="case">${[["The brief", cs.brief], ["The idea", cs.idea], ["The result", cs.result]].filter(x => x[1]).map(([k, v]) => `<div><span class="mono g">${k}</span><p>${v}</p></div>`).join("")}</div>` : "";
-  const txt = ([k, h]) => `<div class="txt">${k ? `<span class="k mono">${k}</span>` : ""}${h}</div>`;
+  const txt = ([k, h]) => `<div class="txt${h.includes('class="built') ? " wide" : ""}">${k ? `<span class="k mono">${k}</span>` : ""}${h}</div>`;
   const media = [], gap = Math.max(1, Math.floor((rows.length - 1)/Math.max(1, texts.length - 1)));
   rows.forEach((r, n) => { media.push(r); if (n % gap === 0 && texts.length) media.push(txt(texts.shift())); });
   texts.forEach(t => media.push(txt(t))); media.push(...slots);
@@ -1175,7 +1192,7 @@ async function openProject(i, el){
   closeList(); current = i; overlay = true; bubble.classList.remove("on");
   view.classList.remove("out","in");
   view.innerHTML = projectHTML(i); titleLines(); view.scrollTop = 0; watchVideos(); setHash(P[i].slug);
-  view.classList.add("open"); view.setAttribute("aria-hidden","false");
+  view.classList.toggle("dark", !!P[i].dark); view.classList.add("open"); view.setAttribute("aria-hidden","false");
   document.body.classList.add("focus"); mask.classList.add("on");
   const fmC = el && el.dataset.fm, first = view.querySelector(".media img, .media video"), slots = fmC && first && first.dataset.fm === fmC ? [first] : [];
   slots.forEach(sl => sl.classList.add("wait"));
@@ -1226,7 +1243,7 @@ async function closeView(){
   setTimeout(() => { mask.classList.remove("on"); document.body.classList.remove("focus"); }, 120);
   await Promise.all([...runs, new Promise(r => setTimeout(r, 450))]);
   document.querySelectorAll(".src-hidden").forEach(x => x.classList.remove("src-hidden"));
-  view.classList.remove("open","in","out"); view.setAttribute("aria-hidden","true"); view.innerHTML = "";
+  view.classList.remove("open","in","out","dark"); view.setAttribute("aria-hidden","true"); view.innerHTML = "";
   flights = []; overlay = false; srcEl = null; busy = false;
 }
 function stepP(d){
@@ -1235,7 +1252,7 @@ function stepP(d){
   view.classList.add("out");
   setTimeout(() => {
     document.querySelectorAll(".src-hidden").forEach(x => x.classList.remove("src-hidden")); flights = [];
-    current = i; view.classList.remove("in","out");
+    current = i; view.classList.remove("in","out"); view.classList.toggle("dark", !!P[i].dark);
     view.innerHTML = projectHTML(i); titleLines(); view.scrollTop = 0; watchVideos(); setHash(P[i].slug, true);
     // behind the view: the figure walks to that project
     const el = [...document.querySelectorAll(`.proj[data-i="${i}"]`)].filter(x => !x.classList.contains("ghost")).sort((a,b) => {
