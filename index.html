@@ -284,7 +284,7 @@ form.contact button{justify-self:start;background:var(--fg);color:var(--bg);padd
 @keyframes pb{0%,10%{transform:translate(12px,12px);opacity:0}22%{opacity:1}68%{transform:translate(0,0);opacity:1}85%,100%{transform:translate(0,0);opacity:0}}
 @media (prefers-reduced-motion:reduce){ #gest svg,#gest .pinch circle{animation:none} }
 /* the cursor is a small lamp: the figure's shadow falls away from it */
-#shade{position:absolute;inset:0;pointer-events:none;transform-origin:50% 50%}
+#shade{display:none}   /* shadow switched off: the figure stays flat, like the rest of the site */
 #shade .srot{width:100%;height:100%;transform-origin:50% 50%}
 
 .case{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--pad);padding:16px 0 4px;border-top:1px solid var(--g2)}
@@ -973,7 +973,7 @@ function frame(now){
   if (!LOOK.done) gest.style.transform = `translate(${(cam.x + F.x*cam.s).toFixed(1)}px,${(cam.y + F.y*cam.s + 66).toFixed(1)}px)`;
   rot.style.transform = `rotate(${F.a + Math.PI/2 + sway}rad)`;  // drawing faces up
   // shadow: cast away from the cursor (the light). Farther light = longer, softer shadow. No cursor: soft, down-right
-  { const lit = mouse.on && !overlay, lx = lit ? (mouse.x - cam.x)/cam.s : F.x - 260, ly = lit ? (mouse.y - cam.y)/cam.s : F.y - 380;
+  if (false){ const lit = mouse.on && !overlay, lx = lit ? (mouse.x - cam.x)/cam.s : F.x - 260, ly = lit ? (mouse.y - cam.y)/cam.s : F.y - 380;
     let dx = F.x - lx, dy = F.y - ly; const d = Math.hypot(dx, dy) || 1; dx /= d; dy /= d;
     const len = Math.min(24, 3 + d*.03), k = Math.min(1, dt*7);
     SH.x += (dx*len - SH.x)*k; SH.y += (dy*len - SH.y)*k; SH.len += (len - SH.len)*k;
