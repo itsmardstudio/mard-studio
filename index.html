@@ -110,7 +110,7 @@ body[data-f="Branding"] .proj[data-c~="Branding"],body[data-f="Illustration"] .p
 @keyframes trailFade{0%,35%{opacity:1}100%{opacity:0}}
 
 /* Top-view figure (smaller) */
-#fig{position:absolute;left:0;top:0;width:42px;height:56px;margin:-28px 0 0 -21px;pointer-events:none;z-index:6}
+#fig{position:absolute;left:0;top:0;width:53px;height:70px;margin:-35px 0 0 -26.5px;pointer-events:none;z-index:6}
 #fig .rot{width:100%;height:100%;transform-origin:50% 50%}
 #fig svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;opacity:0}
 #fig svg.on{opacity:1}
@@ -250,10 +250,10 @@ form.contact button{justify-self:start;background:var(--fg);color:var(--bg);padd
 /* four tiny arrows around the figure: you can walk it with the keys or by clicking */
 #keys{position:absolute;left:50%;top:50%;width:0;height:0;transition:opacity .6s var(--quint)}
 #keys i{position:absolute;width:0;height:0;border:5px solid transparent;opacity:.6;animation:kp 2.4s ease-in-out infinite}
-#keys i:nth-child(1){left:-5px;top:-46px;border-bottom:7px solid var(--fg);border-top:0}
-#keys i:nth-child(2){left:-5px;top:39px;border-top:7px solid var(--fg);border-bottom:0}
-#keys i:nth-child(3){left:-44px;top:-5px;border-right:7px solid var(--fg);border-left:0}
-#keys i:nth-child(4){left:37px;top:-5px;border-left:7px solid var(--fg);border-right:0}
+#keys i:nth-child(1){left:-5px;top:-54px;border-bottom:7px solid var(--fg);border-top:0}
+#keys i:nth-child(2){left:-5px;top:47px;border-top:7px solid var(--fg);border-bottom:0}
+#keys i:nth-child(3){left:-52px;top:-5px;border-right:7px solid var(--fg);border-left:0}
+#keys i:nth-child(4){left:45px;top:-5px;border-left:7px solid var(--fg);border-right:0}
 @keyframes kp{0%,100%{opacity:.25}50%{opacity:.7}}
 #fig.walked #keys{opacity:0}
 /* filters + map/list: top row, under the name */
@@ -970,7 +970,7 @@ function frame(now){
   if (F.pose !== pose){ fig.querySelectorAll(".pose-f" + (F.pose || 0)).forEach(x => x.classList.remove("on")); fig.querySelectorAll(".pose-f" + pose).forEach(x => x.classList.add("on")); F.pose = pose; }
   const sway = walking ? Math.sin(F.ph*Math.PI/6)*.05 : 0;   // the shoulders turn a little with each step
   fig.style.transform = `translate(${F.x}px,${F.y}px)`; fig.classList.toggle("walked", hasWalked || LOOK.done);
-  if (!LOOK.done) gest.style.transform = `translate(${(cam.x + F.x*cam.s).toFixed(1)}px,${(cam.y + F.y*cam.s + 58).toFixed(1)}px)`;
+  if (!LOOK.done) gest.style.transform = `translate(${(cam.x + F.x*cam.s).toFixed(1)}px,${(cam.y + F.y*cam.s + 66).toFixed(1)}px)`;
   rot.style.transform = `rotate(${F.a + Math.PI/2 + sway}rad)`;  // drawing faces up
   // shadow: cast away from the cursor (the light). Farther light = longer, softer shadow. No cursor: soft, down-right
   { const lit = mouse.on && !overlay, lx = lit ? (mouse.x - cam.x)/cam.s : F.x - 260, ly = lit ? (mouse.y - cam.y)/cam.s : F.y - 380;
@@ -994,7 +994,7 @@ function frame(now){
   if (bubble.textContent !== txt) bubble.textContent = txt;
   bubble.classList.toggle("think", !!thought);
   bubble.classList.toggle("on", !!zoomed);
-  if (zoomed){ const sx = cam.x + F.x*cam.s, sy = cam.y + (F.y - 60)*cam.s; bubble.style.transform = `translate(${sx}px,${sy}px) translate(-50%,-100%) translateY(-8px)`; }
+  if (zoomed){ const sx = cam.x + F.x*cam.s, sy = cam.y + (F.y - 68)*cam.s; bubble.style.transform = `translate(${sx}px,${sy}px) translate(-50%,-100%) translateY(-8px)`; }
   requestAnimationFrame(frame);
 }
 
