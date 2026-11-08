@@ -407,7 +407,7 @@ const P = [
   role:"Art direction, concept to final", built:["Visual direction","Illustration","Typography","Poster","Lineup lockup","Social"],
   media:gal("arevot",3), link:"https://www.instagram.com/p/DbBYayuiFM1/",
   desc:"A summer sunset event at Jellyfish Yerevan. I owned the creative vision from concept to final execution: a warm retro palette, a gridded sun, reclining figures and palms, and a bold condensed AREVOT paired with a fluid script.\n\nEvery decision (colour, illustration, type, composition) served one mood, so the poster works as promotion and as the identity of the event itself."},
- {slug:"gaiff", name:"Golden Apricot IFF", client:"GAIFF", year:"2022–24", cats:["Event Design"], size:300,
+ {slug:"gaiff", name:"Golden Apricot IFF", client:"GAIFF", year:"2022–24", cats:["Event Design"], size:300, done: true,
   role:"Associate designer, production design, 3 festival editions", built:["Print files","Badges","T-shirts & merch","Instagram posts for the films","Format adaptations"],
   media:gal("gaiff",1), credits:"Festival artwork by the artist of each year", link:"https://www.instagram.com/goldenapricotiff/",
   desc:"Three editions as production designer for Armenia’s biggest film festival: taking each year’s artwork and making it work on print, badges, merch and social."},
@@ -468,7 +468,7 @@ const SLOTS = {
   Branding:[ {t:"Process", r:"16 / 9", d:"Moodboard → sketches → rejected routes → final.", s:"2–4 images or one PDF spread"} ],
   Illustration:[ {t:"Process timelapse", r:"1 / 1", d:"Sketch → line → colour in 3 steps, or a 15-second timelapse.", s:"MP4 or 3 JPGs · 1:1"} ]
 };
-const slotsFor = p => { if (p.tiles) return []; const seen=new Set(), out=[]; if (p.media.some(m => m.video)) seen.add("Video"); p.cats.forEach(c => (SLOTS[c]||[]).forEach(s => { if(!seen.has(s.t)){seen.add(s.t); out.push(s);} })); return out.slice(0,2); };
+const slotsFor = p => { if (p.tiles || p.done) return []; const seen=new Set(), out=[]; if (p.media.some(m => m.video)) seen.add("Video"); p.cats.forEach(c => (SLOTS[c]||[]).forEach(s => { if(!seen.has(s.t)){seen.add(s.t); out.push(s);} })); return out.slice(0,2); };
 
 /* =====================================================================
    RANDOM (but stable) LAYOUT, packed close together.
