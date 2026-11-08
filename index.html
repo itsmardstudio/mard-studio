@@ -43,7 +43,7 @@ a:hover,button:hover{color:var(--g1)}
 #loader{position:fixed;inset:0;z-index:99;background:rgba(236,236,236,.9);backdrop-filter:blur(1.5px);-webkit-backdrop-filter:blur(1.5px);display:grid;place-items:center;font-variant-numeric:tabular-nums;transition:opacity .8s var(--quint)}
 #loader.done{opacity:0;pointer-events:none}
 /* during the intro the whole map streams past behind the words, at full colour */
-body.intro .proj.ghost{opacity:1;filter:none} body.intro #fig,body.intro #bubble{opacity:0}
+.proj:not(.in){opacity:0} body.intro .proj.ghost{opacity:1;filter:none} body.intro #fig,body.intro #bubble,body.pre #fig{opacity:0}
 #loader .blobs{position:absolute;inset:0;overflow:hidden;opacity:0;animation:wIn 2s var(--quint) .1s forwards}
 #loader .blobs i{position:absolute;width:62vmax;height:62vmax;border-radius:50%;filter:blur(90px);opacity:.55;animation:drift 16s ease-in-out infinite alternate}
 #loader .blobs i:nth-child(1){left:-18vmax;top:-20vmax;background:var(--c1)}
@@ -372,13 +372,13 @@ const $ = s => document.querySelector(s);
 const GLOW = {"assets/mesrop-sarkisian/cover.jpg":"#5a4848","assets/gaiff/cover.jpg":"#e83816","assets/artbox-hub/cover.jpg":"#da5f24","assets/east-west-residency/cover.jpg":"#74738b","assets/dzen-zine/cover.jpg":"#d68c28","assets/christmas-blanket/cover.jpg":"#c2a13c","assets/pati-henqy/cover.jpg":"#484f5a","assets/the-noosh/cover.jpg":"#e3731b","assets/state-philharmonic/cover.jpg":"#2c4477","assets/bari-bakht/cover.jpg":"#bf342f","assets/arevot/cover.jpg":"#2c66ad","assets/pati-henqy/m/goshacobs-p.jpg":"#74312e","assets/pati-henqy/m/dale-p.jpg":"#6f3433","assets/pati-henqy/m/ruben-p.jpg":"#75302e","assets/pati-henqy/m/supacooks-p.jpg":"#73322f","assets/pati-henqy/m/hero-p.jpg":"#5b474b","assets/arevot/m/leon-p.jpg":"#803289","assets/arevot/m/dave-pad-p.jpg":"#931c0f","assets/arevot/m/henna-onna-p.jpg":"#a2755a","assets/arevot/m/nouq-p.jpg":"#560daa","assets/arevot/m/scruscru-p.jpg":"#950d85","assets/arevot/m/dale-p.jpg":"#713269","assets/arevot/m/jino-dollini-p.jpg":"#92103e","assets/arevot/m/hero-p.jpg":"#cf712f","assets/pati-henqy/m/process-t.jpg":"#65433d","assets/pati-henqy/m/ticket-t.jpg":"#842c1e","assets/pati-henqy/m/night-t.jpg":"#584b4b","assets/arevot/m/jino-dollini-card-t.jpg":"#bd7941","assets/arevot/m/arax-t.jpg":"#005fbd","assets/arevot/m/leon-card-t.jpg":"#b37b4b","assets/arevot/m/henna-onna-card-t.jpg":"#c48f3a","assets/arevot/m/nouq-card-t.jpg":"#a1875d","assets/arevot/m/scruscru-card-t.jpg":"#aa6539","assets/arevot/m/dale-card-t.jpg":"#aa6854","assets/arevot/m/badge-t.jpg":"#ff4e00","assets/arevot/m/dave-pad-card-t.jpg":"#9f6541"};   // one colour taken from each work (for the hover glow)
 const RM = matchMedia("(prefers-reduced-motion: reduce)").matches;   // visitors who asked for less motion get simple fades
 /* One file = one tile. r: p = portrait 4:5, l = landscape 16:9, s = square. kind: v = video, i = image */
-const RATIO = { p:[4,5], l:[16,9], s:[1,1], fb:[2048,1072], ph:[3,2] };
+const RATIO = { p:[4,5], l:[16,9], s:[1,1], fb:[2048,1072], ph:[3,2], nl:[1758,1005], ns:[1756,1014], fp:[857,1280] };
 const MF = (slug, id, r, kind, label) => { const b = `assets/${slug}/m/${id}`;
   return { id, r, kind, label, tile: b + (kind === "v" ? "-t.mp4" : "-t.jpg"), poster: b + (kind === "v" ? "-p.jpg" : "-t.jpg"), full: b + (kind === "v" ? ".mp4" : ".jpg") }; };
 const ARTISTS = [["dale","Dale"],["dave-pad","Dave Pad"],["henna-onna","Henna Onna"],["jino-dollini","Jino Dollini"],["leon","León"],["nouq","Nouq"],["scruscru","Scruscru"]];
 const pad2 = n => String(n).padStart(2,"0");
 /* the case in three lines: what was asked, the idea, what came of it (empty = not shown yet) */
-const CASE = {"pati-henqy": {"brief": "Kitchen Recordings and Kitchen Lab’s electronic music event at Hayfilm Studio.", "idea": "One concrete 3D texture system carried across everything a guest touches: poster, wristband, VIP box, plus a Blender loop for social.", "result": ""}, "arevot": {"brief": "A summer sunset event at Jellyfish Yerevan, with the creative vision mine from concept to final execution.", "idea": "A warm retro palette, a gridded sun, reclining figures and palms, and a bold condensed AREVOT paired with a fluid script, all serving one mood.", "result": "A full Jellyfish from sunset to close, and one look that worked as promotion and as the identity of the night itself."}, "gaiff": {"brief": "Armenia’s biggest film festival, three editions in a row.", "idea": "Take each year’s artistic direction and make it work on every format and touchpoint.", "result": ""}, "artbox-hub": {"brief": "Ten cultural organisations to bring to life in one campaign.", "idea": "Turn each institution into a character: isometric illustrations, a social campaign and a 20-page booklet.", "result": ""}, "mesrop-sarkisian": {"brief": "An improvisation evening at Arno Babajanyan Concert Hall.", "idea": "Black and white throughout: the portrait anchors the page while the type fragments around it, borrowing from Japanese minimalism.", "result": ""}, "east-west-residency": {"brief": "Creative Armenia’s residency sending Armenian artists to Brussels.", "idea": "Individual portrait cards for each artist, a group announcement and supporting content.", "result": ""}, "state-philharmonic": {"brief": "A full rebrand for one of Armenia’s oldest cultural institutions, founded in 1930.", "idea": "A system drawn from the building’s historic façade columns, running through posters, merch, stationery and guidelines.", "result": ""}, "the-noosh": {"brief": "A Yerevan band blending Armenian folk with contemporary sound.", "idea": "How they look, from one hand: an Armenian logotype, covers, the title design for their live session and film photography.", "result": ""}, "bari-bakht": {"brief": "A TUMO Studios atelier led by London studio Printed Goods.", "idea": "Armenian mythology and folklore in a flat, stamp-like style, designed to be printed on a cushion.", "result": ""}, "christmas-blanket": {"brief": "A Christmas piece for Contrast Foundry.", "idea": "Armenian letterforms blown up, layered and worn as textile: “POPOQ, PNDUK, MANDARIN”.", "result": ""}, "dzen-zine": {"brief": "A zine pairing portraits with hand-drawn Armenian lettering.", "idea": "Link the sound of a word to the shape of the mouth that says it, in both East and West Armenian.", "result": ""}};
+const CASE = {"pati-henqy": {"brief": "Kitchen Recordings and Kitchen Lab’s electronic music event at Hayfilm Studio.", "idea": "One concrete 3D texture system carried across everything a guest touches: poster, wristband, VIP box, plus a Blender loop for social.", "result": ""}, "arevot": {"brief": "A summer sunset event at Jellyfish Yerevan, with the creative vision mine from concept to final execution.", "idea": "A warm retro palette, a gridded sun, reclining figures and palms, and a bold condensed AREVOT paired with a fluid script, all serving one mood.", "result": "A full Jellyfish from sunset to close, and one look that worked as promotion and as the identity of the night itself."}, "gaiff": {"brief": "Armenia’s biggest film festival, three editions in a row.", "idea": "Take each year’s artistic direction and make it work on every format and touchpoint.", "result": ""}, "artbox-hub": {"brief": "Ten cultural organisations to bring to life in one campaign.", "idea": "Turn each institution into a character: isometric illustrations, a social campaign and a 20-page booklet.", "result": ""}, "mesrop-sarkisian": {"brief": "An improvisation evening at Arno Babajanyan Concert Hall.", "idea": "Black and white throughout: the portrait anchors the page while the type fragments around it, borrowing from Japanese minimalism.", "result": ""}, "east-west-residency": {"brief": "Creative Armenia’s residency sending Armenian artists to Brussels.", "idea": "Individual portrait cards for each artist, a group announcement and supporting content.", "result": ""}, "state-philharmonic": {"brief": "A full rebrand for one of Armenia’s oldest cultural institutions, founded in 1930.", "idea": "A system drawn from the building’s historic façade columns, running through posters, merch, stationery and guidelines.", "result": ""}, "the-noosh": {"brief": "I am the creative director of The Noosh, a new band in Armenia. The problem: give them a feel that is warm and Armenian, but also unique to them.", "idea": "Build it from scratch, by hand: a hand-drawn logo, covers, their first ever photoshoot, the live session titles and candid film photos from rehearsals.", "result": ""}, "bari-bakht": {"brief": "A TUMO Studios atelier led by London studio Printed Goods.", "idea": "Armenian mythology and folklore in a flat, stamp-like style, designed to be printed on a cushion.", "result": ""}, "christmas-blanket": {"brief": "A Christmas piece for Contrast Foundry.", "idea": "Armenian letterforms blown up, layered and worn as textile: “POPOQ, PNDUK, MANDARIN”.", "result": ""}, "dzen-zine": {"brief": "A zine pairing portraits with hand-drawn Armenian lettering.", "idea": "Link the sound of a word to the shape of the mouth that says it, in both East and West Armenian.", "result": ""}};
 
 
 /* =====================================================================
@@ -427,10 +427,17 @@ const P = [
   role:"Visual identity system", built:["Identity system","Colour palette","Typography","Concert posters","Merch","Badges","Business cards","Brand guidelines"],
   media:gal("state-philharmonic",12), canvas:[{fm:"c", r:854/1000, label:"Tote bag"}, {fm:"g4", r:16/9, label:"Shirt, back"}], credits:"Logo by Ellen Shahbazyan", link:"https://www.instagram.com/philharmonia_armenia",
   desc:"A full rebrand for one of Armenia’s oldest cultural institutions, founded in 1930. The system draws from the building’s historic façade columns and runs through posters, merch, stationery and guidelines."},
- {slug:"the-noosh", name:"The Noosh", client:"Band", year:"2024–26", cats:["Creative Direction","Branding"], size:280,
-  role:"Creative direction", built:["Logotype","Single & album covers","Title design","Live session titles","Film photography"],
-  media:gal("the-noosh",10), credits:"Karine Karakhanyan Photography", link:"https://www.instagram.com/itsthenoosh.band/",
-  desc:"A Yerevan band blending Armenian folk with contemporary sound. I direct how they look: the Armenian logotype, covers, the title design for their live session and film photography."},
+ {slug:"the-noosh", name:"The Noosh", client:"Band", year:"2024–26", cats:["Creative Direction","Branding"], size:280, dark: true,
+  tiles:[MF("the-noosh","session","l","i","Live session titles"), MF("the-noosh","logos","nl","i","Hand-drawn logo and covers"), MF("the-noosh","shoot","ns","i","First photoshoot"),
+         MF("the-noosh","poster","s","i","Live session poster"), MF("the-noosh","film-1","fp","i","Rehearsal, on film"), MF("the-noosh","film-2","fp","i","Rehearsal, on film")],
+  layout:[["session"],["logos"],["shoot"],["poster"],["film-1","film-2"]],
+  canvas:["session","logos","poster","film-1","shoot"],
+  rowNotes:{ logos: ["From scratch", "I took The Noosh on from the very start. First the logo, drawn by hand, Armenian letterforms pulled into one flowing mark, and then the single and album covers it lives on."],
+    shoot: ["First photoshoot", "I directed their first ever photoshoot: a lived-in Yerevan room, a carpet, a sofa and the instruments, warm and a little nostalgic, like the music."],
+    "film-1": ["On film", "Between the big moments I shot the band on film during rehearsals: candid, unposed, the people behind the sound."] },
+  role:"Creative director", built:["Hand-drawn logo","Single & album covers","First photoshoot (direction)","Live session titles & poster","Film photography"],
+  media:[], credits:"Photoshoot: Karine Karakhanyan Photography", link:"https://www.instagram.com/itsthenoosh.band/",
+  desc:"I am the creative director of The Noosh, a new band in Armenia. The task was to give them a feel that is warm and Armenian, but also unmistakably their own. I built it from scratch: the hand-drawn logo, the covers, their first photoshoot, the live session titles and film photos from rehearsals."},
  {slug:"bari-bakht", name:"Bari Bakht", client:"Printed Goods", year:"2025", cats:["Illustration"], size:220,
   role:"Illustration for print", built:["Illustration","Print on cushion"],
   media:gal("bari-bakht",1), credits:"Printed Goods Studio, TUMO Studios", link:"https://www.instagram.com/printedgoods/",
@@ -695,6 +702,7 @@ canvas.addEventListener("pointerup", up); canvas.addEventListener("pointercancel
 const projAt = (x, y) => { const h = document.elementFromPoint(x, y); return h && h.closest(".proj"); };
 canvas.addEventListener("click", e => {
   if (moved > 6 || !introDone) return;
+  if (F.entering){ walkTo((e.clientX - cam.x)/cam.s, (e.clientY - cam.y)/cam.s); if (F.entering){ F.entering = false; revealWorld(300); } return; }   // works not shown yet
   const el = projAt(e.clientX, e.clientY);
   if (!el){ walkTo((e.clientX - cam.x)/cam.s, (e.clientY - cam.y)/cam.s); return; }
   if (el.classList.contains("ghost")){ const r = el.querySelector(".sq").getBoundingClientRect(); flyTo({ s: cam.s, x: cam.x + innerWidth/2 - (r.left + r.width/2), y: cam.y + innerHeight/2 - (r.top + r.height/2) }, 900); return; }
@@ -791,7 +799,7 @@ let lastInput = performance.now(), hasWalked = false, wanderT = 0;
 const markWalked = () => { if (hasWalked && !hasWalkedBefore){ hasWalkedBefore = true; try { localStorage.setItem("mard-walked", "1"); } catch (_) {} } };
 function walkTo(x, y){
   const path = findPath(F.x, F.y, x, y); if (!path.length) return;
-  F.queue = path; F.wander = false; F.fast = true; F.targetKey = null; F.entering = false; hasWalked = true; markWalked(); newStroke(); scratch(F.x, F.y);
+  if (F.entering){ F.entering = false; revealWorld(300); } F.queue = path; F.wander = false; F.fast = true; F.targetKey = null; hasWalked = true; markWalked(); newStroke(); scratch(F.x, F.y);
 }
 const FR = 12;                                            // figure "radius" for steering collisions
 function freeAt(x, y){
@@ -802,7 +810,7 @@ function steer(dt){
   if (!dx && !dy) return false;
   const n = Math.hypot(dx, dy); dx /= n; dy /= n;
   if (F.queue.length || F.wander){ F.queue = []; F.wander = false; }
-  if (F.entering){ F.entering = false; teachLook(); }
+  if (F.entering){ F.entering = false; revealWorld(300); }
   if (!F.steering){ F.steering = true; newStroke(); scratch(F.x, F.y); }
   hasWalked = true; markWalked();
   const st = SPEED*.8*dt, nx = F.x + dx*st, ny = F.y + dy*st;
@@ -977,7 +985,7 @@ function frame(now){
     scratch(F.x, F.y);
   }
   if (walking) markVisits(now);
-  if (F.entering && !F.queue.length){ F.entering = false; F.arrived = now; teachLook(); }
+  if (F.entering && !F.queue.length){ F.entering = false; F.arrived = now; revealWorld(700); }
   if (walking && !F.queue.length && F.targetKey){
     visited.add(F.targetIdx); F.atKey = F.targetKey; F.targetKey = null;
     $("#tally").textContent = `Traces ${pad2(visited.size)} / ${P.length}`;
@@ -1032,15 +1040,19 @@ function startIntro(){
   if (!QUICK) enterWalk(h);
   try { localStorage.setItem("mard-seen", "1"); } catch (_) {}
   if (INTRO){ INTRO = null; if (Math.abs(cam.y - h.y) > 2) flyTo(h, 550); } else { Object.assign(cam, h); Object.assign(tgt, h); }
-  document.body.classList.remove("intro");
+  document.body.classList.remove("intro", "pre");
   render();
   $("#loader").classList.add("done");
   introDone = true;
+  if (!F.entering) revealWorld(500);                         // first visit: the work appears once she reaches the middle
+  if (location.hash.length > 1) setTimeout(openFromHash, 650);
+}
+/* the works ripple in from where she stands, then the interface */
+function revealWorld(uiDelay){
   revealStart = performance.now();
   document.querySelectorAll(".block").forEach(revealBlock);
-  setTimeout(() => document.querySelectorAll(".reveal").forEach((r,k) => setTimeout(() => r.classList.add("on"), k*60)), 500);
-  if (!F.entering) teachLook();
-  if (location.hash.length > 1) setTimeout(openFromHash, 650);
+  setTimeout(() => document.querySelectorAll(".reveal").forEach((r,k) => setTimeout(() => r.classList.add("on"), k*60)), uiDelay);
+  teachLook();
 }
 /* first visit: she walks in from just off screen to the middle, then says "Take a walk." */
 function enterWalk(h){
@@ -1058,19 +1070,13 @@ function enterWalk(h){
 let SEEN = false; try { SEEN = localStorage.getItem("mard-seen") === "1"; } catch (_) {}
 const QUICK = RM || SEEN || location.hash.length > 1;      // been here before, or came for one project: no show
 let INTRO = null;
-(function introPan(){                                        // start above, and stream down the infinite map to the start
-  if (QUICK) return;
-  const h = homeView(), wy = CY - BH*2.2;                    // two map-copies straight above the figure, same size the whole way
-  INTRO = { t0: performance.now(), ms: 1700, a: { s: h.s, x: h.x, y: innerHeight/2 - wy*h.s }, t: { ...h } };
-  Object.assign(cam, INTRO.a); Object.assign(tgt, cam);
-  document.body.classList.add("intro"); revealStart = performance.now() - 99999;   // every work already shown
-})();
+if (!QUICK) document.body.classList.add("pre");             // first visit: an empty field until she walks in
 (function load(){
   const srcs = CV.map(list => list[0].poster); let n = 0;
   srcs.forEach(s => { const im = new Image(); im.onload = im.onerror = () => n++; im.src = s; });
   const t0 = performance.now(), loaded = () => n >= srcs.length*.8;
   const done = () => { if (loaded() || performance.now() - t0 > 5000) startIntro(); else setTimeout(done, 100); };
-  setTimeout(done, QUICK ? 350 : 1150);                      // first visit: "A one person studio", then straight in
+  setTimeout(done, QUICK ? 350 : 2400);                      // first visit: time to read "A one person studio"
 })();
 
 /* =====================================================================
