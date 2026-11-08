@@ -84,7 +84,7 @@ a:hover,button:hover{color:var(--g1)}
 /* filters: only the chosen kind of work stays bright */
 .proj{transition:opacity .5s var(--quint)}
 body[data-f] .proj{opacity:.1;pointer-events:none}
-body[data-f="Event"] .proj[data-c~="Event"],body[data-f="Identity"] .proj[data-c~="Identity"],body[data-f="Illustration"] .proj[data-c~="Illustration"]{opacity:1;pointer-events:auto}
+body[data-f="Branding"] .proj[data-c~="Branding"],body[data-f="Illustration"] .proj[data-c~="Illustration"],body[data-f="Creative-Direction"] .proj[data-c~="Creative-Direction"],body[data-f="Event-Design"] .proj[data-c~="Event-Design"]{opacity:1;pointer-events:auto}
 .chips{display:inline-flex;gap:10px} .chips button{color:var(--g1)} .chips button.on{color:var(--fg)}
 /* hover: the cursor becomes a small red circle with an arrow */
 #cur{position:fixed;left:0;top:0;z-index:40;pointer-events:none}
@@ -257,7 +257,8 @@ form.contact button{justify-self:start;background:var(--fg);color:var(--bg);padd
 .hrow button{border:1px solid #bdbdbd;border-radius:20px;padding:4px 11px;color:#777;background:rgba(236,236,236,.88);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);transition:background .25s,color .25s,border-color .25s}
 .hrow button:hover{color:var(--fg);border-color:var(--g1)}
 .hrow button.on{background:var(--fg);border-color:var(--fg);color:var(--bg)}
-@media (max-width:760px){ .hrow{flex-wrap:wrap;gap:6px} .hrow .rt{margin-left:auto} #zFit{display:none} }
+.hrow button{white-space:nowrap}
+@media (max-width:760px){ .hrow{flex-wrap:wrap;gap:6px} .hrow .chips{display:flex;width:100%;overflow-x:auto;scrollbar-width:none} .hrow .chips::-webkit-scrollbar{display:none} .hrow button{padding:4px 10px} .hrow .rt{margin-left:auto} #zFit{display:none} }
 /* project page: short texts between the images */
 .media .txt{padding:22px 0 26px;max-width:52ch}
 .media .txt .k{display:block;color:var(--g1);margin-bottom:8px}
@@ -295,7 +296,7 @@ form.contact button{justify-self:start;background:var(--fg);color:var(--bg);padd
   <div class="reveal hide-m"></div>
   <div class="reveal hide-m"></div>
   <div class="reveal r"><button data-open="about">About</button>&nbsp;&nbsp;&nbsp;&nbsp;<button data-open="contact">Contact</button></div>
-  <div class="reveal hrow"><span class="chips"><button data-f="" class="on">All</button><button data-f="Event">Events</button><button data-f="Identity">Identity</button><button data-f="Illustration">Illustration</button></span>
+  <div class="reveal hrow"><span class="chips"><button data-f="" class="on">All</button><button data-f="Branding">Branding</button><button data-f="Illustration">Illustration</button><button data-f="Creative-Direction">Creative Direction</button><button data-f="Event-Design">Event Design</button></span>
     <span class="rt"><span style="display:none"><button id="zOut">−</button><span id="zoom">100%</span><button id="zIn">+</button></span><button id="zFit">Fit</button><span class="seg"><button data-map class="on">Map</button><button data-list>List</button></span></span></div>
 </header>
 
@@ -348,7 +349,7 @@ const pad2 = n => String(n).padStart(2,"0");
    PROJECTS (images from "05 Website", resized into ./assets)
    ===================================================================== */
 const P = [
- {slug:"pati-henqy", name:"Pati Henqy Ep. 6", client:"Kitchen Lab", year:"2026", cats:["Event"], size:320, short:"Pati Henqy",
+ {slug:"pati-henqy", name:"Pati Henqy Ep. 6", client:"Kitchen Lab", year:"2026", cats:["Event Design","Branding"], size:320, short:"Pati Henqy",
   tiles:[MF("pati-henqy","hero","p","v","Motion poster"), MF("pati-henqy","night","l","i","On the night"), MF("pati-henqy","goshacobs","p","v","Goshacobs"),
          MF("pati-henqy","ruben","p","v","Ruben Karapetyan"), MF("pati-henqy","dale","p","v","Dale"), MF("pati-henqy","supacooks","p","v","Supacooks"),
          MF("pati-henqy","process","l","i","Countdown"), MF("pati-henqy","ticket","p","i","Ticket")],
@@ -357,7 +358,7 @@ const P = [
   role:"Full event identity", built:["Event identity","Poster","DJ cards","Tickets","Wristbands","Badges","VIP packaging","3D loop (Blender)"],
   media:[{video:"assets/pati-henqy/dale.mp4", poster:"assets/pati-henqy/dale-poster.jpg"}, ...gal("pati-henqy",5)], link:"https://www.instagram.com/p/DW64iiliCCq/",
   desc:"Kitchen Recordings and Kitchen Lab’s electronic music event at Hayfilm Studio. One concrete 3D texture system carried across everything a guest touches, from the poster to the wristband to the VIP box, plus a Blender animation loop for social."},
- {slug:"arevot", name:"AREVOT [white]", client:"Kitchen Lab", year:"2026", cats:["Event","Identity","Illustration"], size:300, short:"AREVOT",
+ {slug:"arevot", name:"AREVOT [white]", client:"Kitchen Lab", year:"2026", cats:["Event Design","Creative Direction","Illustration"], size:300, short:"AREVOT",
   tiles:[MF("arevot","hero","p","v","Motion poster"), MF("arevot","arax","p","i","Arax lemonade"), MF("arevot","badge","s","i","Arax badge"),
          ...ARTISTS.flatMap(([id,n]) => [MF("arevot",id+"-card","p","i",n), MF("arevot",id,"p","v",n+" (motion)")])],
   layout:[["hero"],["arax","badge"], ...ARTISTS.map(([id]) => [id+"-card", id])],
@@ -365,27 +366,27 @@ const P = [
   role:"Art direction, concept to final", built:["Visual direction","Illustration","Typography","Poster","Lineup lockup","Social"],
   media:gal("arevot",3), link:"https://www.instagram.com/p/DbBYayuiFM1/",
   desc:"A summer sunset event at Jellyfish Yerevan. I owned the creative vision from concept to final execution: a warm retro palette, a gridded sun, reclining figures and palms, and a bold condensed AREVOT paired with a fluid script.\n\nEvery decision (colour, illustration, type, composition) served one mood, so the poster works as promotion and as the identity of the event itself."},
- {slug:"gaiff", name:"Golden Apricot IFF", client:"GAIFF", year:"2022–24", cats:["Event"], size:300,
+ {slug:"gaiff", name:"Golden Apricot IFF", client:"GAIFF", year:"2022–24", cats:["Event Design"], size:300,
   role:"Production design, 3 festival editions", built:["Posters","Print files","Badges","Social content","Format adaptations"],
   media:gal("gaiff",2), credits:"Artwork by the artists of each year", link:"https://www.instagram.com/goldenapricotiff/",
   desc:"Three years of full-cycle production for Armenia’s biggest film festival: taking each year’s artistic direction and making it work on every format and touchpoint."},
- {slug:"artbox-hub", name:"Artbox Hub", client:"Artbox", year:"2023", cats:["Event","Illustration"], size:280,
+ {slug:"artbox-hub", name:"Artbox Hub", client:"Artbox", year:"2023", cats:["Event Design","Branding","Illustration"], size:280,
   role:"Visual system & campaign", built:["Visual system","Isometric illustrations","Social campaign","20-page booklet"],
   media:gal("artbox-hub",13), link:"https://www.artbox.am/en/story/artbox-welcomes-15-cultural-institutions",
   desc:"A system that turns cultural institutions into characters: isometric illustrations, a social campaign and a 20-page booklet bringing ten organisations to life."},
- {slug:"mesrop-sarkisian", name:"Mesrop Sarkisian", client:"Concert poster", year:"2025", cats:["Event"], size:260,
+ {slug:"mesrop-sarkisian", name:"Mesrop Sarkisian", client:"Concert poster", year:"2025", cats:["Event Design"], size:260,
   role:"Concert poster", built:["Poster","Typography","Social"],
   media:gal("mesrop-sarkisian",4), link:"https://www.instagram.com/p/DMF4GStoPtf/",
   desc:"An improvisation evening at Arno Babajanyan Concert Hall. Black and white throughout. The portrait anchors the page while the type fragments around it, borrowing from Japanese minimalism."},
- {slug:"east-west-residency", name:"East-West Residency", client:"Creative Armenia", year:"2023", cats:["Event"], size:260,
+ {slug:"east-west-residency", name:"East-West Residency", client:"Creative Armenia", year:"2023", cats:["Event Design"], size:260,
   role:"Campaign design", built:["Portrait cards","Announcement visual","Social campaign"],
   media:gal("east-west-residency",6), link:"https://www.instagram.com/p/Cw4y7VYOqK7/",
   desc:"A campaign for Creative Armenia’s residency sending Armenian artists to Brussels: individual portrait cards, a group announcement and supporting content."},
- {slug:"state-philharmonic", name:"State Philharmonic", client:"Rebrand", year:"2025", cats:["Identity"], size:300,
+ {slug:"state-philharmonic", name:"State Philharmonic", client:"Rebrand", year:"2025", cats:["Branding"], size:300,
   role:"Visual identity system", built:["Identity system","Colour palette","Typography","Concert posters","Merch","Badges","Business cards","Brand guidelines"],
   media:gal("state-philharmonic",12), canvas:[{fm:"c", r:854/1000, label:"Tote bag"}, {fm:"g4", r:16/9, label:"Shirt, back"}], credits:"Logo by Ellen Shahbazyan", link:"https://www.instagram.com/philharmonia_armenia",
   desc:"A full rebrand for one of Armenia’s oldest cultural institutions, founded in 1930. The system draws from the building’s historic façade columns and runs through posters, merch, stationery and guidelines."},
- {slug:"the-noosh", name:"The Noosh", client:"Band", year:"2024–26", cats:["Identity","Illustration"], size:280,
+ {slug:"the-noosh", name:"The Noosh", client:"Band", year:"2024–26", cats:["Creative Direction","Branding"], size:280,
   role:"Creative direction", built:["Logotype","Single & album covers","Title design","Live session titles","Film photography"],
   media:gal("the-noosh",10), credits:"Karine Karakhanyan Photography", link:"https://www.instagram.com/itsthenoosh.band/",
   desc:"A Yerevan band blending Armenian folk with contemporary sound. I direct how they look: the Armenian logotype, covers, the title design for their live session and film photography."},
@@ -405,11 +406,11 @@ const P = [
 const CONTACT_SIZE = 220;
 
 const SLOTS = {
-  Event:[
+  "Event Design":[
     {t:"Event photo", r:"3 / 2", d:"The space on the night: your visuals in use. Entrance, stage screen, crowd holding the wristband.", s:"JPG · 3:2 · 2400px wide"},
     {t:"Video", r:"16 / 9", d:"10–20 second loop: aftermovie clip, stage screen loop or motion poster.", s:"MP4 · 16:9 · muted loop · under 8 MB"},
   ],
-  Identity:[ {t:"Process", r:"16 / 9", d:"Moodboard → sketches → rejected routes → final.", s:"2–4 images or one PDF spread"} ],
+  Branding:[ {t:"Process", r:"16 / 9", d:"Moodboard → sketches → rejected routes → final.", s:"2–4 images or one PDF spread"} ],
   Illustration:[ {t:"Process timelapse", r:"1 / 1", d:"Sketch → line → colour in 3 steps, or a 15-second timelapse.", s:"MP4 or 3 JPGs · 1:1"} ]
 };
 const slotsFor = p => { if (p.tiles) return []; const seen=new Set(), out=[]; if (p.media.some(m => m.video)) seen.add("Video"); p.cats.forEach(c => (SLOTS[c]||[]).forEach(s => { if(!seen.has(s.t)){seen.add(s.t); out.push(s);} })); return out.slice(0,2); };
@@ -520,9 +521,9 @@ const blockHTML = (bx, by) => placed.map((p, k) => {
   const n = p.i < 0 ? P.length + 1 : p.i + 1, gh = isLit(bx, by, k, p) ? "" : " ghost";
   if (p.i < 0) return `<div class="proj empty${gh}" data-act="contact" data-c="" data-k="${k}" style="${pos}">
       <h2><span>Open</span><span class="mono g">No. ${pad2(n)}</span></h2>
-      <div class="sq"><div><b>Your event here.</b><span class="g">This square is empty.<br>Let’s build the next one.</span><br><br>Contact →</div></div></div>`;
+      <div class="sq"><div><b>Your project here.</b><span class="g">This square is empty.<br>Let’s make the next one.</span><br><br>Contact →</div></div></div>`;
   const pr = P[p.i], f = CV[p.i][p.c];
-  return `<div class="proj${f.kind === "v" ? " vid" : ""}${gh}" data-i="${p.i}" data-fm="${f.fm}" data-k="${k}" data-c="${pr.cats.join(" ")}" style="${pos}">
+  return `<div class="proj${f.kind === "v" ? " vid" : ""}${gh}" data-i="${p.i}" data-fm="${f.fm}" data-k="${k}" data-c="${pr.cats.map(c => c.replace(/ /g, "-")).join(" ")}" style="${pos}">
       <h2><span>${(pr.short || pr.name) + (f.label ? " · " + f.label : "")}</span><span class="mono g">${pr.year}</span></h2>
       <div class="cap"><span>${pr.client} · ${pr.cats.join(", ")}</span><span>No. ${pad2(n)}</span></div>
       <div class="sq">${f.kind === "v" ? `<video data-src="${f.tile}" poster="${f.poster}" muted loop playsinline preload="none"></video>` : `<img draggable="false" src="${f.tile}" alt="${pr.name}">`}</div></div>`;
@@ -788,9 +789,9 @@ function wander(now){
 }
 /* Thoughts above the head — edit freely. */
 const THOUGHTS = [
-  "pretty good stuff here, huh?", "I build the events.",
+  "pretty good stuff here, huh?", "I draw, design and direct",
   "open for projects, by the way", "is this a portfolio or a game?",
-  "մարդ means human, by the way", "your event could live here", "walked here myself", "are you still there?", "this is my favourite spot"
+  "մարդ means human, by the way", "your project could live here", "walked here myself", "are you still there?", "this is my favourite spot"
 ];
 const HOVER_THOUGHTS = ["pretty good stuff here, huh?", "go on, open it", "this one’s a favourite", "good choice"];
 const mouse = { x: 0, y: 0, on: false, overProj: null };
@@ -1203,8 +1204,8 @@ const openAbout = () => openText("About", st => `
   ${st(`<h1 class="v-title">Lilit Mardanian</h1>`)}
   ${st(`<div class="facts"><span style="grid-column:span 2">Role<b>Graphic designer &amp; art director</b></span><span style="grid-column:span 2">Based<b>Yerevan, Armenia</b></span></div>`)}
   ${st(`<div class="row2"><span>Hi</span><div class="prose"><p>MARD (ՄԱՐԴ) is Armenian for human, and the root of my surname. It’s a one-person studio built to hold several disciplines at once (identity, illustration, print, events) instead of splitting them across freelance roles.</p><p>I don’t decorate events. I build them: from the first idea to the last wristband.</p></div></div>`)}
-  ${st(`<div class="row2"><span>How I build an event</span><ol class="steps"><li><div><b>The idea</b>One feeling the whole night is built around.</div></li><li><div><b>The identity</b>Logo, type, colour, illustration: the system.</div></li><li><div><b>Everything guests touch</b>Posters, tickets, wristbands, badges, packaging, social.</div></li><li><div><b>On the night</b>Stage screens, motion loops, signage, the space itself.</div></li></ol></div>`)}
-  ${st(`<div class="row2"><span>Services</span><div>Event identity<br>Creative direction<br>Event visual design<br>Branding &amp; visual identity<br>Campaign concepts<br>Print design<br>Illustration<br>Design consultation</div></div>`)}
+  ${st(`<div class="row2"><span>How I build a visual world</span><ol class="steps"><li><div><b>The idea</b>One feeling everything is built around: a night, an album, a brand.</div></li><li><div><b>The system</b>Logo, type, colour, illustration: the language it speaks.</div></li><li><div><b>Everything people touch</b>Posters, covers, packaging, merch, tickets, social.</div></li><li><div><b>Out in the world</b>Stage screens, motion, signage, the space itself.</div></li></ol></div>`)}
+  ${st(`<div class="row2"><span>Services</span><div>Visual identity<br>Illustration<br>Album &amp; music artwork<br>Event identity<br>Creative direction<br>Campaign concepts<br>Print design<br>Design consultation</div></div>`)}
   ${st(`<div class="row2"><span>Clients</span><div>Golden Apricot International Film Festival<br>State Philharmonic of Armenia<br>Creative Armenia<br>Kitchen Lab<br>TUMO / TUMO Studios / Special labs<br>Artbox Hub</div></div>`)}
   ${st(`<div class="row2"><span>Awards</span><div>Vahe&amp;Lucie 2020</div></div>`)}
   ${st(`<div class="v-foot"><span></span><button onclick="openContact()">Contact →</button></div>`)}`);
@@ -1212,17 +1213,17 @@ const openContact = () => openText("Contact", st => `
   ${st(`<h1 class="v-title">Let’s build the next one.</h1>`)}
   ${st(`<div class="row2"><span>Business</span><div><a class="big" href="mailto:${EMAIL}">${EMAIL}</a></div></div>`)}
   ${st(`<div class="row2"><span>Social</span><div class="links"><a href="https://www.instagram.com/lilitmardanian/" target="_blank" rel="noopener">Instagram ↗</a><a href="https://www.linkedin.com/in/lilit-mardanyan-438687136/" target="_blank" rel="noopener">LinkedIn ↗</a><a href="https://www.behance.net/lilartulilartu" target="_blank" rel="noopener">Behance ↗</a></div></div>`)}
-  ${st(`<div class="row2"><span>Get in touch</span><form class="contact" onsubmit="sendForm(event)"><input name="name" placeholder="Name" required><input name="email" type="email" placeholder="Email" required><input name="event" placeholder="What are you planning? (event, date)"><textarea name="message" placeholder="Message" required></textarea><button type="submit">Send</button></form></div>`)}`);
+  ${st(`<div class="row2"><span>Get in touch</span><form class="contact" onsubmit="sendForm(event)"><input name="name" placeholder="Name" required><input name="email" type="email" placeholder="Email" required><input name="event" placeholder="What are you working on? (event, album, brand…)"><textarea name="message" placeholder="Message" required></textarea><button type="submit">Send</button></form></div>`)}`);
 function sendForm(e){
   e.preventDefault(); const f = new FormData(e.target);
-  const body = `${f.get("message")}\n\n— ${f.get("name")} (${f.get("email")})\nPlanning: ${f.get("event")||"-"}`;
+  const body = `${f.get("message")}\n\n— ${f.get("name")} (${f.get("email")})\nProject: ${f.get("event")||"-"}`;
   location.href = `mailto:${EMAIL}?subject=${encodeURIComponent("Website enquiry — " + f.get("name"))}&body=${encodeURIComponent(body)}`;
 }
 
 /* Index */
 const thumbOf = p => p.tiles ? p.tiles[0].poster : A(p.slug,"cover");
 const rows = list => list.map(p => `<button class="row" data-i="${P.indexOf(p)}"><span class="g">${pad2(P.indexOf(p)+1)}</span><span class="th"><img loading="lazy" src="${thumbOf(p)}" alt=""></span><span>${p.name}</span><span>${p.client}</span><span>${p.cats.join(", ")}</span><span>${p.year}</span></button>`).join("");
-$("#listRows").innerHTML = `<h2>Events</h2>${rows(P.filter(p=>p.cats[0]==="Event"))}<h2>Identity &amp; illustration</h2>${rows(P.filter(p=>p.cats[0]!=="Event"))}`;
+$("#listRows").innerHTML = `<h2>Event design</h2>${rows(P.filter(p=>p.cats[0]==="Event Design"))}<h2>Branding, illustration &amp; direction</h2>${rows(P.filter(p=>p.cats[0]!=="Event Design"))}`;
 $("#listRows").addEventListener("click", e => { const r = e.target.closest(".row"); if(!r) return; const i = +r.dataset.i; closeList(); const el = document.querySelector(`.proj[data-i="${i}"]`); openProject(i, el); });
 const setSeg = list => document.querySelectorAll(".seg").forEach(g => { g.querySelector("[data-map]").classList.toggle("on", !list); g.querySelector("[data-list]").classList.toggle("on", list); });
 function openList(){ closeView(); $("#list").classList.add("open"); overlay = true; setSeg(true); }
