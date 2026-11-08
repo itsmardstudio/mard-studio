@@ -797,7 +797,7 @@ const mouse = { x: 0, y: 0, on: false, overProj: null };
 addEventListener("pointermove", e => { if (e.pointerType !== "mouse") return; mouse.x = e.clientX; mouse.y = e.clientY; mouse.on = true; if (F.sleeping) lastInput = performance.now();
   const h = e.target.closest && e.target.closest(".proj[data-i]"); if (h !== mouse.overProj){ mouse.overProj = h; if (h) TH.hoverAt = performance.now(); } });
 document.addEventListener("pointerleave", () => { mouse.on = false; mouse.overProj = null; });
-const TH = { text: null, until: 0, next: 0, last: -1, hoverAt: 0, hoverShown: 0, count: 0, MAX: 14 };
+const TH = { text: null, until: 0, next: 0, last: -1, hoverAt: 0, hoverShown: 0, count: 0, MAX: 999 };
 const pick = (arr) => { let k; do k = Math.floor(Math.random()*arr.length); while (arr.length > 1 && k === TH.last); TH.last = k; return arr[k]; };
 function think(now, state){
   if (state === "sleep") return "z z z";
@@ -806,8 +806,8 @@ function think(now, state){
   if (TH.count < TH.MAX && now > TH.next && mouse.overProj && now - TH.hoverAt > 900 && TH.hoverShown !== TH.hoverAt && Math.random() < .25){
     TH.hoverShown = TH.hoverAt; TH.text = pick(HOVER_THOUGHTS); TH.until = now + 2800; TH.count++;
   } else if (mouse.overProj && TH.hoverShown !== TH.hoverAt && now - TH.hoverAt > 700) TH.hoverShown = TH.hoverAt;
-  if (TH.text && now > TH.until){ TH.text = null; TH.next = now + 9000 + Math.random()*6000; }
-  if (!TH.text && TH.count < TH.MAX && now > TH.next && now - F.stillSince > 4000){ TH.text = pick(THOUGHTS); TH.until = now + 3800; TH.count++; }
+  if (TH.text && now > TH.until){ TH.text = null; TH.next = now + 5000 + Math.random()*3000; }
+  if (!TH.text && TH.count < TH.MAX && now > TH.next && now - F.stillSince > 1500){ TH.text = pick(THOUGHTS); TH.until = now + 4800; TH.count++; }
   return TH.text;
 }
 let visitT = 0;
