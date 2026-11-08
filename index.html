@@ -306,6 +306,8 @@ form.contact .note{min-height:1.2em;font-size:13px}
 /* a project can open on black */
 #view.dark{--bg:#0a0a0a;--fg:#f1f1f1;--g1:#8d8d8d;--g2:#2a2a2a;--g3:#151515;color:var(--fg)}
 #view.dark a{color:var(--fg)}
+/* while a black project is open, the map behind dims softly */
+#mask{transition:opacity .55s var(--quint),background-color .6s var(--quint)} body.darkp #mask{background:rgba(8,8,8,.42)}
 /* the page (its black or grey card) arrives first, then the files fade in */
 #view .media{transition:opacity .45s var(--quint) .18s} #view:not(.in) .media{opacity:0;transition:none}
 </style>
@@ -1194,7 +1196,7 @@ async function openProject(i, el){
   closeList(); current = i; overlay = true; bubble.classList.remove("on");
   view.classList.remove("out","in");
   view.innerHTML = projectHTML(i); titleLines(); view.scrollTop = 0; watchVideos(); setHash(P[i].slug);
-  view.classList.toggle("dark", !!P[i].dark); view.classList.add("open"); view.setAttribute("aria-hidden","false");
+  view.classList.toggle("dark", !!P[i].dark); document.body.classList.toggle("darkp", !!P[i].dark); view.classList.add("open"); view.setAttribute("aria-hidden","false");
   document.body.classList.add("focus"); mask.classList.add("on");
   const fmC = el && el.dataset.fm, first = view.querySelector(".media img, .media video"), slots = fmC && first && first.dataset.fm === fmC ? [first] : [];
   slots.forEach(sl => sl.classList.add("wait"));
@@ -1241,7 +1243,7 @@ async function closeView(){
       if (tileEl) tileEl.classList.remove("src-hidden");
       c.animate([{ opacity: 1 }, { opacity: 0 }], { duration: tileEl ? 1 : 220, fill: "forwards" }).finished.then(() => c.remove()); }));
   });
-  view.classList.add("out");                               // all text leaves at once: no stacked layers
+  view.classList.add("out"); document.body.classList.remove("darkp");   // all text leaves at once: no stacked layers
   setTimeout(() => { mask.classList.remove("on"); document.body.classList.remove("focus"); }, 120);
   await Promise.all([...runs, new Promise(r => setTimeout(r, 450))]);
   document.querySelectorAll(".src-hidden").forEach(x => x.classList.remove("src-hidden"));
@@ -1254,7 +1256,7 @@ function stepP(d){
   view.classList.add("out");
   setTimeout(() => {
     document.querySelectorAll(".src-hidden").forEach(x => x.classList.remove("src-hidden")); flights = [];
-    current = i; view.classList.remove("in","out"); view.classList.toggle("dark", !!P[i].dark);
+    current = i; view.classList.remove("in","out"); view.classList.toggle("dark", !!P[i].dark); document.body.classList.toggle("darkp", !!P[i].dark);
     view.innerHTML = projectHTML(i); titleLines(); view.scrollTop = 0; watchVideos(); setHash(P[i].slug, true);
     // behind the view: the figure walks to that project
     const el = [...document.querySelectorAll(`.proj[data-i="${i}"]`)].filter(x => !x.classList.contains("ghost")).sort((a,b) => {
