@@ -791,7 +791,7 @@ let lastInput = performance.now(), hasWalked = false, wanderT = 0;
 const markWalked = () => { if (hasWalked && !hasWalkedBefore){ hasWalkedBefore = true; try { localStorage.setItem("mard-walked", "1"); } catch (_) {} } };
 function walkTo(x, y){
   const path = findPath(F.x, F.y, x, y); if (!path.length) return;
-  F.queue = path; F.wander = false; F.fast = true; F.targetKey = null; hasWalked = true; markWalked(); newStroke(); scratch(F.x, F.y);
+  F.queue = path; F.wander = false; F.fast = true; F.targetKey = null; F.entering = false; hasWalked = true; markWalked(); newStroke(); scratch(F.x, F.y);
 }
 const FR = 12;                                            // figure "radius" for steering collisions
 function freeAt(x, y){
@@ -802,6 +802,7 @@ function steer(dt){
   if (!dx && !dy) return false;
   const n = Math.hypot(dx, dy); dx /= n; dy /= n;
   if (F.queue.length || F.wander){ F.queue = []; F.wander = false; }
+  if (F.entering){ F.entering = false; teachLook(); }
   if (!F.steering){ F.steering = true; newStroke(); scratch(F.x, F.y); }
   hasWalked = true; markWalked();
   const st = SPEED*.8*dt, nx = F.x + dx*st, ny = F.y + dy*st;
@@ -976,6 +977,7 @@ function frame(now){
     scratch(F.x, F.y);
   }
   if (walking) markVisits(now);
+  if (F.entering && !F.queue.length){ F.entering = false; F.arrived = now; teachLook(); }
   if (walking && !F.queue.length && F.targetKey){
     visited.add(F.targetIdx); F.atKey = F.targetKey; F.targetKey = null;
     $("#tally").textContent = `Traces ${pad2(visited.size)} / ${P.length}`;
@@ -1008,11 +1010,12 @@ function frame(now){
 
   // speech bubble when zoomed in
   const needWalk = !hasWalked && !LOOK.done, needLook = !LOOK.done && now - LOOK.since > 2200;
-  const hint = introDone && !overlay && (needWalk || needLook);
+  const hello = !overlay && F.arrived && now - F.arrived < 2600;   // just walked in
+  const hint = introDone && !overlay && !F.entering && !hello && (needWalk || needLook);
   const lookTurn = needLook && (!needWalk || Math.floor((now - LOOK.since)/4500) % 2 === 1);
-  const thought = introDone && !overlay && !hint ? think(now, state) : null;
-  const zoomed = !overlay && introDone && (hint || thought || cam.s >= fitS*1.35);
-  const txt = hint ? (lookTurn ? (TOUCH ? "Drag or pinch to look around" : "Swipe to move, pinch to zoom out") : TOUCH ? "Tap anywhere to walk me" : "Click anywhere to walk me") : thought || "Let’s go";
+  const thought = introDone && !overlay && !hint && !hello && !F.entering ? think(now, state) : null;
+  const zoomed = !overlay && introDone && !F.entering && (hello || hint || thought || cam.s >= fitS*1.35);
+  const txt = hello ? "Take a walk." : hint ? (lookTurn ? (TOUCH ? "Drag or pinch to look around" : "Swipe to move, pinch to zoom out") : TOUCH ? "Tap anywhere to walk me" : "Click anywhere to walk me") : thought || "Let’s go";
   if (bubble.textContent !== txt) bubble.textContent = txt;
   bubble.classList.toggle("think", !!thought);
   bubble.classList.toggle("on", !!zoomed);
@@ -1025,8 +1028,10 @@ function frame(now){
    ===================================================================== */
 function startIntro(){
   const h = homeView();
-  F.x = CX; F.y = CY;                                        // the figure stands in the middle, surrounded by the work
-  if (INTRO){ INTRO = null; if (Math.abs(cam.y - h.y) > 2) flyTo(h, 700); } else { Object.assign(cam, h); Object.assign(tgt, h); }
+  F.x = CX; F.y = CY;                                        // the figure ends up in the middle, surrounded by the work
+  if (!QUICK) enterWalk(h);
+  try { localStorage.setItem("mard-seen", "1"); } catch (_) {}
+  if (INTRO){ INTRO = null; if (Math.abs(cam.y - h.y) > 2) flyTo(h, 550); } else { Object.assign(cam, h); Object.assign(tgt, h); }
   document.body.classList.remove("intro");
   render();
   $("#loader").classList.add("done");
@@ -1034,30 +1039,38 @@ function startIntro(){
   revealStart = performance.now();
   document.querySelectorAll(".block").forEach(revealBlock);
   setTimeout(() => document.querySelectorAll(".reveal").forEach((r,k) => setTimeout(() => r.classList.add("on"), k*60)), 500);
-  teachLook();
+  if (!F.entering) teachLook();
   if (location.hash.length > 1) setTimeout(openFromHash, 650);
 }
+/* first visit: she walks in from just off screen to the middle, then says "Take a walk." */
+function enterWalk(h){
+  // farthest start first (ideally just off screen), from below, then the sides, then any direction
+  const edge = ang => { const c = Math.cos(ang), sn = Math.sin(ang); return Math.min(Math.abs(c) > .01 ? (innerWidth/2/h.s + 40)/Math.abs(c) : 1e9, Math.abs(sn) > .01 ? (innerHeight/2/h.s + 40)/Math.abs(sn) : 1e9); };
+  const angs = [90, 75, 105, 60, 120, 45, 135, 0, 180, 30, 150, 15, 165, 210, 330, 240, 300, 270].map(d => d*Math.PI/180), tries = [];
+  for (const f of [1, .8, .6, .45]) for (const g of angs){ const r = Math.min(edge(g), 900)*f; if (r > 180) tries.push([Math.cos(g)*r, Math.sin(g)*r]); }
+  for (const [dx, dy] of tries){
+    const sx = CX + dx, sy = CY + dy; if (!freeAt(sx, sy)) continue;
+    const path = findPath(sx, sy, CX, CY); if (!path.length) continue;
+    F.x = sx; F.y = sy; F.a = Math.atan2(-dy, -dx); F.queue = path; F.fast = false; F.wander = false; F.entering = true;
+    newStroke(); scratch(F.x, F.y); return;
+  }
+}
+let SEEN = false; try { SEEN = localStorage.getItem("mard-seen") === "1"; } catch (_) {}
+const QUICK = RM || SEEN || location.hash.length > 1;      // been here before, or came for one project: no show
 let INTRO = null;
-(function introPan(){                                        // start far away, zoomed out, and stream across the infinite map to the start
-  if (RM) return;
+(function introPan(){                                        // start above, and stream down the infinite map to the start
+  if (QUICK) return;
   const h = homeView(), wy = CY - BH*2.2;                    // two map-copies straight above the figure, same size the whole way
-  INTRO = { t0: performance.now(), ms: 3000, a: { s: h.s, x: h.x, y: innerHeight/2 - wy*h.s }, t: { ...h } };
+  INTRO = { t0: performance.now(), ms: 1700, a: { s: h.s, x: h.x, y: innerHeight/2 - wy*h.s }, t: { ...h } };
   Object.assign(cam, INTRO.a); Object.assign(tgt, cam);
   document.body.classList.add("intro"); revealStart = performance.now() - 99999;   // every work already shown
 })();
 (function load(){
   const srcs = CV.map(list => list[0].poster); let n = 0;
   srcs.forEach(s => { const im = new Image(); im.onload = im.onerror = () => n++; im.src = s; });
-  const txt = $("#ldText"), FROM = "A one person studio", TO = "Take a walk.", GLYPHS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
   const t0 = performance.now(), loaded = () => n >= srcs.length*.8;
-  const done = () => { if (loaded() || performance.now() - t0 > 6000) setTimeout(startIntro, 650); else setTimeout(done, 120); };
-  if (RM){ setTimeout(() => { txt.textContent = TO; done(); }, 1100); return; }
-  // after a moment the line fades out and the next one fades in
-  setTimeout(() => {
-    txt.style.animation = "none"; txt.style.opacity = 1; txt.classList.add("fade");
-    requestAnimationFrame(() => { txt.style.opacity = 0; });
-    setTimeout(() => { txt.textContent = TO; txt.style.opacity = 1; setTimeout(done, 700); }, 650);
-  }, 1100);
+  const done = () => { if (loaded() || performance.now() - t0 > 5000) startIntro(); else setTimeout(done, 100); };
+  setTimeout(done, QUICK ? 350 : 1150);                      // first visit: "A one person studio", then straight in
 })();
 
 /* =====================================================================
