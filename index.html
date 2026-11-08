@@ -40,8 +40,10 @@ img{display:block;max-width:100%}
 a:hover,button:hover{color:var(--g1)}
 
 /* ===== Loader (0% → 100%) ===== */
-#loader{position:fixed;inset:0;z-index:99;background:var(--bg);display:grid;place-items:center;font-variant-numeric:tabular-nums;transition:opacity .8s var(--quint)}
+#loader{position:fixed;inset:0;z-index:99;background:rgba(236,236,236,.8);backdrop-filter:blur(1.5px);-webkit-backdrop-filter:blur(1.5px);display:grid;place-items:center;font-variant-numeric:tabular-nums;transition:opacity .8s var(--quint)}
 #loader.done{opacity:0;pointer-events:none}
+/* during the intro the whole map streams past behind the words, at full colour */
+body.intro .proj.ghost{opacity:1;filter:none} body.intro #fig,body.intro #bubble{opacity:0}
 #loader .blobs{position:absolute;inset:0;overflow:hidden;opacity:0;animation:wIn 2s var(--quint) .1s forwards}
 #loader .blobs i{position:absolute;width:62vmax;height:62vmax;border-radius:50%;filter:blur(90px);opacity:.55;animation:drift 16s ease-in-out infinite alternate}
 #loader .blobs i:nth-child(1){left:-18vmax;top:-20vmax;background:var(--c1)}
@@ -897,7 +899,10 @@ let lastT = performance.now();
 function frame(now){
   const dt = Math.min(.1, (now - lastT)/1000); lastT = now;
   // camera
-  if (flying){
+  if (INTRO){                                              // intro: the camera glides across the map toward the figure
+    const k = Math.min(1, (now - INTRO.t0)/INTRO.ms), e = k < .5 ? 2*k*k : 1 - Math.pow(-2*k + 2, 2)/2;
+    cam.s = INTRO.a.s + (INTRO.t.s - INTRO.a.s)*e; cam.x = INTRO.a.x + (INTRO.t.x - INTRO.a.x)*e; cam.y = INTRO.a.y + (INTRO.t.y - INTRO.a.y)*e; Object.assign(tgt, cam);
+  } else if (flying){
     const k = Math.min(1, (now - flying.t0)/flying.ms), e = expo(k), a = flying.a, t = flying.t;
     cam.s = Math.exp(Math.log(a.s) + (Math.log(t.s) - Math.log(a.s))*e);
     cam.x = a.x + (t.x - a.x)*e; cam.y = a.y + (t.y - a.y)*e; Object.assign(tgt, cam);
@@ -983,7 +988,8 @@ function frame(now){
 function startIntro(){
   const h = homeView();
   F.x = CX; F.y = CY;                                        // the figure stands in the middle, surrounded by the work
-  Object.assign(cam, h); Object.assign(tgt, h);
+  if (INTRO){ INTRO = null; flyTo(h, 900); } else { Object.assign(cam, h); Object.assign(tgt, h); }
+  document.body.classList.remove("intro");
   render();
   $("#loader").classList.add("done");
   introDone = true;
@@ -992,6 +998,15 @@ function startIntro(){
   setTimeout(() => document.querySelectorAll(".reveal").forEach((r,k) => setTimeout(() => r.classList.add("on"), k*60)), 500);
   teachLook();
 }
+let INTRO = null;
+(function introPan(){                                        // start far away, zoomed out, and stream across the infinite map to the start
+  if (RM) return;
+  const h = homeView(), s0 = h.s*.62;
+  const wx = CX - BW*2.3, wy = CY - BH*.9;                    // a point two map-copies away
+  INTRO = { t0: performance.now(), ms: 3300, a: { s: s0, x: innerWidth/2 - wx*s0, y: innerHeight/2 - wy*s0 }, t: { s: h.s*.85, x: innerWidth/2 - CX*h.s*.85, y: innerHeight/2 - CY*h.s*.85 } };
+  Object.assign(cam, INTRO.a); Object.assign(tgt, cam);
+  document.body.classList.add("intro"); revealStart = performance.now() - 99999;   // every work already shown
+})();
 (function load(){
   const srcs = P.flatMap(p => p.tiles ? p.tiles.map(t => t.poster) : [A(p.slug,"cover")]); let n = 0;
   srcs.forEach(s => { const im = new Image(); im.onload = im.onerror = () => n++; im.src = s; });
