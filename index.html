@@ -1,0 +1,1256 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<title>Lilit Mardanian — mard studio</title>
+<meta name="description" content="Lilit Mardanian — a one-person studio in Yerevan. Event identities, branding, illustration and creative direction. Take a walk through the work.">
+<meta name="theme-color" content="#ececec">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="canonical" href="https://mard.studio/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://mard.studio/">
+<meta property="og:title" content="mard studio — Lilit Mardanian">
+<meta property="og:description" content="A one-person studio in Yerevan. Take a walk through the work.">
+<meta property="og:image" content="https://mard.studio/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#ececec; --fg:#111; --red:#ff2a1a; --trail:#ffb3a6; --g1:#888; --g2:#d2d2d2; --g3:#e2e2e2;
+  --font:"Inter", system-ui, -apple-system, sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, Menlo, monospace;
+  --pad:12px;
+  --expo:cubic-bezier(.19,1,.22,1);     /* easings read from gilhuybrecht.com */
+  --quint:cubic-bezier(.23,1,.32,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;overscroll-behavior:none;background:var(--bg)}
+body{color:var(--fg);font:400 12px/1.3 var(--font);letter-spacing:-.005em;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;text-align:inherit;letter-spacing:inherit}
+img{display:block;max-width:100%}
+.g{color:var(--g1)}
+a:hover,button:hover{color:var(--g1)}
+
+/* ===== Loader (0% → 100%) ===== */
+#loader{position:fixed;inset:0;z-index:99;background:var(--bg);display:grid;place-items:center;font-variant-numeric:tabular-nums;transition:opacity .8s var(--quint)}
+#loader.done{opacity:0;pointer-events:none}
+#loader .blobs{position:absolute;inset:0;overflow:hidden;opacity:0;animation:wIn 2s var(--quint) .1s forwards}
+#loader .blobs i{position:absolute;width:62vmax;height:62vmax;border-radius:50%;filter:blur(90px);opacity:.55;animation:drift 16s ease-in-out infinite alternate}
+#loader .blobs i:nth-child(1){left:-18vmax;top:-20vmax;background:var(--c1)}
+#loader .blobs i:nth-child(2){right:-22vmax;top:-10vmax;background:var(--c2);animation-delay:-4s;animation-direction:alternate-reverse}
+#loader .blobs i:nth-child(3){left:10vmax;bottom:-30vmax;background:var(--c3);animation-delay:-8s}
+#loader .blobs i:nth-child(4){right:-10vmax;bottom:-26vmax;background:var(--c4);animation-delay:-2s;animation-direction:alternate-reverse}
+#loader .blobs i:nth-child(5){left:30vmax;top:20vmax;width:40vmax;height:40vmax;background:var(--c5);animation-delay:-6s}
+@keyframes drift{0%{transform:translate(0,0) scale(1)}50%{transform:translate(6vmax,-4vmax) scale(1.12)}100%{transform:translate(-5vmax,5vmax) scale(.94)}}
+#loader .ld{position:relative}
+@media (prefers-reduced-motion:reduce){ #loader .blobs i{animation:none} }
+#loader .ld{display:grid;gap:6px;justify-items:center;font-size:clamp(16px,1.6vw,22px);letter-spacing:-.01em;white-space:pre}
+#loader p{opacity:0;animation:wIn 1s var(--quint) .1s forwards}
+#loader p.fade{transition:opacity .6s ease}
+@keyframes wIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* ===== Canvas ===== */
+#canvas{position:fixed;inset:0;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab;perspective:1500px}
+/* while you drag, the map leans like a sheet of paper pushed across a table, then settles flat */
+#tilt{position:absolute;inset:0;transform-origin:50% 50%;transform-style:preserve-3d;will-change:transform}
+/* the 3D layers must not catch the mouse: only the works do (otherwise tiles set "behind" the layer cannot be hovered or clicked) */
+#tilt,#world,.block,#blocks{pointer-events:none} .proj{pointer-events:auto}
+#canvas.dragging{cursor:grabbing}
+#world{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform;transform-style:preserve-3d}
+.block{position:absolute;left:0;top:0;transform-style:preserve-3d}
+.proj{position:absolute;width:var(--w);cursor:pointer;transform:translateZ(var(--z,0px))}   /* works sit at slightly different heights: parallax while tilting */
+.proj h2{display:flex;justify-content:space-between;gap:10px;height:30px;align-items:flex-end;padding-bottom:8px;font-size:18px;font-weight:400;white-space:nowrap;
+  opacity:0;transform:translateY(14px);transition:opacity .9s var(--quint),transform 1.1s var(--expo)}
+.proj h2 span:first-child{overflow:hidden;text-overflow:ellipsis}
+.proj .sq{position:relative;width:var(--w);height:var(--h);overflow:hidden;background:var(--g3);transition:transform .7s var(--expo)}
+.proj .sq img,.proj .sq video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;opacity:0;transition:opacity 1s ease-out}
+.proj.in:hover h2,body.near .proj.in h2{opacity:1;transform:none}
+.proj{isolation:isolate}
+.mono{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+.proj h2 .mono{align-self:flex-end;padding-bottom:2px}
+/* small archive labels under each work (client · type, number) */
+.proj .cap{position:absolute;left:0;right:0;top:100%;margin-top:9px;display:flex;justify-content:space-between;gap:10px;font:400 10px/1.2 var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--g1);white-space:nowrap;
+  opacity:0;transform:translateY(-4px);transition:opacity .6s var(--quint),transform .8s var(--expo);pointer-events:none}
+.proj .cap span:first-child{overflow:hidden;text-overflow:ellipsis}
+.proj.in:hover .cap,body.near .proj.in .cap{opacity:1;transform:none}
+/* filters: only the chosen kind of work stays bright */
+.proj{transition:opacity .5s var(--quint)}
+body[data-f] .proj{opacity:.1;pointer-events:none}
+body[data-f="Event"] .proj[data-c~="Event"],body[data-f="Identity"] .proj[data-c~="Identity"],body[data-f="Illustration"] .proj[data-c~="Illustration"]{opacity:1;pointer-events:auto}
+.chips{display:inline-flex;gap:10px} .chips button{color:var(--g1)} .chips button.on{color:var(--fg)}
+/* hover: the cursor becomes a small red circle with an arrow */
+#cur{position:fixed;left:0;top:0;z-index:40;pointer-events:none}
+#cur{z-index:300;opacity:0;transition:opacity .2s}
+#cur.vis{opacity:1}
+#cur i{display:grid;place-items:center;width:20px;height:20px;margin:-10px 0 0 -10px;background:var(--red);color:#fff;font-style:normal;font-size:11px;line-height:1;transform:scale(.45);transition:transform .35s var(--expo)}
+#cur i b{font-weight:400;opacity:0;transition:opacity .2s}
+#cur.on i{transform:scale(1)} #cur.on i b{opacity:1}
+@media (hover:hover){ body.cur-on, body.cur-on *{cursor:none!important} }
+@media (hover:none){ .proj.in h2,.proj.in .cap{opacity:1;transform:none} .proj h2{font-size:14px;color:var(--g1)} #cur{display:none} }
+.proj.in .sq img,.proj.in .sq video{opacity:1}
+.proj:hover .sq{transform:scale(1.03)}
+.proj.empty .sq{background:transparent;border:1px dashed var(--g2);display:grid;place-items:center;text-align:center;padding:20px;font-size:15px;line-height:1.4}
+.proj.empty .sq > div{opacity:0;transition:opacity 1s ease-out}
+.proj.empty.in .sq > div{opacity:1}
+.proj.empty .sq b{display:block;font-weight:500;font-size:18px;margin-bottom:6px}
+.proj.src-hidden .sq{visibility:hidden}
+
+#traces{position:absolute;left:0;top:0;width:1px;height:1px;overflow:visible;pointer-events:none}
+#traces path{fill:var(--trail);stroke:none;shape-rendering:crispEdges;animation:trailFade 26s linear forwards}
+@keyframes trailFade{0%,35%{opacity:1}100%{opacity:0}}
+
+/* Top-view figure (smaller) */
+#fig{position:absolute;left:0;top:0;width:32px;height:56px;margin:-28px 0 0 -16px;pointer-events:none;z-index:6}
+#fig .rot{width:100%;height:100%;transform-origin:50% 50%}
+#fig svg{width:100%;height:100%;overflow:visible;fill:var(--red);stroke:#fff;stroke-width:5;paint-order:stroke;filter:drop-shadow(0 1px 3px rgba(0,0,0,.18))}
+/* small pixel drawings hidden in the gaps: they light up when the figure walks by */
+.deco{position:absolute;pointer-events:none}
+.deco svg{width:100%;height:100%;display:block;fill:#ececec;transition:fill .8s var(--quint)}
+.deco.lit svg{fill:var(--trail)}
+#bubble{position:fixed;left:0;top:0;z-index:12;pointer-events:none;background:#111;color:#fff;font-size:13px;font-weight:500;padding:6px 11px;border-radius:14px;white-space:nowrap;
+  transform-origin:50% 100%;opacity:0;transition:opacity .35s var(--quint)}
+#bubble::after{content:"";position:absolute;left:50%;bottom:-5px;width:10px;height:10px;background:#111;transform:translateX(-50%) rotate(45deg);border-radius:1px}
+#bubble.on{opacity:1}
+/* thought cloud: same bubble, little circles instead of the pointer */
+#bubble.think{background:#111;color:#fff;font-weight:400;font-style:italic}
+#bubble.think::after{width:7px;height:7px;bottom:-9px;border-radius:50%;transform:translateX(-30%)}
+#bubble.think::before{content:"";position:absolute;left:50%;bottom:-16px;width:4px;height:4px;background:#111;border-radius:50%;transform:translateX(10%)}
+
+/* ===== Chrome ===== */
+.corner{position:fixed;width:26vw;height:26vh;pointer-events:none;z-index:8;background:rgba(236,236,236,.35);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
+.corner.tl{left:0;top:0;-webkit-mask-image:radial-gradient(circle at 0 0,#000 0,transparent 70%);mask-image:radial-gradient(circle at 0 0,#000 0,transparent 70%)}
+.corner.tr{right:0;top:0;-webkit-mask-image:radial-gradient(circle at 100% 0,#000 0,transparent 70%);mask-image:radial-gradient(circle at 100% 0,#000 0,transparent 70%)}
+.corner.bl{left:0;bottom:0;-webkit-mask-image:radial-gradient(circle at 0 100%,#000 0,transparent 70%);mask-image:radial-gradient(circle at 0 100%,#000 0,transparent 70%)}
+.corner.br{right:0;bottom:0;-webkit-mask-image:radial-gradient(circle at 100% 100%,#000 0,transparent 70%);mask-image:radial-gradient(circle at 100% 100%,#000 0,transparent 70%)}
+header,footer{position:fixed;left:0;right:0;z-index:20;pointer-events:none;display:grid;grid-template-columns:repeat(6,1fr);gap:var(--pad);padding:var(--pad)}
+header{top:0;padding-top:max(var(--pad),env(safe-area-inset-top));align-items:start}
+footer{bottom:0;padding-bottom:max(var(--pad),env(safe-area-inset-bottom));align-items:end}
+header .r,footer .r{text-align:right}
+header > *,footer > *{pointer-events:auto}
+header::before,footer::before{content:"";position:absolute;left:0;right:0;z-index:-1;pointer-events:none}
+header::before{top:0;height:110px;background:linear-gradient(#ececec,rgba(236,236,236,.75) 60%,transparent)}
+footer::before{bottom:0;height:150px;background:linear-gradient(rgba(236,236,236,0),rgba(222,222,222,.85) 55%,#cfcfcf)}
+.reveal{opacity:0;transform:translateY(10px);transition:opacity .9s var(--quint),transform 1.1s var(--expo)}
+.on .reveal,.reveal.on{opacity:1;transform:none}
+footer .tools{display:flex;gap:14px;justify-content:center;font-variant-numeric:tabular-nums}
+
+/* ===== Project view (opens with a shared-element flight) ===== */
+#mask{position:fixed;inset:0;background:transparent;z-index:30;opacity:0;pointer-events:none;transition:opacity .55s var(--quint)}
+#mask.on{opacity:1;pointer-events:auto;transition-delay:.12s}
+#flyLayer{position:fixed;inset:0;z-index:36;pointer-events:none;perspective:1800px}
+#flyLayer .fc{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform;backface-visibility:hidden;box-shadow:0 24px 50px rgba(0,0,0,.12)}
+#flyLayer .fc img{display:block;width:100%;height:100%;object-fit:cover}
+.media .wait{visibility:hidden}
+#flyer{position:fixed;left:0;top:0;z-index:36;pointer-events:none;display:none;perspective:1400px}
+#flyer img{display:block;width:100%;height:100%;object-fit:cover;transform-origin:50% 50%;backface-visibility:hidden}
+/* while a project is open, everything else on the canvas steps back */
+.proj{transition:opacity .35s var(--quint)}
+body.focus .proj.src-hidden h2{opacity:0;transition:opacity .25s}
+body.focus header,body.focus footer{opacity:0;transition:opacity .3s}
+header,footer,#fig,#traces{transition:opacity .5s var(--quint)}
+#view{position:fixed;inset:0;z-index:34;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;visibility:hidden}
+#view.open{visibility:visible}
+/* the page sits on the right half; the left half shows the map, blurred */
+#view::before{content:"";position:fixed;top:0;bottom:0;left:50%;right:0;background:var(--bg);z-index:-1;transform:translateX(100%);transition:transform .7s var(--expo)}
+#view.in::before{transform:none}
+#view.out::before{transform:translateX(100%);transition-duration:.45s}
+#view{isolation:isolate}
+.v-top{position:sticky;top:0;z-index:3;display:flex;justify-content:space-between;margin-left:50%;padding:var(--pad);padding-top:max(var(--pad),env(safe-area-inset-top));background:linear-gradient(var(--bg) 60%,transparent)}
+.v-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--pad);padding:0 var(--pad) 90px;margin-left:50%}
+.v-hero{position:sticky;top:44px;align-self:start;aspect-ratio:1/1;width:100%;max-height:calc(100vh - 56px);max-width:calc((100vh - 56px) * var(--ar,1));background:var(--g3);overflow:hidden}
+.v-hero img,.v-hero video{display:block;width:100%;height:100%;object-fit:cover;visibility:hidden}
+.v-hero.show img,.v-hero.show video{visibility:visible}
+.v-text{padding-top:4px}
+.v-title{font-size:clamp(28px,3.4vw,48px);line-height:1;letter-spacing:-.035em;font-weight:500;margin-bottom:26px}
+.facts{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--pad);margin-bottom:30px}
+.facts span{color:var(--g1)} .facts b{display:block;color:var(--fg);font-weight:400;margin-top:3px}
+.row2{display:grid;grid-template-columns:1fr 3fr;gap:var(--pad);padding:14px 0;border-top:1px solid var(--g2)}
+.row2 > span{color:var(--g1)}
+.built{display:flex;flex-wrap:wrap;gap:6px}
+.built li{list-style:none;border:1px solid var(--g2);padding:4px 9px;border-radius:20px}
+.prose{font-size:14px;line-height:1.5;max-width:58ch}
+.prose p+p{margin-top:10px}
+.media{display:grid;gap:8px;margin-top:18px}
+.media img,.media video,.media iframe{display:block;width:100%;background:var(--g3);border:0}
+.media .pair{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;align-items:start}
+.slot{position:relative;border:1px dashed var(--g2);display:grid;place-items:center;text-align:center;padding:24px;color:var(--g1)}
+.slot b{display:block;color:var(--fg);font-weight:500;font-size:14px;margin-bottom:6px}
+.slot .tag{position:absolute;top:10px;left:10px;border:1px solid var(--g2);padding:2px 8px;border-radius:20px}
+.slot .spec{display:block;margin-top:10px;font-size:11px}
+.slot p{max-width:40ch;line-height:1.45}
+.v-foot{display:flex;justify-content:space-between;margin-top:36px;padding-top:12px;border-top:1px solid var(--g2)}
+.v-solo{padding:0 var(--pad) 90px;margin-left:50%}
+.st{opacity:0;transform:translateY(28px);clip-path:inset(0 0 100% 0);transition:opacity .8s var(--quint),transform 1.2s var(--expo),clip-path 1.2s var(--expo)}
+#view.in .st{opacity:1;transform:none;clip-path:inset(-20px -20px -20px -20px)}
+#view.out{opacity:0;transition:opacity .28s var(--quint)}
+#view.out .st{transition-delay:0s !important}
+.v-title{overflow:hidden}
+.v-title .ln{display:inline-block;transform:translateY(105%);transition:transform 1.2s var(--expo)}
+#view.in .v-title .ln{transform:none}
+.big{display:block;font-size:clamp(22px,3.6vw,40px);font-weight:500;letter-spacing:-.03em;margin:4px 0 26px;word-break:break-all}
+.links a{display:block;margin:3px 0}
+form.contact{display:grid;gap:10px}
+form.contact input,form.contact textarea{font:inherit;font-size:14px;color:var(--fg);background:transparent;border:0;border-bottom:1px solid var(--g2);padding:10px 0;outline:none;width:100%}
+form.contact textarea{min-height:110px;resize:vertical}
+form.contact input:focus,form.contact textarea:focus{border-color:var(--fg)}
+form.contact button{justify-self:start;background:var(--fg);color:var(--bg);padding:9px 18px;border-radius:20px;margin-top:6px}
+.steps{display:grid;gap:10px;counter-reset:s}
+.steps li{list-style:none;display:grid;grid-template-columns:28px 1fr;font-size:14px;line-height:1.45}
+.steps li::before{counter-increment:s;content:counter(s,decimal-leading-zero);color:var(--g1);font-size:12px;padding-top:2px}
+.steps b{font-weight:500;display:block}
+
+#list{position:fixed;inset:0;z-index:33;background:var(--bg);padding:56px var(--pad) var(--pad);overflow-y:auto;opacity:0;pointer-events:none;transition:opacity .5s var(--quint)}
+#list.open{opacity:1;pointer-events:auto}
+#list h2{font-size:12px;font-weight:400;color:var(--g1);margin:24px 0 6px}
+#list .row{display:grid;grid-template-columns:40px 64px 2fr 1.4fr 1fr 90px;gap:var(--pad);align-items:center;padding:8px 0;border-top:1px solid var(--g2);width:100%;font-size:14px}
+#list .row .th{width:64px;height:48px;background:var(--g3);overflow:hidden}
+#list .row .th img{width:100%;height:100%;object-fit:cover}
+#list .row:hover span{color:var(--fg)}
+#lprev{position:fixed;left:0;top:0;z-index:40;width:260px;pointer-events:none;opacity:0;transition:opacity .25s var(--quint)}
+#lprev.on{opacity:1}
+#lprev img{width:100%;display:block}
+.seg{display:inline-flex;gap:10px}
+.seg button{color:var(--g1)} .seg button.on{color:var(--fg)}
+#list .row span:nth-child(n+4){color:var(--g1)}
+#list .close{position:fixed;top:var(--pad);right:var(--pad)}
+
+@media (max-width:760px){
+  header{grid-template-columns:1fr auto auto;gap:16px}
+  .hide-m{display:none!important}
+  footer{grid-template-columns:1fr 1fr}
+  .v-grid{grid-template-columns:minmax(0,1fr)}
+  .v-grid,.v-solo,.v-top{margin-left:0}
+  #view::before{left:0}
+  .v-hero{position:relative;top:0;max-width:none}
+  .facts{grid-template-columns:1fr 1fr}
+  .row2{grid-template-columns:1fr}
+  #list .row{grid-template-columns:28px 52px 1fr 64px}
+  #list .row .th{width:52px;height:40px}
+  #list .row span:nth-child(4),#list .row span:nth-child(5){display:none}
+  #lprev{display:none}
+}
+
+/* the territory around the first 12 is pale until the figure walks there */
+.proj.ghost{opacity:.13;filter:grayscale(1)}
+.proj.ghost h2,.proj.ghost .cap{visibility:hidden}
+.proj.unlock{transition:opacity 1.4s var(--quint),filter 1.4s var(--quint)}
+/* four tiny arrows around the figure: you can walk it with the keys or by clicking */
+#keys{position:absolute;left:50%;top:50%;width:0;height:0;transition:opacity .6s var(--quint)}
+#keys i{position:absolute;width:0;height:0;border:4px solid transparent;opacity:.55;animation:kp 2.4s ease-in-out infinite}
+#keys i:nth-child(1){left:-4px;top:-46px;border-bottom:5px solid var(--fg);border-top:0}
+#keys i:nth-child(2){left:-4px;top:41px;border-top:5px solid var(--fg);border-bottom:0}
+#keys i:nth-child(3){left:-44px;top:-4px;border-right:5px solid var(--fg);border-left:0}
+#keys i:nth-child(4){left:39px;top:-4px;border-left:5px solid var(--fg);border-right:0}
+@keyframes kp{0%,100%{opacity:.25}50%{opacity:.7}}
+#fig.walked #keys{opacity:0}
+/* filters + map/list: top row, under the name */
+.hrow{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;margin-top:6px}
+.hrow .chips,.hrow .seg{gap:6px} .hrow .rt{display:flex;gap:6px;align-items:center}
+.hrow button{border:1px solid #bdbdbd;border-radius:20px;padding:4px 11px;color:#777;background:rgba(236,236,236,.88);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);transition:background .25s,color .25s,border-color .25s}
+.hrow button:hover{color:var(--fg);border-color:var(--g1)}
+.hrow button.on{background:var(--fg);border-color:var(--fg);color:var(--bg)}
+@media (max-width:760px){ .hrow{flex-wrap:wrap;gap:6px} .hrow .rt{margin-left:auto} #zFit{display:none} }
+/* project page: short texts between the images */
+.media .txt{padding:22px 0 26px;max-width:52ch}
+.media .txt .k{display:block;color:var(--g1);margin-bottom:8px}
+.media .txt p{font-size:16px;line-height:1.45;letter-spacing:-.01em}
+.media .txt p+p{margin-top:10px}
+.media .cap2{margin:-2px 0 6px;color:var(--g1)}
+.media img{height:auto}
+
+/* "you can move the map": a soft white hand swiping (no box, no label) */
+#gest{position:fixed;left:50%;bottom:60px;z-index:21;width:44px;height:52px;margin-left:-22px;pointer-events:none;opacity:0;transition:opacity .7s var(--quint)}
+#gest.on{opacity:.75}
+#gest svg{width:100%;height:100%;overflow:visible;fill:#fff;filter:drop-shadow(0 1px 2px rgba(0,0,0,.28)) drop-shadow(0 4px 10px rgba(0,0,0,.12));
+  transform-origin:50% 90%;animation:swipe 2s cubic-bezier(.65,0,.35,1) infinite}
+@keyframes swipe{0%,12%{transform:translateX(-16px) rotate(-8deg);opacity:0}24%{opacity:1}66%{transform:translateX(16px) rotate(8deg);opacity:1}82%,100%{transform:translateX(16px) rotate(8deg);opacity:0}}
+@media (prefers-reduced-motion:reduce){ #gest svg{animation:none} }
+/* the cursor is a small lamp: the figure's shadow falls away from it */
+#shade{position:absolute;inset:0;pointer-events:none;transform-origin:50% 50%}
+#shade .srot{width:100%;height:100%;transform-origin:50% 50%}
+#shade svg{width:100%;height:100%;overflow:visible;fill:#000;stroke:none}
+</style>
+</head>
+<body>
+
+<div id="loader" style="--c1:#e83816;--c2:#2c66ad;--c3:#e3731b;--c4:#2c4477;--c5:#bf342f"><div class="ld"><p id="ldText" aria-live="polite">A one person studio</p></div></div>
+
+<header>
+  <div class="reveal"><button data-home>Lilit Mardanian</button><br><span class="g">mard studio</span></div>
+  <div class="reveal hide-m"></div>
+  <div class="reveal hide-m">Graphic designer &amp; art director<br><span class="g">Yerevan, Armenia</span></div>
+  <div class="reveal hide-m"></div>
+  <div class="reveal r"><button data-open="about">About</button></div>
+  <div class="reveal r"><button data-open="contact">Contact</button></div>
+  <div class="reveal hrow"><span class="chips"><button data-f="" class="on">All</button><button data-f="Event">Events</button><button data-f="Identity">Identity</button><button data-f="Illustration">Illustration</button></span>
+    <span class="rt"><span style="display:none"><button id="zOut">−</button><span id="zoom">100%</span><button id="zIn">+</button></span><button id="zFit">Fit</button><span class="seg"><button data-map class="on">Map</button><button data-list>List</button></span></span></div>
+</header>
+
+<div id="canvas"><div id="tilt">
+  <div id="world">
+    <svg id="traces"></svg>
+    <div id="blocks"></div>
+    <div id="fig"><div id="shade"><div class="srot"></div></div><div id="keys"><i></i><i></i><i></i><i></i></div><div class="rot">
+      <!-- Lilit's top-view figure (top_figure.svg) -->
+      <svg viewBox="0 0 88.58 157.51"><path d="M47.92,124.97c-.94-5.17,4.07-15.79-.65-32.02-10.25-3.05-15.89-9.61-19.21-20.48-2.42,1.55-3.85,3.76-5.55,6-3.46,4.56-6.09,8.4-8.37,13.83-.93,2.21-4.38,4.3-6.53,4.48-13.16,1.1-6.78-20.87.66-35.71,3.46-6.9,9.98-12.05,15.06-17.8.65-11.03-1.18-26.05,7.44-27.32,9.13-1.34,11.14,7.05,15.19,15.88,3.3-3.41,6.95-4.67,11.43-3.61,5.4,1.28,5.13,7.51,8.29,10.78.5.52,1.84-2.46,1.73-3.2l-1.76-11.38c-1.19-7.66-13.81-16.68-5.67-23.01,3.68-2.86,7.83-.91,11.11,1.81,12.73,10.54,17.49,21.27,17.5,37.92.02,19.04-11.07,21.61-10.78,27.71s.64,13.06-.02,19.71c-.55,5.5-1.47,11.69-.85,16.95s1.19,9.23.58,14.36c.96.98,4.04,3.95,4.32,5.55.72,4.09.33,11.3-1.67,14.41l-9.63,15.01c-2.34,3.65-15.74,3.24-19.35.75-1.55-1.07-2.58-5.29-2.27-7.36,1.26-8.36.49-15.06-1-23.26Z"/></svg>
+    </div></div>
+  </div>
+</div></div>
+<div id="cur"><i><b>↗</b></i></div>
+<div id="bubble">Let’s go</div>
+<div id="gest" aria-hidden="true"><svg viewBox="0 0 40 50"><g>
+  <rect x="11.5" y="3" width="7.4" height="26" rx="3.7"/><rect x="19.6" y="1" width="7.4" height="28" rx="3.7"/>
+  <rect x="27.4" y="11" width="6.6" height="20" rx="3.3"/>
+  <path d="M8 24c0-2 1.6-3.6 3.6-3.6h20.6c2.6 0 4.4 2.2 4.4 4.8V34c0 8-5.6 14-13.2 14h-1.8C14 48 10 44.6 8.6 39.6L4.2 27.4c-.7-1.9.3-4 2.2-4.6 1.5-.5 3.1.2 3.8 1.6L12 28z"/>
+</g></svg></div>
+<div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
+
+<footer>
+  <div class="reveal">© 2026 mard studio<br><span class="g mono" id="tally">Traces 00 / 11</span></div>
+  <div class="reveal hide-m"><a href="https://www.instagram.com/lilitmardanian/" target="_blank" rel="noopener">Instagram</a><br><a href="https://www.linkedin.com/in/lilit-mardanyan-438687136/" target="_blank" rel="noopener">LinkedIn</a></div>
+  <div class="reveal hide-m"><a href="https://www.behance.net/lilartulilartu" target="_blank" rel="noopener">Behance</a><br><span class="g">Yerevan <span id="clock">--:--</span></span></div>
+  <div class="reveal r"><a href="mailto:its.mard.studio@gmail.com">Email me</a></div>
+</footer>
+
+<div id="mask"></div>
+<div id="flyer"><img alt=""></div>
+<div id="view" aria-hidden="true"></div>
+<div id="list"><button class="close" id="listClose">Back to map</button><div id="listRows"></div></div>
+<div id="lprev"><img alt=""></div>
+
+<script>
+const EMAIL = "its.mard.studio@gmail.com";
+const A = (slug, f) => `assets/${slug}/${f}.jpg`;
+const gal = (slug, n) => Array.from({length:n}, (_,i) => A(slug, String(i+1).padStart(2,"0")));
+const $ = s => document.querySelector(s);
+const GLOW = {"assets/mesrop-sarkisian/cover.jpg":"#5a4848","assets/gaiff/cover.jpg":"#e83816","assets/artbox-hub/cover.jpg":"#da5f24","assets/east-west-residency/cover.jpg":"#74738b","assets/dzen-zine/cover.jpg":"#d68c28","assets/christmas-blanket/cover.jpg":"#c2a13c","assets/pati-henqy/cover.jpg":"#484f5a","assets/the-noosh/cover.jpg":"#e3731b","assets/state-philharmonic/cover.jpg":"#2c4477","assets/bari-bakht/cover.jpg":"#bf342f","assets/arevot/cover.jpg":"#2c66ad","assets/pati-henqy/m/goshacobs-p.jpg":"#74312e","assets/pati-henqy/m/dale-p.jpg":"#6f3433","assets/pati-henqy/m/ruben-p.jpg":"#75302e","assets/pati-henqy/m/supacooks-p.jpg":"#73322f","assets/pati-henqy/m/hero-p.jpg":"#5b474b","assets/arevot/m/leon-p.jpg":"#803289","assets/arevot/m/dave-pad-p.jpg":"#931c0f","assets/arevot/m/henna-onna-p.jpg":"#a2755a","assets/arevot/m/nouq-p.jpg":"#560daa","assets/arevot/m/scruscru-p.jpg":"#950d85","assets/arevot/m/dale-p.jpg":"#713269","assets/arevot/m/jino-dollini-p.jpg":"#92103e","assets/arevot/m/hero-p.jpg":"#cf712f","assets/pati-henqy/m/process-t.jpg":"#65433d","assets/pati-henqy/m/ticket-t.jpg":"#842c1e","assets/pati-henqy/m/night-t.jpg":"#584b4b","assets/arevot/m/jino-dollini-card-t.jpg":"#bd7941","assets/arevot/m/arax-t.jpg":"#005fbd","assets/arevot/m/leon-card-t.jpg":"#b37b4b","assets/arevot/m/henna-onna-card-t.jpg":"#c48f3a","assets/arevot/m/nouq-card-t.jpg":"#a1875d","assets/arevot/m/scruscru-card-t.jpg":"#aa6539","assets/arevot/m/dale-card-t.jpg":"#aa6854","assets/arevot/m/badge-t.jpg":"#ff4e00","assets/arevot/m/dave-pad-card-t.jpg":"#9f6541"};   // one colour taken from each work (for the hover glow)
+const RM = matchMedia("(prefers-reduced-motion: reduce)").matches;   // visitors who asked for less motion get simple fades
+/* One file = one tile. r: p = portrait 4:5, l = landscape 16:9, s = square. kind: v = video, i = image */
+const RATIO = { p:[4,5], l:[16,9], s:[1,1] };
+const MF = (slug, id, r, kind, label) => { const b = `assets/${slug}/m/${id}`;
+  return { id, r, kind, label, tile: b + (kind === "v" ? "-t.mp4" : "-t.jpg"), poster: b + (kind === "v" ? "-p.jpg" : "-t.jpg"), full: b + (kind === "v" ? ".mp4" : ".jpg") }; };
+const ARTISTS = [["dale","Dale"],["dave-pad","Dave Pad"],["henna-onna","Henna Onna"],["jino-dollini","Jino Dollini"],["leon","León"],["nouq","Nouq"],["scruscru","Scruscru"]];
+const pad2 = n => String(n).padStart(2,"0");
+
+/* =====================================================================
+   PROJECTS (images from "05 Website", resized into ./assets)
+   ===================================================================== */
+const P = [
+ {slug:"pati-henqy", name:"Pati Henqy Ep. 6", client:"Kitchen Lab", year:"2026", cats:["Event"], size:320, short:"Pati Henqy",
+  tiles:[MF("pati-henqy","hero","p","v","Motion poster"), MF("pati-henqy","night","l","i","On the night"), MF("pati-henqy","goshacobs","p","v","Goshacobs"),
+         MF("pati-henqy","ruben","p","v","Ruben Karapetyan"), MF("pati-henqy","dale","p","v","Dale"), MF("pati-henqy","supacooks","p","v","Supacooks"),
+         MF("pati-henqy","process","l","i","Countdown"), MF("pati-henqy","ticket","p","i","Ticket")],
+  layout:[["hero"],["night"],["goshacobs","ruben"],["dale","supacooks"],["process"],["ticket"]],
+  canvas:["hero","dale","night","process","ticket"],
+  role:"Full event identity", built:["Event identity","Poster","DJ cards","Tickets","Wristbands","Badges","VIP packaging","3D loop (Blender)"],
+  media:[{video:"assets/pati-henqy/dale.mp4", poster:"assets/pati-henqy/dale-poster.jpg"}, ...gal("pati-henqy",5)], link:"https://www.instagram.com/p/DW64iiliCCq/",
+  desc:"Kitchen Recordings and Kitchen Lab’s electronic music event at Hayfilm Studio. One concrete 3D texture system carried across everything a guest touches, from the poster to the wristband to the VIP box, plus a Blender animation loop for social."},
+ {slug:"arevot", name:"AREVOT [white]", client:"Kitchen Lab", year:"2026", cats:["Event","Identity","Illustration"], size:300, short:"AREVOT",
+  tiles:[MF("arevot","hero","p","v","Motion poster"), MF("arevot","arax","p","i","Arax lemonade"), MF("arevot","badge","s","i","Arax badge"),
+         ...ARTISTS.flatMap(([id,n]) => [MF("arevot",id+"-card","p","i",n), MF("arevot",id,"p","v",n+" (motion)")])],
+  layout:[["hero"],["arax","badge"], ...ARTISTS.map(([id]) => [id+"-card", id])],
+  canvas:["hero","arax","badge", ...ARTISTS.map(([id]) => id+"-card")],
+  role:"Art direction, concept to final", built:["Visual direction","Illustration","Typography","Poster","Lineup lockup","Social"],
+  media:gal("arevot",3), link:"https://www.instagram.com/p/DbBYayuiFM1/",
+  desc:"A summer sunset event at Jellyfish Yerevan. I owned the creative vision from concept to final execution: a warm retro palette, a gridded sun, reclining figures and palms, and a bold condensed AREVOT paired with a fluid script.\n\nEvery decision (colour, illustration, type, composition) served one mood, so the poster works as promotion and as the identity of the event itself."},
+ {slug:"gaiff", name:"Golden Apricot IFF", client:"GAIFF", year:"2022–24", cats:["Event"], size:300,
+  role:"Production design, 3 festival editions", built:["Posters","Print files","Badges","Social content","Format adaptations"],
+  media:gal("gaiff",2), credits:"Artwork by the artists of each year", link:"https://www.instagram.com/goldenapricotiff/",
+  desc:"Three years of full-cycle production for Armenia’s biggest film festival: taking each year’s artistic direction and making it work on every format and touchpoint."},
+ {slug:"artbox-hub", name:"Artbox Hub", client:"Artbox", year:"2023", cats:["Event","Illustration"], size:280,
+  role:"Visual system & campaign", built:["Visual system","Isometric illustrations","Social campaign","20-page booklet"],
+  media:gal("artbox-hub",13), link:"https://www.artbox.am/en/story/artbox-welcomes-15-cultural-institutions",
+  desc:"A system that turns cultural institutions into characters: isometric illustrations, a social campaign and a 20-page booklet bringing ten organisations to life."},
+ {slug:"mesrop-sarkisian", name:"Mesrop Sarkisian", client:"Concert poster", year:"2025", cats:["Event"], size:260,
+  role:"Concert poster", built:["Poster","Typography","Social"],
+  media:gal("mesrop-sarkisian",4), link:"https://www.instagram.com/p/DMF4GStoPtf/",
+  desc:"An improvisation evening at Arno Babajanyan Concert Hall. Black and white throughout. The portrait anchors the page while the type fragments around it, borrowing from Japanese minimalism."},
+ {slug:"east-west-residency", name:"East-West Residency", client:"Creative Armenia", year:"2023", cats:["Event"], size:260,
+  role:"Campaign design", built:["Portrait cards","Announcement visual","Social campaign"],
+  media:gal("east-west-residency",6), link:"https://www.instagram.com/p/Cw4y7VYOqK7/",
+  desc:"A campaign for Creative Armenia’s residency sending Armenian artists to Brussels: individual portrait cards, a group announcement and supporting content."},
+ {slug:"state-philharmonic", name:"State Philharmonic", client:"Rebrand", year:"2025", cats:["Identity"], size:300,
+  role:"Visual identity system", built:["Identity system","Colour palette","Typography","Concert posters","Merch","Badges","Business cards","Brand guidelines"],
+  media:gal("state-philharmonic",12), canvas:[{fm:"c", r:854/1000, label:"Tote bag"}, {fm:"g4", r:16/9, label:"Shirt, back"}], credits:"Logo by Ellen Shahbazyan", link:"https://www.instagram.com/philharmonia_armenia",
+  desc:"A full rebrand for one of Armenia’s oldest cultural institutions, founded in 1930. The system draws from the building’s historic façade columns and runs through posters, merch, stationery and guidelines."},
+ {slug:"the-noosh", name:"The Noosh", client:"Band", year:"2024–26", cats:["Identity","Illustration"], size:280,
+  role:"Creative direction", built:["Logotype","Single & album covers","Title design","Live session titles","Film photography"],
+  media:gal("the-noosh",10), credits:"Karine Karakhanyan Photography", link:"https://www.instagram.com/itsthenoosh.band/",
+  desc:"A Yerevan band blending Armenian folk with contemporary sound. I direct how they look: the Armenian logotype, covers, the title design for their live session and film photography."},
+ {slug:"bari-bakht", name:"Bari Bakht", client:"Printed Goods", year:"2025", cats:["Illustration"], size:220,
+  role:"Illustration for print", built:["Illustration","Print on cushion"],
+  media:gal("bari-bakht",1), credits:"Printed Goods Studio, TUMO Studios", link:"https://www.instagram.com/printedgoods/",
+  desc:"Made at a TUMO Studios atelier led by London studio Printed Goods. Armenian mythology and folklore in a flat, stamp-like style, designed to be printed on a cushion."},
+ {slug:"christmas-blanket", name:"Christmas Blanket", client:"Contrast Foundry", year:"2025", cats:["Illustration"], size:240,
+  role:"Armenian typography on textile", built:["Lettering","Pattern","Textile"],
+  media:gal("christmas-blanket",2), canvas:[{fm:"g1", r:1757/1006}],
+  desc:"Armenian letterforms blown up, layered and worn as textile. “POPOQ, PNDUK, MANDARIN” for Christmas."},
+ {slug:"dzen-zine", name:"Dzen", client:"Zine", year:"2024", cats:["Illustration"], size:220,
+  role:"Zine & lettering", built:["Zine","Hand lettering","Layout"],
+  media:gal("dzen-zine",1), credits:"Garine Gokceyan, TUMO Studios", link:"https://www.instagram.com/p/DECNNLSNvWS/",
+  desc:"Portraits of people mid-expression paired with hand-drawn Armenian lettering, linking the sound of a word to the shape of the mouth that says it. East and West Armenian both represented."}
+];
+const CONTACT_SIZE = 220;
+
+const SLOTS = {
+  Event:[
+    {t:"Event photo", r:"3 / 2", d:"The space on the night: your visuals in use. Entrance, stage screen, crowd holding the wristband.", s:"JPG · 3:2 · 2400px wide"},
+    {t:"Video", r:"16 / 9", d:"10–20 second loop: aftermovie clip, stage screen loop or motion poster.", s:"MP4 · 16:9 · muted loop · under 8 MB"},
+  ],
+  Identity:[ {t:"Process", r:"16 / 9", d:"Moodboard → sketches → rejected routes → final.", s:"2–4 images or one PDF spread"} ],
+  Illustration:[ {t:"Process timelapse", r:"1 / 1", d:"Sketch → line → colour in 3 steps, or a 15-second timelapse.", s:"MP4 or 3 JPGs · 1:1"} ]
+};
+const slotsFor = p => { if (p.tiles) return []; const seen=new Set(), out=[]; if (p.media.some(m => m.video)) seen.add("Video"); p.cats.forEach(c => (SLOTS[c]||[]).forEach(s => { if(!seen.has(s.t)){seen.add(s.t); out.push(s);} })); return out.slice(0,2); };
+
+/* =====================================================================
+   RANDOM (but stable) LAYOUT, packed close together.
+   The whole cluster is one "block" that repeats in every direction.
+   ===================================================================== */
+const LABEL = 30, GAP = 84;
+function rng(seed){ return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+const SEED = 233;
+const R = rng(SEED);
+const TILE = { p:[280,350], l:[480,270], s:[300,300] }, UP = 1.2;     // tile sizes (covers of other projects scale by UP)
+const shuffle = a => { for (let k = a.length - 1; k > 0; k--){ const j = Math.floor(R()*(k+1)); [a[k], a[j]] = [a[j], a[k]]; } return a; };
+/* what each project shows on the map, in its own proportions. The first sits around the figure, the rest further out */
+const COVER_R = { "arevot": 1000/572, "bari-bakht": 1000/572 };
+const fmSrc = (p, fm) => fm === "c" ? A(p.slug, "cover") : A(p.slug, fm.slice(1).padStart(2, "0"));
+const CV = P.map(p => {
+  if (p.tiles) return p.canvas.map(id => { const m = p.tiles.findIndex(t => t.id === id), t = p.tiles[m], [a, b] = RATIO[t.r];
+    return { fm: String(m), r: a/b, kind: t.kind, tile: t.tile, poster: t.poster, label: t.label }; });
+  if (p.canvas) return p.canvas.map(c => ({ fm: c.fm, r: c.r, kind: "i", tile: fmSrc(p, c.fm), poster: fmSrc(p, c.fm), label: c.label || "" }));
+  return [{ fm: "c", r: COVER_R[p.slug] || 854/1000, kind: "i", tile: A(p.slug, "cover"), poster: A(p.slug, "cover"), label: "" }];
+});
+const sizeFor = (S, r) => [Math.round(S*Math.sqrt(r)), Math.round(S/Math.sqrt(r))];
+const ring = [], extras = [];
+CV.forEach((list, i) => list.forEach((c, n) => {
+  const S = n === 0 ? (P[i].tiles ? 340 : P[i].size*UP) : 300*(.92 + R()*.16), [w, h] = sizeFor(S, c.r);
+  (n === 0 ? ring : extras).push({ i, c: n, w, h, ring: n === 0 });
+}));
+ring.push({ i: -1, w: Math.round(CONTACT_SIZE*UP), h: Math.round(CONTACT_SIZE*UP), ring: true });
+/* the start: the figure stands in an empty spot. In every OTHER copy of the map a tile fills that spot, so looping shows no hole */
+const fk = extras.findIndex(x => CV[x.i][x.c].r > 1.3);
+const filler = extras.splice(fk, 1)[0];
+extras.push({ deco: "flower", w: 30, h: 44 }, { deco: "pattern", w: 32, h: 32 });
+const tall = a => a.h + (a.deco ? 0 : LABEL);
+const hit = (a, b) => !(a.x + a.w + GAP <= b.x || b.x + b.w + GAP <= a.x || a.y + tall(a) + GAP <= b.y || b.y + tall(b) + GAP <= a.y);
+/* Seamless packing: the map is a tile that wraps at its edges while packing, so copies meet with no empty bands */
+const hitO = (a, b, ox, oy) => !(a.x + a.w + GAP <= b.x + ox || b.x + ox + b.w + GAP <= a.x || a.y + tall(a) + GAP <= b.y + oy || b.y + oy + tall(b) + GAP <= a.y);
+const all = [...shuffle(ring), ...shuffle(extras)];         // the 12 projects first, closest around the figure; the other files further out
+const AREA = [filler, ...all].reduce((t, p) => t + (p.w + GAP)*(tall(p) + GAP), 0);
+let BW, BH, placed;
+for (let fill = .8; fill > .3; fill -= .03){
+  BH = Math.round(Math.sqrt(AREA/fill/1.45)); BW = Math.round(BH*1.45);
+  const W = BW, H = BH, OFF = [[-W,-H],[0,-H],[W,-H],[-W,0],[0,0],[W,0],[-W,H],[0,H],[W,H]];
+  const wrap = (v, L) => ((v % L) + L) % L, cdist = (v, L) => { v = wrap(v, L); return v > L/2 ? v - L : v; };
+  placed = [{ ...filler, away: true, x: W/2 - filler.w/2, y: H/2 - tall(filler)/2 }];
+  let ok = true;
+  for (const it of all){
+    const spots = [];
+    placed.forEach(p => {
+      const ys = [p.y, p.y + tall(p) - tall(it), p.y + (tall(p) - tall(it))/2 + (R()-.5)*80];
+      const xs = [p.x, p.x + p.w - it.w, p.x + (p.w - it.w)/2 + (R()-.5)*80];
+      ys.forEach(y => { spots.push([p.x + p.w + GAP, y], [p.x - GAP - it.w, y]); });
+      xs.forEach(x => { spots.push([x, p.y + tall(p) + GAP], [x, p.y - GAP - tall(it)]); });
+    });
+    let best = null, bd = Infinity;
+    for (const [sx, sy] of spots){
+      const c = { ...it, x: wrap(sx, W), y: wrap(sy, H) };
+      if (placed.some(p => OFF.some(([ox, oy]) => hitO(c, p, ox, oy)))) continue;
+      const dx = cdist(c.x + c.w/2 - W/2, W), dy = cdist(c.y + tall(c)/2 - H/2, H);
+      // files of the same project should not sit next to each other
+      const twin = it.i !== undefined && placed.some(p => p.i === it.i && !p.deco && OFF.some(([ox, oy]) =>
+        Math.max(p.x + ox - (c.x + c.w), c.x - (p.x + ox + p.w), 0) < 160 && Math.max(p.y + oy - (c.y + tall(c)), c.y - (p.y + oy + tall(p)), 0) < 160));
+      const score = Math.max(Math.abs(dx)/1.45, Math.abs(dy)) + R()*50 + (twin ? 5000 : 0);
+      if (score < bd){ bd = score; best = c; }
+    }
+    if (!best){ ok = false; break; }
+    placed.push(best);
+  }
+  if (ok) break;
+}
+/* spread: swap files between same-shape spots so a project rarely touches itself (also across the repeat seams) */
+(function spread(){
+  const near = (A, B, ox, oy) => {                              // "beside": sharing a side, across a normal gap
+    const gx = Math.max(B.x + ox - (A.x + A.w), A.x - (B.x + ox + B.w)), gy = Math.max(B.y + oy - (A.y + tall(A)), A.y - (B.y + oy + tall(B)));
+    return (gx < GAP*2 && gy < -40) || (gy < GAP*2 && gx < -40); };
+  const adj = placed.map(() => []);
+  for (let a = 0; a < placed.length; a++) for (let b = a + 1; b < placed.length; b++){
+    const A = placed[a], B = placed[b]; if (A.deco || B.deco) continue;
+    for (const ox of [-BW, 0, BW]) for (const oy of [-BH, 0, BH]) if (near(A, B, ox, oy)){ adj[a].push(b); adj[b].push(a); }
+  }
+  const S = placed.map((p, k) => k).filter(k => { const p = placed[k]; return !p.deco && !p.away && !p.ring && p.c !== undefined; });
+  const shape = k => CV[placed[k].i][placed[k].c].r.toFixed(2), cost = k => adj[k].reduce((c, j) => c + (placed[j].i === placed[k].i), 0);
+  const swap = (a, b) => { const A = placed[a], B = placed[b]; [A.i, B.i] = [B.i, A.i]; [A.c, B.c] = [B.c, A.c]; };
+  for (let t = 0; t < 12000; t++){
+    const a = S[Math.floor(R()*S.length)], b = S[Math.floor(R()*S.length)];
+    if (a === b || placed[a].i === placed[b].i || shape(a) !== shape(b)) continue;
+    const before = cost(a) + cost(b); swap(a, b); if (cost(a) + cost(b) > before) swap(a, b);
+  }
+})();
+const CX = placed[0].x + placed[0].w/2, CY = placed[0].y + tall(placed[0])/2;   // where the figure starts
+const RING = placed.filter(p => p.ring || p.away);           // the first view frames these
+const RB = { x0: Math.min(...RING.map(p => p.x)) - CX, x1: Math.max(...RING.map(p => p.x + p.w)) - CX,
+             y0: Math.min(...RING.map(p => p.y)) - CY, y1: Math.max(...RING.map(p => p.y + tall(p))) - CY };
+const isStart = (bx, by) => bx === 0 && by === 0;
+
+const DECO = {};
+/* each project's files, in order: the first is what you see at the start */
+/* lit = visible; everything outside the first 12 stays a pale ghost until the figure walks near it */
+const UNLOCK = new Set();
+const LIT_R = 1.45*Math.max(-RB.x0, RB.x1, -RB.y0, RB.y1);
+const isLit = (bx, by, k, p) => Math.hypot(bx*BW + p.x + p.w/2 - CX, by*BH + p.y + tall(p)/2 - CY) < LIT_R || UNLOCK.has(bx + "," + by + "," + k);
+const blockHTML = (bx, by) => placed.map((p, k) => {
+  if (p.away && isStart(bx, by)) return "";
+  const pos = `left:${p.x}px;top:${p.y}px;--w:${p.w}px;--h:${p.h}px;--z:${((k*37)%9 - 4)*8}px`;
+  if (p.deco) return `<div class="deco" data-k="${k}" style="${pos};width:${p.w}px;height:${p.h}px">${DECO[p.deco]}</div>`;
+  const n = p.i < 0 ? P.length + 1 : p.i + 1, gh = isLit(bx, by, k, p) ? "" : " ghost";
+  if (p.i < 0) return `<div class="proj empty${gh}" data-act="contact" data-c="" data-k="${k}" style="${pos}">
+      <h2><span>Open</span><span class="mono g">No. ${pad2(n)}</span></h2>
+      <div class="sq"><div><b>Your event here.</b><span class="g">This square is empty.<br>Let’s build the next one.</span><br><br>Contact →</div></div></div>`;
+  const pr = P[p.i], f = CV[p.i][p.c];
+  return `<div class="proj${f.kind === "v" ? " vid" : ""}${gh}" data-i="${p.i}" data-fm="${f.fm}" data-k="${k}" data-c="${pr.cats.join(" ")}" style="${pos}">
+      <h2><span>${(pr.short || pr.name) + (f.label ? " · " + f.label : "")}</span><span class="mono g">${pr.year}</span></h2>
+      <div class="cap"><span>${pr.client} · ${pr.cats.join(", ")}</span><span>No. ${pad2(n)}</span></div>
+      <div class="sq">${f.kind === "v" ? `<video data-src="${f.tile}" poster="${f.poster}" muted loop playsinline preload="none"></video>` : `<img draggable="false" src="${f.tile}" alt="${pr.name}">`}</div></div>`;
+}).join("");
+
+/* =====================================================================
+   CAMERA — smoothed: input moves a target, the view eases toward it
+   ===================================================================== */
+const canvas = $("#canvas"), world = $("#world"), blocksEl = $("#blocks"), tilt = $("#tilt");
+const TL = { wx: null, wy: null, rx: 0, ry: 0, sc: 1 };
+const cam = {x:0,y:0,s:1}, tgt = {x:0,y:0,s:1};
+let fitS = 1, introDone = false, overlay = false, flying = null;
+const MIN_S = .12, MAX_S = 5;
+
+function homeScale(){                                       // fit the 12 projects around the figure on screen
+  const hw = Math.max(-RB.x0, RB.x1), hh = Math.max(-RB.y0, RB.y1), mob = innerWidth < 760;
+  const s = Math.min((innerWidth/2 - 10)/hw, (innerHeight/2 - (mob ? 50 : 70))/hh)*1.75;    // closer in: the nearest works around the figure
+  return mob ? Math.max(s, innerWidth*.4/300) : s;
+}
+function homeView(){ fitS = homeScale(); return { s: fitS, x: innerWidth/2 - CX*fitS, y: innerHeight/2 - CY*fitS }; }
+function zoomAt(f, sx, sy){
+  const ns = Math.max(MIN_S, Math.min(MAX_S, tgt.s*f)); f = ns/tgt.s;
+  tgt.x = sx - (sx - tgt.x)*f; tgt.y = sy - (sy - tgt.y)*f; tgt.s = ns; flying = null;
+}
+const expo = k => k === 1 ? 1 : 1 - Math.pow(2, -10*k);
+function flyTo(t, ms=1200, done){ flying = { a:{...cam}, t, t0:performance.now(), ms, done }; }
+
+/* tiles fade in by distance from the centre once the intro starts */
+let revealStart = 0;
+function revealBlock(b){
+  if (!revealStart) return;
+  const bx = +b.dataset.bx*BW, by = +b.dataset.by*BH, since = performance.now() - revealStart;
+  b.querySelectorAll(".proj").forEach(el => {
+    const d = Math.hypot(bx + parseFloat(el.style.left) - CX, by + parseFloat(el.style.top) - CY);
+    const delay = Math.max(0, 250 + d*.5 - since);
+    setTimeout(() => el.classList.add("in"), delay);
+  });
+}
+/* only the blocks on screen exist in the page */
+const live = new Map();
+function syncBlocks(){
+  const x0 = -cam.x/cam.s, y0 = -cam.y/cam.s, x1 = (innerWidth - cam.x)/cam.s, y1 = (innerHeight - cam.y)/cam.s;
+  const need = new Set();
+  for (let bx = Math.floor(x0/BW) - 1; bx <= Math.floor(x1/BW); bx++)
+    for (let by = Math.floor(y0/BH) - 1; by <= Math.floor(y1/BH); by++){
+      const key = bx+","+by; need.add(key);
+      if (!live.has(key)){
+        const el = document.createElement("div"); el.className = "block"; el.dataset.bx = bx; el.dataset.by = by;
+        el.style.transform = `translate(${bx*BW}px,${by*BH}px)`; el.innerHTML = blockHTML(bx, by);
+        blocksEl.appendChild(el); live.set(key, el);
+        revealBlock(el);
+      }
+    }
+  for (const [k, el] of live) if (!need.has(k)){ el.remove(); live.delete(k); }
+}
+let vidT = 0;
+function manageVideos(now){
+  if (now - vidT < 400) return; vidT = now;
+  const vids = [...blocksEl.querySelectorAll(".proj.vid video")], cx = innerWidth/2, cy = innerHeight/2, on = [];
+  vids.forEach(v => { const r = v.getBoundingClientRect();
+    const vis = !overlay && r.right > 0 && r.left < innerWidth && r.bottom > 0 && r.top < innerHeight && r.width > 70;
+    if (vis) on.push([Math.hypot(r.left + r.width/2 - cx, r.top + r.height/2 - cy), v]); else if (!v.paused) v.pause(); });
+  on.sort((a, b) => a[0] - b[0]).forEach(([, v], k) => {
+    const play = k < 4 && !v.closest(".ghost");
+    if (play){ if (!v.src) v.src = v.dataset.src; if (v.paused) v.play().catch(() => {}); } else if (!v.paused) v.pause(); });
+}
+function render(){
+  world.style.transform = `translate3d(${cam.x}px,${cam.y}px,0) scale(${cam.s})`;
+  $("#zoom").textContent = Math.round(cam.s/fitS*100) + "%";
+  syncBlocks();
+}
+
+/* the part of the map you are looking at comes into full colour */
+let unlockT = 0;
+function unlockView(now){
+  if (!introDone || overlay || now - unlockT < 200) return; unlockT = now;
+  const wx = (innerWidth/2 - cam.x)/cam.s, wy = (innerHeight/2 - cam.y)/cam.s, rad = Math.min(innerWidth, innerHeight)*.42/cam.s;
+  blocksEl.querySelectorAll(".proj.ghost").forEach(el => {
+    const b = el.closest(".block"), bx = +b.dataset.bx, by = +b.dataset.by, k = +el.dataset.k, p = placed[k];
+    const cx = bx*BW + p.x + p.w/2, cy = by*BH + p.y + tall(p)/2;
+    if (Math.hypot(cx - wx, cy - wy) < rad + Math.min(p.w, p.h)*.3){ UNLOCK.add(bx + "," + by + "," + k); el.classList.add("unlock"); el.classList.remove("ghost"); }
+  });
+}
+/* teaching the move: the map nudges once, a small trackpad icon swipes, the figure says it — all gone after the first move */
+const TOUCH = matchMedia("(hover:none)").matches;
+const LOOK = { done: false, acc: 0, since: 0 };
+function looked(){ if (LOOK.done) return; LOOK.done = true; $("#gest").classList.remove("on"); }
+function teachLook(){
+  LOOK.since = performance.now();
+  setTimeout(() => { if (LOOK.done || overlay || RM) return;            // the map nudges once, like a sheet of paper pushed and let go
+    tgt.x -= 70; setTimeout(() => { if (!LOOK.done && !flying) tgt.x += 70; }, 650); }, 1400);
+  setTimeout(() => { if (!LOOK.done) $("#gest").classList.add("on"); }, 2200);
+}
+/* ---- input ---- */
+canvas.addEventListener("wheel", e => {
+  e.preventDefault(); if (!introDone) return;
+  if (e.ctrlKey || e.metaKey) zoomAt(Math.exp(-e.deltaY*.006), e.clientX, e.clientY);
+  else if (e.deltaMode === 1) zoomAt(Math.exp(-e.deltaY*.08), e.clientX, e.clientY);
+  else { tgt.x -= e.deltaX; tgt.y -= e.deltaY; flying = null; LOOK.acc += Math.abs(e.deltaX) + Math.abs(e.deltaY); if (LOOK.acc > 60) looked(); }
+}, {passive:false});
+
+const ptrs = new Map(); let moved = 0, pinch = null, vel = {x:0,y:0}, lastMove = 0;
+canvas.addEventListener("pointerdown", e => {
+  if (!introDone) return;
+  canvas.setPointerCapture(e.pointerId); ptrs.set(e.pointerId, {x:e.clientX, y:e.clientY});
+  moved = 0; flying = null; vel = {x:0,y:0}; canvas.classList.add("dragging");
+  if (ptrs.size === 2){ const [a,b] = [...ptrs.values()]; pinch = {d:Math.hypot(a.x-b.x,a.y-b.y)}; }
+});
+canvas.addEventListener("pointermove", e => {
+  if (!ptrs.has(e.pointerId)) return;
+  const prev = ptrs.get(e.pointerId), cur = {x:e.clientX, y:e.clientY}; ptrs.set(e.pointerId, cur);
+  if (ptrs.size === 1){
+    const dx = cur.x-prev.x, dy = cur.y-prev.y; tgt.x += dx; tgt.y += dy;
+    vel = {x: vel.x*.6 + dx*.4, y: vel.y*.6 + dy*.4}; lastMove = performance.now(); moved += Math.abs(dx)+Math.abs(dy);
+  } else if (ptrs.size === 2 && pinch){
+    const [a,b] = [...ptrs.values()], d = Math.hypot(a.x-b.x,a.y-b.y);
+    zoomAt(d/pinch.d, (a.x+b.x)/2, (a.y+b.y)/2); pinch.d = d; moved += 10;
+  }
+});
+const up = e => {
+  ptrs.delete(e.pointerId); if (ptrs.size < 2) pinch = null;
+  if (!ptrs.size && moved > 30) looked();
+  if (!ptrs.size){ canvas.classList.remove("dragging"); if (performance.now() - lastMove < 80){ tgt.x += vel.x*14; tgt.y += vel.y*14; } }
+};
+canvas.addEventListener("pointerup", up); canvas.addEventListener("pointercancel", up);
+
+const projAt = (x, y) => { const h = document.elementFromPoint(x, y); return h && h.closest(".proj"); };
+canvas.addEventListener("click", e => {
+  if (moved > 6 || !introDone) return;
+  const el = projAt(e.clientX, e.clientY);
+  if (!el){ walkTo((e.clientX - cam.x)/cam.s, (e.clientY - cam.y)/cam.s); return; }
+  if (el.classList.contains("ghost")){ const r = el.querySelector(".sq").getBoundingClientRect(); flyTo({ s: cam.s, x: cam.x + innerWidth/2 - (r.left + r.width/2), y: cam.y + innerHeight/2 - (r.top + r.height/2) }, 900); return; }
+  if (el.dataset.act === "contact") return openContact();
+  const i = +el.dataset.i; openProject(i, el);
+});
+canvas.addEventListener("dblclick", e => { if (introDone && !projAt(e.clientX, e.clientY)) zoomAt(1.7, e.clientX, e.clientY); });
+
+
+$("#zIn").onclick = () => zoomAt(1.4, innerWidth/2, innerHeight/2);
+$("#zOut").onclick = () => zoomAt(1/1.4, innerWidth/2, innerHeight/2);
+$("#zFit").onclick = () => flyTo(nearestHome());
+document.querySelector("[data-home]").onclick = () => { closeView(); closeList(); flyTo(nearestHome()); };
+/* "home" = the copy of the cluster closest to where you are */
+function nearestHome(){
+  const h = homeView(), wx = (innerWidth/2 - cam.x)/cam.s, wy = (innerHeight/2 - cam.y)/cam.s;
+  const bx = Math.round((wx - CX)/BW), by = Math.round((wy - CY)/BH);
+  return { s: h.s, x: innerWidth/2 - (CX + bx*BW)*h.s, y: innerHeight/2 - (CY + by*BH)*h.s };
+}
+addEventListener("keydown", e => {
+  if (e.key === "Escape"){ closeView(); closeList(); return; }
+  if (overlay || !introDone) return;
+  const k = KEYS[e.key.length === 1 ? e.key.toLowerCase() : e.key];
+  if (k){ e.preventDefault(); held.add(k); }
+  if (e.key === "+" || e.key === "=") $("#zIn").click();
+  if (e.key === "-") $("#zOut").click();
+});
+addEventListener("keyup", e => { const k = KEYS[e.key.length === 1 ? e.key.toLowerCase() : e.key]; if (k) held.delete(k); });
+addEventListener("blur", () => held.clear());
+["pointerdown","wheel","keydown"].forEach(t => addEventListener(t, () => lastInput = performance.now(), {passive:true}));
+addEventListener("resize", () => { if (introDone && !overlay) flyTo(nearestHome(), 500); });
+
+/* Zoomed in near a project → figure goes there */
+let zoomCheckT = 0;
+function checkZoomTrigger(now){
+  if (!introDone || overlay || now - zoomCheckT < 350) return; zoomCheckT = now;
+
+}
+
+/* =====================================================================
+   FIGURE: walks to the top-left of a project and stops there
+   ===================================================================== */
+const fig = $("#fig"), rot = fig.querySelector(".rot"), svgT = $("#traces"), bubble = $("#bubble");
+const shade = $("#shade"), srot = shade.querySelector(".srot"); srot.innerHTML = rot.innerHTML;
+const SH = { x: 6, y: 9, len: 10 };
+/* pixel drawings hidden in the gaps (from the stances file) */
+const FIG = {"flower":{"vb":[202.13,83.16,142.57,207.63],"p":[{"d":"M 279.71 290.66 L 266.90 290.79 L 266.91 187.07 L 240.93 186.94 L 240.92 174.10 L 227.76 174.08 L 228.24 148.19 L 215.23 148.17 L 215.23 135.25 L 202.13 135.14 L 202.13 109.17 L 227.98 109.19 L 228.05 121.97 L 240.92 122 L 240.92 109.19 L 253.91 109.14 L 253.99 96.19 L 266.93 96.28 L 266.91 83.21 L 279.91 83.16 L 279.94 96.25 L 292.79 96.23 L 292.78 109.10 L 305.77 109.11 L 305.82 121.98 L 318.67 121.99 L 318.69 109.19 L 344.68 109.20 L 344.69 135.13 L 331.66 135.17 L 331.55 148.17 L 318.79 148.20 L 318.80 174.10 L 305.80 174.16 L 305.78 186.96 L 279.71 187.02Z M 279.71 290.66 ","hole":false},{"d":"M 318.70 258.28 L 318.71 245.25 L 305.82 245.26 L 305.76 258.39Z M 331.80 245.19 L 331.82 232.40 L 318.75 232.33 L 318.89 245.34Z M 305.74 271.29 L 305.67 258.34 L 292.89 258.40 L 292.89 232.44 L 305.67 232.38 L 305.71 219.43 L 344.67 219.42 L 344.67 258.30 L 331.95 258.32 L 331.88 271.26Z M 305.74 271.29 ","hole":false},{"d":"M 228.25 244.35 L 227.89 244.65 L 227.98 257.16 L 240.51 257.30 L 240.91 256.94 L 240.93 244.29Z M 227.84 243.84 L 227.75 231.36 L 214.97 231.39 L 214.91 244.24 L 227.43 244.23Z M 241.00 257.76 L 241.03 270.44 L 215.06 270.45 L 215.00 257.35 L 202.13 257.32 L 202.12 218.37 L 241.01 218.36 L 241.00 231.40 L 254.01 231.36 L 254.03 257.35 L 241.32 257.35Z M 241.00 257.76 ","hole":false}]},"pattern":{"vb":[463.89,134.73,117.61,117.59],"p":[{"d":"M 489.96 147.76 L 490.03 160.85 L 477.01 160.87 L 477.01 147.76 L 463.89 147.76 L 463.88 134.75 L 477.01 134.74 L 477.03 147.76Z M 489.96 147.76 ","hole":false},{"d":"M 529.22 200.07 L 529.22 186.99 L 516.15 186.98 L 516.13 200.07Z M 529.29 147.76 L 529.23 173.87 L 542.25 173.88 L 542.25 186.98 L 568.38 186.90 L 568.38 200.05 L 581.48 200.09 L 581.47 226.19 L 568.33 226.19 L 568.39 200.08 L 542.25 200.08 L 542.25 213.09 L 529.22 213.10 L 529.29 239.20 L 516.14 239.19 L 516.13 252.32 L 490.01 252.32 L 490.02 239.22 L 516.13 239.20 L 516.13 213.10 L 503.12 213.08 L 503.11 200.08 L 476.97 200.08 L 477.01 186.90 L 503.10 186.98 L 503.12 173.88 L 516.12 173.87 L 516.14 147.76 L 489.96 147.76 L 490.04 134.73 L 516.15 134.74 L 516.14 147.76Z M 529.29 147.76 ","hole":false},{"d":"M 555.31 147.76 L 529.29 147.76 L 529.23 134.74 L 555.36 134.75Z M 555.31 147.76 ","hole":false},{"d":"M 568.38 160.87 L 555.36 160.85 L 555.31 147.76 L 568.38 147.76 L 568.38 134.73 L 581.49 134.76 L 581.46 147.75 L 568.38 147.77Z M 568.38 160.87 ","hole":false},{"d":"M 477.01 160.87 L 477.01 186.90 L 463.89 186.97 L 463.89 160.87Z M 477.01 160.87 ","hole":false},{"d":"M 568.38 186.90 L 568.38 160.87 L 581.47 160.85 L 581.48 186.98Z M 568.38 186.90 ","hole":false},{"d":"M 476.97 200.08 L 476.96 226.20 L 463.89 226.21 L 463.89 200.08Z M 476.97 200.08 ","hole":false},{"d":"M 490.02 239.22 L 477.01 239.22 L 477.01 252.31 L 463.89 252.32 L 463.89 239.21 L 477.01 239.21 L 476.96 226.20 L 490.03 226.19Z M 490.02 239.22 ","hole":false},{"d":"M 568.33 226.19 L 568.38 239.03 L 568.49 239.21 L 581.47 239.21 L 581.48 252.31 L 568.38 252.32 L 568.38 239.42 L 568.12 239.21 L 555.32 239.21 L 555.36 226.18Z M 568.33 226.19 ","hole":false},{"d":"M 555.32 239.21 L 555.36 252.32 L 529.23 252.32 L 529.29 239.20Z M 555.32 239.21 ","hole":false}]}};
+const pathsOf = g => g.p.map(x => `<path${x.hole ? ' class="hole"' : ""} d="${x.d}"/>`).join("");
+DECO.flower = `<svg viewBox="${FIG.flower.vb.join(" ")}">${pathsOf(FIG.flower)}</svg>`;
+DECO.pattern = `<svg viewBox="${FIG.pattern.vb.join(" ")}">${pathsOf(FIG.pattern)}</svg>`;
+const F = { x:0, y:0, a:-Math.PI/2, dist:0, queue:[], targetKey:null, atKey:null, strokes:null, pts:null };
+const visited = new Set();
+const SPEED = 240, NS = "http://www.w3.org/2000/svg", rnd = (a,b) => a + Math.random()*(b-a);
+const keyOf = el => { const b = el.closest(".block"); return `${b.dataset.bx},${b.dataset.by},${el.dataset.k}`; };
+function worldRectOf(el){
+  const b = el.closest(".block"), bx = +b.dataset.bx, by = +b.dataset.by, p = placed[+el.dataset.k];
+  return { x: bx*BW + p.x, y: by*BH + p.y + LABEL, w: p.w, h: p.h };
+}
+/* Trail: a chunky pixel path in red — every grid cell the figure crosses gets filled,
+   stepping like a staircase (4-connected), so the gaps get "coloured in" as it walks */
+const T = 8;                                              // trail cell size (world px): thinner
+const filled = new Set();
+let trail = null, trailD = "", lastCell = null;
+let pieceCells = [];
+function newPiece(){                                       // the trail is drawn in short pieces so old parts can fade away
+  trail = document.createElementNS(NS,"path"); svgT.appendChild(trail); trailD = ""; pieceCells = [];
+  const mine = pieceCells, el = trail;
+  el.addEventListener("animationend", () => { mine.forEach(k => filled.delete(k)); el.remove(); });
+}
+function newStroke(){ newPiece(); lastCell = null; }
+function fillCell(cx, cy){
+  const k = cx + "," + cy; if (filled.has(k)) return; filled.add(k);
+  if (pieceCells.length >= 14){ trail.setAttribute("d", trailD); newPiece(); }
+  pieceCells.push(k); trailD += `M${cx*T} ${cy*T}h${T}v${T}h-${T}z`;
+}
+function scratch(x, y){
+  if (!trail) newStroke();
+  const cx = Math.floor(x/T), cy = Math.floor(y/T);
+  if (!lastCell){ fillCell(cx, cy); lastCell = [cx, cy]; trail.setAttribute("d", trailD); return; }
+  let [px, py] = lastCell; if (px === cx && py === cy) return;
+  while (px !== cx || py !== cy){                         // step one cell at a time: x first, then y
+    const ex = cx - px, ey = cy - py;
+    if (Math.abs(ex) >= Math.abs(ey)) px += Math.sign(ex); else py += Math.sign(ey);
+    fillCell(px, py);
+  }
+  lastCell = [cx, cy]; trail.setAttribute("d", trailD);
+}
+/* You walk the figure: click/tap an empty spot, or steer with arrows / WASD.
+   Left alone, it stays put: it looks at your cursor, thinks now and then, and falls asleep. */
+const KEYS = { ArrowLeft:"l", a:"l", ArrowRight:"r", d:"r", ArrowUp:"u", w:"u", ArrowDown:"d", s:"d" };
+const held = new Set();
+let hasWalkedBefore = false; try { hasWalkedBefore = localStorage.getItem("mard-walked") === "1"; } catch (_) {}
+let lastInput = performance.now(), hasWalked = false, wanderT = 0;
+const markWalked = () => { if (hasWalked && !hasWalkedBefore){ hasWalkedBefore = true; try { localStorage.setItem("mard-walked", "1"); } catch (_) {} } };
+function walkTo(x, y){
+  const path = findPath(F.x, F.y, x, y); if (!path.length) return;
+  F.queue = path; F.wander = false; F.fast = true; F.targetKey = null; hasWalked = true; markWalked(); newStroke(); scratch(F.x, F.y);
+}
+const FR = 12;                                            // figure "radius" for steering collisions
+function freeAt(x, y){
+  return !rectsNear(x-60, y-60, x+60, y+60).some(r => x > r.x - FR && x < r.x + r.w + FR && y > r.y - FR && y < r.y + r.h + FR);
+}
+function steer(dt){
+  let dx = (held.has("r") - held.has("l")), dy = (held.has("d") - held.has("u"));
+  if (!dx && !dy) return false;
+  const n = Math.hypot(dx, dy); dx /= n; dy /= n;
+  if (F.queue.length || F.wander){ F.queue = []; F.wander = false; }
+  if (!F.steering){ F.steering = true; newStroke(); scratch(F.x, F.y); }
+  hasWalked = true; markWalked();
+  const st = SPEED*.8*dt, nx = F.x + dx*st, ny = F.y + dy*st;
+  if (freeAt(nx, ny)){ F.x = nx; F.y = ny; }               // slide along the works instead of entering them
+  else if (dx && freeAt(nx, F.y)) F.x = nx;
+  else if (dy && freeAt(F.x, ny)) F.y = ny;
+  else return true;
+  let da = Math.atan2(dy, dx) - F.a; da = Math.atan2(Math.sin(da), Math.cos(da)); F.a += da*.3;
+  F.dist += st; scratch(F.x, F.y);
+  // keep the figure on screen
+  const sx = cam.x + F.x*cam.s, sy = cam.y + F.y*cam.s, m = Math.min(innerWidth, innerHeight)*.18;
+  if (sx < m) tgt.x += m - sx; if (sx > innerWidth - m) tgt.x -= sx - (innerWidth - m);
+  if (sy < m) tgt.y += m - sy; if (sy > innerHeight - m) tgt.y -= sy - (innerHeight - m);
+  flying = null;
+  return true;
+}
+function wander(now){
+  if (overlay || F.sleeping || F.queue.length || held.size || now - lastInput < 7000 || now < wanderT) return;
+  wanderT = now + 2500 + Math.random()*2500;
+  for (let t = 0; t < 12; t++){
+    const a = Math.random()*Math.PI*2, d = 120 + Math.random()*260, x = F.x + Math.cos(a)*d, y = F.y + Math.sin(a)*d;
+    if (!freeAt(x, y)) continue;
+    const path = findPath(F.x, F.y, x, y); if (path.length < 2) continue;
+    F.queue = path; F.wander = true; F.fast = false; newStroke(); scratch(F.x, F.y); return;
+  }
+}
+/* Thoughts above the head — edit freely. */
+const THOUGHTS = [
+  "pretty good stuff here, huh?", "I build the events.",
+  "open for projects, by the way", "is this a portfolio or a game?",
+  "մարդ means human, by the way", "your event could live here", "walked here myself", "are you still there?", "this is my favourite spot"
+];
+const HOVER_THOUGHTS = ["pretty good stuff here, huh?", "go on, open it", "this one’s a favourite", "good choice"];
+const mouse = { x: 0, y: 0, on: false, overProj: null };
+addEventListener("pointermove", e => { if (e.pointerType !== "mouse") return; mouse.x = e.clientX; mouse.y = e.clientY; mouse.on = true; if (F.sleeping) lastInput = performance.now();
+  const h = e.target.closest && e.target.closest(".proj[data-i]"); if (h !== mouse.overProj){ mouse.overProj = h; if (h) TH.hoverAt = performance.now(); } });
+document.addEventListener("pointerleave", () => { mouse.on = false; mouse.overProj = null; });
+const TH = { text: null, until: 0, next: 0, last: -1, hoverAt: 0, hoverShown: 0, count: 0, MAX: 14 };
+const pick = (arr) => { let k; do k = Math.floor(Math.random()*arr.length); while (arr.length > 1 && k === TH.last); TH.last = k; return arr[k]; };
+function think(now, state){
+  if (state === "sleep") return "z z z";
+  if (state === "walk"){ TH.text = null; TH.next = Math.max(TH.next, now + 1800); return null; }
+  // hovering a project for a moment → a comment about it (not every time)
+  if (TH.count < TH.MAX && now > TH.next && mouse.overProj && now - TH.hoverAt > 900 && TH.hoverShown !== TH.hoverAt && Math.random() < .25){
+    TH.hoverShown = TH.hoverAt; TH.text = pick(HOVER_THOUGHTS); TH.until = now + 2800; TH.count++;
+  } else if (mouse.overProj && TH.hoverShown !== TH.hoverAt && now - TH.hoverAt > 700) TH.hoverShown = TH.hoverAt;
+  if (TH.text && now > TH.until){ TH.text = null; TH.next = now + 9000 + Math.random()*6000; }
+  if (!TH.text && TH.count < TH.MAX && now > TH.next && now - F.stillSince > 4000){ TH.text = pick(THOUGHTS); TH.until = now + 3800; TH.count++; }
+  return TH.text;
+}
+let visitT = 0;
+function markVisits(now){
+  if (now - visitT < 150) return; visitT = now;
+  const bx = Math.floor(F.x/BW), by = Math.floor(F.y/BH);
+  for (let ox = -1; ox <= 1; ox++) for (let oy = -1; oy <= 1; oy++) placed.forEach((p, k) => {
+    if (p.away && isStart(bx+ox, by+oy)) return;
+    const x = (bx+ox)*BW + p.x, y = (by+oy)*BH + p.y, dx = Math.max(x - F.x, 0, F.x - x - p.w), dy = Math.max(y - F.y, 0, F.y - y - tall(p));
+    if (p.deco){ if (Math.hypot(dx, dy) < 50){ const el = document.querySelector(`.block[data-bx="${bx+ox}"][data-by="${by+oy}"] .deco[data-k="${k}"]`); el && el.classList.add("lit"); } return; }
+    const d = Math.hypot(dx, dy);
+    if (p.i < 0 || F.wander) return;
+    if (d < 40 && !visited.has(p.i)){ visited.add(p.i); $("#tally").textContent = `Traces ${pad2(visited.size)} / ${P.length}`; }
+  });
+}
+function sendFigureTo(el, i){
+  const key = keyOf(el); if (key === F.targetKey || (key === F.atKey && !F.queue.length)) return;
+  const r = worldRectOf(el);
+  const ex = r.x - 24, ey = r.y - 6;                      // stop just outside the top-left corner
+  F.queue = findPath(F.x, F.y, ex, ey); F.targetKey = key; F.targetIdx = i; F.atKey = null; F.fast = true; F.wander = false; hasWalked = true; newStroke(); scratch(F.x, F.y);
+}
+
+/* Path-finding: walk through the gaps between the works, never across them */
+const M = 9, CELL = 8;                                   // clearance around each work, grid size
+function rectsNear(x0, y0, x1, y1){
+  const out = [];
+  for (let bx = Math.floor(x0/BW)-1; bx <= Math.floor(x1/BW)+1; bx++)
+    for (let by = Math.floor(y0/BH)-1; by <= Math.floor(y1/BH)+1; by++)
+      placed.forEach(p => { if (!p.deco && !(p.away && isStart(bx, by))) out.push({ x: bx*BW + p.x, y: by*BH + p.y, w: p.w, h: p.h + LABEL }); });
+  return out;
+}
+function findPath(sx, sy, ex, ey){
+  const pad = 260, x0 = Math.min(sx,ex) - pad, y0 = Math.min(sy,ey) - pad;
+  const cols = Math.ceil((Math.max(sx,ex) + pad - x0)/CELL), rows = Math.ceil((Math.max(sy,ey) + pad - y0)/CELL);
+  const rects = rectsNear(x0, y0, x0 + cols*CELL, y0 + rows*CELL);
+  const blocked = new Uint8Array(cols*rows);
+  rects.forEach(r => {
+    const c0 = Math.max(0, Math.floor((r.x - M - x0)/CELL)), c1 = Math.min(cols-1, Math.floor((r.x + r.w + M - x0)/CELL));
+    const r0 = Math.max(0, Math.floor((r.y - M - y0)/CELL)), r1 = Math.min(rows-1, Math.floor((r.y + r.h + M - y0)/CELL));
+    for (let y = r0; y <= r1; y++) for (let x = c0; x <= c1; x++) blocked[y*cols + x] = 1;
+  });
+  const cell = (x, y) => [Math.min(cols-1, Math.max(0, Math.floor((x-x0)/CELL))), Math.min(rows-1, Math.max(0, Math.floor((y-y0)/CELL)))];
+  const [scx, scy] = cell(sx, sy), [ecx, ecy] = cell(ex, ey);
+  blocked[scy*cols+scx] = 0; blocked[ecy*cols+ecx] = 0;
+  // A*
+  const N = cols*rows, g = new Float32Array(N).fill(Infinity), came = new Int32Array(N).fill(-1);
+  // tiny binary heap for the open list
+  const heap = [], push = (f, i) => { heap.push([f,i]); let k = heap.length-1; while (k){ const p = (k-1)>>1; if (heap[p][0] <= heap[k][0]) break; [heap[p],heap[k]] = [heap[k],heap[p]]; k = p; } };
+  const pop = () => { const top = heap[0], last = heap.pop(); if (heap.length){ heap[0] = last; let k = 0; for(;;){ const l = 2*k+1, r = l+1; let m = k; if (l < heap.length && heap[l][0] < heap[m][0]) m = l; if (r < heap.length && heap[r][0] < heap[m][0]) m = r; if (m === k) break; [heap[m],heap[k]] = [heap[k],heap[m]]; k = m; } } return top; };
+  push(0, scy*cols+scx);
+  g[scy*cols+scx] = 0; const goal = ecy*cols+ecx, hfn = i => 1.4*Math.hypot(i%cols - ecx, Math.floor(i/cols) - ecy);
+  const dirs = [[1,0,1],[-1,0,1],[0,1,1],[0,-1,1],[1,1,1.414],[1,-1,1.414],[-1,1,1.414],[-1,-1,1.414]];
+  let found = false, guard = 0;
+  while (heap.length && guard++ < 3000000){
+    const [, cur] = pop();
+    if (cur === goal){ found = true; break; }
+    const cx = cur % cols, cy = Math.floor(cur/cols);
+    for (const [dx, dy, cost] of dirs){
+      const nx = cx+dx, ny = cy+dy; if (nx < 0 || ny < 0 || nx >= cols || ny >= rows) continue;
+      const ni = ny*cols + nx; if (blocked[ni]) continue;
+      if (dx && dy && (blocked[cy*cols+nx] || blocked[ny*cols+cx])) continue;   // no corner cutting
+      const ng = g[cur] + cost; if (ng < g[ni]){ g[ni] = ng; came[ni] = cur; push(ng + hfn(ni), ni); }
+    }
+  }
+  if (!found) return [];                                  // never cut across the works
+  let path = []; for (let i = goal; i !== -1; i = came[i]) path.push([x0 + (i%cols + .5)*CELL, y0 + (Math.floor(i/cols) + .5)*CELL]);
+  path.reverse(); path[0] = [sx, sy]; path[path.length-1] = [ex, ey];
+  // straighten: keep only the turns that are needed
+  const clear = (a, b) => { const d = Math.hypot(b[0]-a[0], b[1]-a[1]), n = Math.ceil(d/5);
+    for (let k = 1; k < n; k++){ const [c, r] = cell(a[0] + (b[0]-a[0])*k/n, a[1] + (b[1]-a[1])*k/n); if (blocked[r*cols+c]) return false; } return true; };
+  const out = [path[0]]; let i = 0;
+  while (i < path.length - 1){ let j = path.length - 1; while (j > i + 1 && !clear(path[i], path[j])) j--; out.push(path[j]); i = j; }
+  // a little hand-drawn wobble between turns
+  const pts = [];
+  for (let k = 1; k < out.length; k++){
+    const a = out[k-1], b = out[k], d = Math.hypot(b[0]-a[0], b[1]-a[1]), n = Math.max(1, Math.round(d/26));
+    for (let s = 1; s <= n; s++){ const t = s/n, w = s < n ? rnd(-2.5, 2.5) : 0; pts.push([a[0] + (b[0]-a[0])*t + w, a[1] + (b[1]-a[1])*t + w]); }
+  }
+  return pts;
+}
+
+/* =====================================================================
+   LOOP
+   ===================================================================== */
+let lastT = performance.now();
+function frame(now){
+  const dt = Math.min(.1, (now - lastT)/1000); lastT = now;
+  // camera
+  if (flying){
+    const k = Math.min(1, (now - flying.t0)/flying.ms), e = expo(k), a = flying.a, t = flying.t;
+    cam.s = Math.exp(Math.log(a.s) + (Math.log(t.s) - Math.log(a.s))*e);
+    cam.x = a.x + (t.x - a.x)*e; cam.y = a.y + (t.y - a.y)*e; Object.assign(tgt, cam);
+    if (k >= 1){ const d = flying.done; flying = null; d && d(); }
+  } else {
+    const f = 1 - Math.pow(.0009, dt);                    // smooth follow (like a smooth-scroll)
+    cam.x += (tgt.x - cam.x)*f; cam.y += (tgt.y - cam.y)*f; cam.s += (tgt.s - cam.s)*f;
+  }
+  // the lean: from how fast the map is moving under the middle of the screen
+  { const wx = (innerWidth/2 - cam.x)/cam.s, wy = (innerHeight/2 - cam.y)/cam.s;
+    const vx = TL.wx === null ? 0 : -(wx - TL.wx)*cam.s/Math.max(dt, .001), vy = TL.wx === null ? 0 : -(wy - TL.wy)*cam.s/Math.max(dt, .001);
+    TL.wx = wx; TL.wy = wy;
+    const on = !overlay && !RM && introDone, cl = (v, m) => Math.max(-m, Math.min(m, v));
+    const ry = on ? cl(vx*.006, 8) : 0, rx = on ? cl(-vy*.006, 7) : 0, sc = on ? 1 - Math.min(.06, Math.hypot(vx, vy)*.00006) : 1;
+    const k = Math.min(1, dt*7); TL.rx += (rx - TL.rx)*k; TL.ry += (ry - TL.ry)*k; TL.sc += (sc - TL.sc)*k;
+    tilt.style.transform = Math.abs(TL.rx) + Math.abs(TL.ry) < .01 && TL.sc > .9995 ? "none" : `scale(${TL.sc.toFixed(4)}) rotateX(${TL.rx.toFixed(3)}deg) rotateY(${TL.ry.toFixed(3)}deg)`; }
+  render(); checkZoomTrigger(now); unlockView(now); manageVideos(now); document.body.classList.toggle("near", cam.s >= fitS*1.6);
+
+  // figure
+  const steering = !overlay && steer(dt); if (!steering) F.steering = false;
+  // a stroll, not a run: ease in at the start, ease out near the end
+  const EASE = F.fast ? 240 : 140;
+  let remain = 0; for (let q = 0, px = F.x, py = F.y; q < F.queue.length && remain < EASE; q++){ remain += Math.hypot(F.queue[q][0] - px, F.queue[q][1] - py); px = F.queue[q][0]; py = F.queue[q][1]; }
+  const want = F.queue.length ? SPEED*(F.fast ? 2.5 : 1)*Math.min(1, .18 + remain/EASE) : 0;
+  F.v = (F.v || 0) + (want - (F.v || 0))*Math.min(1, dt*(want > (F.v || 0) ? 3 : 8));
+  let budget = Math.max(F.queue.length ? 18 : 0, F.v)*dt; const walking = steering || F.queue.length > 0;
+  while (F.queue.length && budget > 0){
+    const [tx,ty] = F.queue[0], dx = tx-F.x, dy = ty-F.y, d = Math.hypot(dx,dy), st = Math.min(d, budget);
+    if (d > .5){ const want = Math.atan2(dy,dx); let da = want - F.a; da = Math.atan2(Math.sin(da), Math.cos(da)); F.a += da*.35; }
+    if (d > 0){ F.x += dx/d*st; F.y += dy/d*st; }
+    F.dist += st; budget -= st; if (st >= d) F.queue.shift();
+    scratch(F.x, F.y);
+  }
+  if (walking) markVisits(now);
+  if (walking && !F.queue.length && F.targetKey){
+    visited.add(F.targetIdx); F.atKey = F.targetKey; F.targetKey = null;
+    $("#tally").textContent = `Traces ${pad2(visited.size)} / ${P.length}`;
+  }
+  // mood: walk / wait / sleep (separate drawings can be plugged in per state later)
+  const idleFor = now - lastInput;
+  if (!F.sleeping && idleFor > 45000 && !F.queue.length){ F.sleeping = true; }
+  if (F.sleeping && idleFor < 45000) F.sleeping = false;
+  const state = F.sleeping ? "sleep" : walking ? "walk" : "wait";
+  if (fig.dataset.state !== state){ fig.dataset.state = state; F.stillSince = now; }
+  // standing still: the figure turns to look at your cursor
+  if (!walking && !F.sleeping && mouse.on && !overlay){
+    const wx = (mouse.x - cam.x)/cam.s, wy = (mouse.y - cam.y)/cam.s;
+    if (Math.hypot(wx - F.x, wy - F.y) > 30){ let da = Math.atan2(wy - F.y, wx - F.x) - F.a; da = Math.atan2(Math.sin(da), Math.cos(da)); F.a += da*Math.min(1, dt*6); }
+  }
+  const flip = walking && Math.floor(F.dist/(F.wander ? 10 : 14)) % 2 ? -1 : 1;          // mirror each step = arms swap sides
+  fig.style.transform = `translate(${F.x}px,${F.y}px)`; fig.classList.toggle("walked", hasWalked);
+  rot.style.transform = `rotate(${F.a + Math.PI/2}rad) scaleX(${flip})`;  // drawing faces up
+  // shadow: cast away from the cursor (the light). Farther light = longer, softer shadow. No cursor: soft, down-right
+  { const lit = mouse.on && !overlay, lx = lit ? (mouse.x - cam.x)/cam.s : F.x - 260, ly = lit ? (mouse.y - cam.y)/cam.s : F.y - 380;
+    let dx = F.x - lx, dy = F.y - ly; const d = Math.hypot(dx, dy) || 1; dx /= d; dy /= d;
+    const len = Math.min(24, 3 + d*.03), k = Math.min(1, dt*7);
+    SH.x += (dx*len - SH.x)*k; SH.y += (dy*len - SH.y)*k; SH.len += (len - SH.len)*k;
+    const ang = Math.atan2(SH.y, SH.x), str = 1 + SH.len*.018;
+    shade.style.transform = `translate(${SH.x.toFixed(2)}px,${SH.y.toFixed(2)}px) rotate(${ang}rad) scale(${str.toFixed(3)},.96) rotate(${-ang}rad)`;
+    shade.style.opacity = (.30 - Math.min(.12, SH.len*.005)).toFixed(3);
+    shade.style.filter = `blur(${(1.2 + SH.len*.09).toFixed(2)}px)`;
+    srot.style.transform = rot.style.transform;
+  }
+
+  // speech bubble when zoomed in
+  const needWalk = !hasWalked, needLook = !LOOK.done && now - LOOK.since > 2200;
+  const hint = introDone && !overlay && (needWalk || needLook);
+  const lookTurn = needLook && (!needWalk || Math.floor((now - LOOK.since)/4500) % 2 === 1);
+  const thought = introDone && !overlay && !hint ? think(now, state) : null;
+  const zoomed = !overlay && introDone && (hint || thought || cam.s >= fitS*1.35);
+  const txt = hint ? (lookTurn ? (TOUCH ? "Drag to look around" : "Swipe or scroll to look around") : TOUCH ? "Tap anywhere to walk me" : "Click anywhere to walk me") : thought || "Let’s go";
+  if (bubble.textContent !== txt) bubble.textContent = txt;
+  bubble.classList.toggle("think", !!thought);
+  bubble.classList.toggle("on", !!zoomed);
+  if (zoomed){ const sx = cam.x + F.x*cam.s, sy = cam.y + (F.y - 60)*cam.s; bubble.style.transform = `translate(${sx}px,${sy}px) translate(-50%,-100%) translateY(-8px)`; }
+  requestAnimationFrame(frame);
+}
+
+/* =====================================================================
+   OPENING: "Welcome to mard studio" 0–100%, then the canvas fades in
+   ===================================================================== */
+function startIntro(){
+  const h = homeView();
+  F.x = CX; F.y = CY;                                        // the figure stands in the middle, surrounded by the work
+  Object.assign(cam, h); Object.assign(tgt, h);
+  render();
+  $("#loader").classList.add("done");
+  introDone = true;
+  revealStart = performance.now();
+  document.querySelectorAll(".block").forEach(revealBlock);
+  setTimeout(() => document.querySelectorAll(".reveal").forEach((r,k) => setTimeout(() => r.classList.add("on"), k*60)), 500);
+  teachLook();
+}
+(function load(){
+  const srcs = P.flatMap(p => p.tiles ? p.tiles.map(t => t.poster) : [A(p.slug,"cover")]); let n = 0;
+  srcs.forEach(s => { const im = new Image(); im.onload = im.onerror = () => n++; im.src = s; });
+  const txt = $("#ldText"), FROM = "A one person studio", TO = "Take a walk.", GLYPHS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+  const t0 = performance.now(), loaded = () => n >= srcs.length*.8;
+  const done = () => { if (loaded() || performance.now() - t0 > 6000) setTimeout(startIntro, 650); else setTimeout(done, 120); };
+  if (RM){ setTimeout(() => { txt.textContent = TO; done(); }, 1100); return; }
+  // after a moment the line fades out and the next one fades in
+  setTimeout(() => {
+    txt.style.animation = "none"; txt.style.opacity = 1; txt.classList.add("fade");
+    requestAnimationFrame(() => { txt.style.opacity = 0; });
+    setTimeout(() => { txt.textContent = TO; txt.style.opacity = 1; setTimeout(done, 700); }, 650);
+  }, 1100);
+})();
+
+/* =====================================================================
+   PROJECT VIEW — the square flies from the canvas into place
+   ===================================================================== */
+const view = $("#view"), mask = $("#mask"), flyer = $("#flyer");
+let current = -1, srcEl = null, curHero = null;
+const mediaItem = (g, name) => typeof g === "string" ? `<img data-fm="g${+g.match(/(\d+)\.jpg$/)[1]}" src="${g}" alt="${name}">`
+  : g.video ? `<video src="${g.video}"${g.poster ? ` poster="${g.poster}"` : ""} ${g.controls ? "controls" : "autoplay muted loop"} playsinline></video>`
+  : g.embed ? `<iframe src="${g.embed}" allow="autoplay; fullscreen" allowfullscreen loading="lazy" style="aspect-ratio:16/9"></iframe>` : "";
+function heroOf(i, m){
+  const p = P[i];
+  if (!p.tiles) return { id: null, r: "s", kind: "i", poster: A(p.slug,"cover"), full: A(p.slug,"cover") };
+  return p.tiles[m || 0];
+}
+const fullItem = (t, name, m) => t.kind === "v"
+  ? `<video data-fm="${m}" src="${t.full}" poster="${t.poster}" autoplay muted loop playsinline preload="metadata" style="aspect-ratio:${RATIO[t.r].join("/")}"></video>`
+  : `<img data-fm="${m}" src="${t.full}" alt="${name}: ${t.label}" width="${RATIO[t.r][0]*100}" height="${RATIO[t.r][1]*100}">`;
+function projectHTML(i){
+  const p = P[i];
+  const slots = slotsFor(p).map(s => `<div class="slot" style="aspect-ratio:${s.r}"><span class="tag">To add</span><div><b>${s.t}</b><p>${s.d}</p><span class="spec">${s.s}</span></div></div>`);
+  // the files, always in the order they were given, each in its own proportions
+  let rows;
+  if (p.tiles){
+    const byId = Object.fromEntries(p.tiles.map(t => [t.id, t])), mi = t => p.tiles.indexOf(t);
+    rows = p.layout.map(row => { const its = row.map(id => byId[id]);
+      const html = its.map(t => fullItem(t, p.name, mi(t)));
+      return (html.length > 1 ? `<div class="pair">${html.join("")}</div>` : html[0]) + `<div class="cap2 mono">${its.map(t => t.label).join(" · ")}</div>`; });
+  } else rows = [`<img data-fm="c" src="${A(p.slug,"cover")}" alt="${p.name}">`, ...p.media.map(g => mediaItem(g, p.name))];
+  // short texts between the images: the story, what was made, credits (and any notes added per project)
+  const paras = p.desc.split("\n\n");
+  const texts = [...(p.notes || []).map(t => [t[0], t[1]]),
+    ["Story", `<p>${paras[0]}</p>`], ["What I built", `<ul class="built">${p.built.map(b => `<li>${b}</li>`).join("")}</ul>`],
+    ...paras.slice(1).map(t => ["", `<p>${t}</p>`]), ...(p.credits ? [["Credits", `<p class="g">${p.credits}</p>`]] : [])];
+  const txt = ([k, h]) => `<div class="txt">${k ? `<span class="k mono">${k}</span>` : ""}${h}</div>`;
+  const media = [], gap = Math.max(1, Math.floor((rows.length - 1)/Math.max(1, texts.length - 1)));
+  rows.forEach((r, n) => { media.push(r); if (n % gap === 0 && texts.length) media.push(txt(texts.shift())); });
+  texts.forEach(t => media.push(txt(t))); media.push(...slots);
+  let k = 0; const st = html => `<div class="st" style="transition-delay:${(k++)*0.06 + .35}s">${html}</div>`;
+  return `
+    <div class="v-top">${st(`<span class="g">${pad2(i+1)} / ${pad2(P.length)}</span>`)}<button onclick="closeView()">Close</button></div>
+    <div class="v-grid">
+      <div class="v-text">
+        ${st(`<h1 class="v-title">${p.name}</h1>`)}
+        ${st(`<div class="facts"><span>Client<b>${p.client}</b></span><span>Year<b>${p.year}</b></span><span>Type<b>${p.cats.join(", ")}</b></span><span>${p.link?`Link<b><a href="${p.link}" target="_blank" rel="noopener">See live ↗</a></b>`:""}</span></div>`)}
+        ${st(`<div class="row2"><span>My role</span><div>${p.role}</div></div>`)}
+        <div class="media">${media.join("")}</div>
+        ${st(`<div class="v-foot"><button onclick="stepP(-1)">← Previous</button><button onclick="stepP(1)">Next →</button></div>`)}
+      </div>
+    </div>`;
+}
+/* The square "flips" off the canvas: it scales to its new place while tilting through 3D, like a card turned toward you */
+const flyImg = flyer.querySelector("img");
+let busy = false;
+function fly(from, to, src, ms, dir){
+  flyImg.src = src;
+  Object.assign(flyer.style, { display:"block", left: to.left+"px", top: to.top+"px", width: to.width+"px", height: to.height+"px" });
+  const sx = from.width/to.width, sy = from.height/to.height, dx = from.left - to.left, dy = from.top - to.top;
+  const tilt = dir > 0 ? 1 : -1;
+  const a = flyer.animate([
+    { transform:`translate(${dx}px,${dy}px) scale(${sx},${sy})` },
+    { transform:`translate(${dx*.35}px,${dy*.35}px) scale(${sx + (1-sx)*.65},${sy + (1-sy)*.65})`, offset:.45 },
+    { transform:"translate(0,0) scale(1,1)" }
+  ], { duration: ms, easing: "cubic-bezier(.19,1,.22,1)", fill: "forwards" });
+  flyImg.animate([
+    { transform:"rotateY(0deg) rotateX(0deg)" },
+    { transform:`rotateY(${-16*tilt}deg) rotateX(${6*tilt}deg)`, offset:.4 },
+    { transform:"rotateY(0deg) rotateX(0deg)" }
+  ], { duration: ms, easing: "cubic-bezier(.23,1,.32,1)", fill: "forwards" });
+  return a.finished;
+}
+const hideFlyer = () => { flyer.getAnimations().forEach(x => x.cancel()); flyImg.getAnimations().forEach(x => x.cancel()); flyer.style.display = "none"; };
+/* image heroes open with the small file (instant) and swap to the big one once it has loaded */
+function upgradeHero(){ const im = view.querySelector(".v-hero img[data-full]"); if (!im) return; const big = new Image(); big.onload = () => { if (im.isConnected) im.src = big.src; }; big.src = im.dataset.full; }
+const titleLines = () => view.querySelectorAll(".v-title").forEach(t => { if (!t.querySelector(".ln")) t.innerHTML = `<span class="ln">${t.innerHTML}</span>`; });
+
+/* Opening, after gilhuybrecht.com: the project's images lift off the map, tilt like cards
+   and fly one after another into the page, while the rest of the map steps back */
+const flyLayer = document.createElement("div"); flyLayer.id = "flyLayer"; document.body.appendChild(flyLayer);
+let flights = [];
+/* where a file sits on the map: the copy nearest the middle of the screen, even if it is off-screen */
+function spotOf(i, fm){
+  const k = placed.findIndex(p => p.i === i && p.c !== undefined && CV[i][p.c].fm === fm);
+  if (k < 0) return null;
+  const p = placed[k], wx = (innerWidth/2 - cam.x)/cam.s, wy = (innerHeight/2 - cam.y)/cam.s;
+  let best = null, bd = Infinity;
+  for (let bx = Math.floor(wx/BW) - 1; bx <= Math.floor(wx/BW) + 1; bx++) for (let by = Math.floor(wy/BH) - 1; by <= Math.floor(wy/BH) + 1; by++){
+    if (p.away && isStart(bx, by)) continue;
+    const x = (bx*BW + p.x)*cam.s + cam.x, y = (by*BH + p.y + LABEL)*cam.s + cam.y, w = p.w*cam.s, h = p.h*cam.s;
+    const d = Math.hypot(x + w/2 - innerWidth/2, y + h/2 - innerHeight/2);
+    if (d < bd){ bd = d; best = { bx, by, k, rect: { left: x, top: y, width: w, height: h } }; }
+  }
+  best.el = document.querySelector(`.block[data-bx="${best.bx}"][data-by="${best.by}"] .proj[data-k="${best.k}"]`);
+  return best;
+}
+const picOf = e => { const im = e.querySelector(".sq img"); if (im) return im.currentSrc || im.src; const v = e.querySelector(".sq video"); return v ? v.poster : ""; };
+const slotPic = sl => sl.tagName === "VIDEO" ? (sl.poster || "") : (sl.currentSrc || sl.src);
+const clampRect = r => ({ left: r.left, width: r.width, height: r.height, top: Math.max(-r.height - 40, Math.min(innerHeight + 40, r.top)) });
+function flyCard(src, from, to, delay, ms, dir){
+  if (RM){ from = to; delay = 0; ms = 1; dir = 0; }
+  const c = document.createElement("div"); c.className = "fc"; c.innerHTML = `<img src="${src}" alt="">`;
+  Object.assign(c.style, { width: to.width + "px", height: to.height + "px", transform: `translate(${from.left}px,${from.top}px) scale(${from.width/to.width},${from.height/to.height})` });
+  flyLayer.appendChild(c);
+  const sx = from.width/to.width, sy = from.height/to.height;
+  const mx = from.left + (to.left - from.left)*.45, my = from.top + (to.top - from.top)*.45, ms_ = sx + (1 - sx)*.55, my_ = sy + (1 - sy)*.55;
+  return c.animate([
+    { transform: `translate(${from.left}px,${from.top}px) scale(${sx},${sy}) rotateY(0deg) rotateX(0deg)` },
+        { transform: `translate(${to.left}px,${to.top}px) scale(1,1) rotateY(0deg) rotateX(0deg)` }
+  ], { duration: ms, delay, easing: "cubic-bezier(.65,0,.25,1)", fill: "both" }).finished.then(() => c);
+}
+async function openProject(i, el){
+  if (busy) return; busy = true;
+  closeList(); current = i; overlay = true; bubble.classList.remove("on");
+  view.classList.remove("out","in");
+  view.innerHTML = projectHTML(i); titleLines(); view.scrollTop = 0;
+  view.classList.add("open"); view.setAttribute("aria-hidden","false");
+  document.body.classList.add("focus"); mask.classList.add("on");
+  const fmC = el && el.dataset.fm, slots = fmC ? [...view.querySelectorAll(`.media [data-fm="${fmC}"]`)].slice(0, 1) : [];
+  slots.forEach(sl => sl.classList.add("wait"));
+  // let the first images get their real shape before measuring where they land
+  await Promise.race([Promise.all(slots.filter(sl => sl.tagName === "IMG").map(im => im.decode().catch(() => {}))), new Promise(r => setTimeout(r, 450))]);
+  const clicked = el ? { el, rect: el.querySelector(".sq").getBoundingClientRect() } : spotOf(i, CV[i][0].fm);
+  flights = []; const used = new Set(), runs = [];
+  slots.forEach((slot, n) => {
+    const to = slot.getBoundingClientRect();
+    if (!to.height || to.top > innerHeight - 40){ slot.classList.remove("wait"); return; }
+    const fm = slot.dataset.fm;
+    let spot = null;
+    if (fm !== undefined){                                       // a file that lives on the map: collect it from there
+      if (el && !used.has(el) && el.dataset.fm === fm) spot = { el, rect: clicked.rect };
+      else spot = spotOf(i, fm);
+    }
+    if (!spot || (spot.el && used.has(spot.el))) spot = { el: null, rect: clicked && clicked.rect, from: true };   // otherwise it comes out of the clicked tile
+    if (!spot.rect){ slot.classList.remove("wait"); return; }
+    let from = clampRect(spot.rect);
+    if (spot.from) from = { ...from, left: from.left + n*10, top: from.top + n*10 };
+    const src = spot.el ? picOf(spot.el) : slotPic(slot);
+    if (spot.el){ used.add(spot.el); spot.el.classList.add("src-hidden"); }
+    const f = { slot, el: spot.el, k: spot.k, bx: spot.bx, by: spot.by, src, home: spot.from ? clicked.rect : null };
+    flights.push(f);
+    runs.push(flyCard(src, from, to, 0, 1000, 0).then(c => { slot.classList.remove("wait"); requestAnimationFrame(() => c.remove()); }));
+  });
+  slots.forEach(sl => { if (!flights.some(f => f.slot === sl)) sl.classList.remove("wait"); });
+  setTimeout(() => view.classList.add("in"), 120);        // text rises line by line while the images travel
+  await Promise.all(runs);
+  busy = false;
+}
+async function closeView(){
+  if (!view.classList.contains("open") || busy) return; busy = true;
+  view.querySelectorAll("video").forEach(v => v.pause());
+  const runs = [];
+  flights.forEach((f, n) => {                               // every image flies back to where it came from
+    const tileEl = f.el && f.el.isConnected ? f.el : null;
+    const to = tileEl ? tileEl.querySelector(".sq").getBoundingClientRect() : f.home;
+    if (!to) return;
+    const from = clampRect(f.slot.getBoundingClientRect());
+    f.slot.classList.add("wait");
+    runs.push(flyCard(f.src, from, { left: to.left, top: to.top, width: to.width, height: to.height }, 0, 850, 0).then(c => {
+      if (tileEl) tileEl.classList.remove("src-hidden");
+      c.animate([{ opacity: 1 }, { opacity: 0 }], { duration: tileEl ? 1 : 220, fill: "forwards" }).finished.then(() => c.remove()); }));
+  });
+  view.classList.add("out");                               // all text leaves at once: no stacked layers
+  setTimeout(() => { mask.classList.remove("on"); document.body.classList.remove("focus"); }, 120);
+  await Promise.all([...runs, new Promise(r => setTimeout(r, 450))]);
+  document.querySelectorAll(".src-hidden").forEach(x => x.classList.remove("src-hidden"));
+  view.classList.remove("open","in","out"); view.setAttribute("aria-hidden","true"); view.innerHTML = "";
+  flights = []; overlay = false; srcEl = null; busy = false;
+}
+function stepP(d){
+  if (busy) return; busy = true;
+  const i = (current + d + P.length) % P.length;
+  view.classList.add("out");
+  setTimeout(() => {
+    document.querySelectorAll(".src-hidden").forEach(x => x.classList.remove("src-hidden")); flights = [];
+    current = i; view.classList.remove("in","out");
+    view.innerHTML = projectHTML(i); titleLines(); view.scrollTop = 0;
+    // behind the view: the figure walks to that project
+    const el = [...document.querySelectorAll(`.proj[data-i="${i}"]`)].filter(x => !x.classList.contains("ghost")).sort((a,b) => {
+      const ra = a.getBoundingClientRect(), rb = b.getBoundingClientRect();
+      return Math.hypot(ra.left-innerWidth/2, ra.top-innerHeight/2) - Math.hypot(rb.left-innerWidth/2, rb.top-innerHeight/2);
+    })[0];
+    requestAnimationFrame(() => requestAnimationFrame(() => { view.classList.add("in"); busy = false; }));
+  }, 300);
+}
+view.addEventListener("click", e => { if (e.clientX < innerWidth/2 && innerWidth >= 760 && !e.target.closest(".v-grid,.v-solo,.v-top")) closeView(); });
+function openText(label, html){
+  if (busy) return;
+  closeList(); current = -1; srcEl = null; overlay = true; bubble.classList.remove("on");
+  let k = 0; const st = h => `<div class="st" style="transition-delay:${(k++)*0.06 + .25}s">${h}</div>`;
+  view.classList.remove("out","in");
+  view.innerHTML = `<div class="v-top">${st(`<span class="g">${label}</span>`)}<button onclick="closeView()">Close</button></div><div class="v-solo">${html(st)}</div>`;
+  titleLines(); view.scrollTop = 0; view.classList.add("open"); document.body.classList.add("focus"); mask.classList.add("on");
+  requestAnimationFrame(() => requestAnimationFrame(() => view.classList.add("in")));
+}
+const openAbout = () => openText("About", st => `
+  ${st(`<h1 class="v-title">Lilit Mardanian</h1>`)}
+  ${st(`<div class="facts"><span style="grid-column:span 2">Role<b>Graphic designer &amp; art director</b></span><span style="grid-column:span 2">Based<b>Yerevan, Armenia</b></span></div>`)}
+  ${st(`<div class="row2"><span>Hi</span><div class="prose"><p>MARD (ՄԱՐԴ) is Armenian for human, and the root of my surname. It’s a one-person studio built to hold several disciplines at once (identity, illustration, print, events) instead of splitting them across freelance roles.</p><p>I don’t decorate events. I build them: from the first idea to the last wristband.</p></div></div>`)}
+  ${st(`<div class="row2"><span>How I build an event</span><ol class="steps"><li><div><b>The idea</b>One feeling the whole night is built around.</div></li><li><div><b>The identity</b>Logo, type, colour, illustration: the system.</div></li><li><div><b>Everything guests touch</b>Posters, tickets, wristbands, badges, packaging, social.</div></li><li><div><b>On the night</b>Stage screens, motion loops, signage, the space itself.</div></li></ol></div>`)}
+  ${st(`<div class="row2"><span>Services</span><div>Event identity<br>Creative direction<br>Event visual design<br>Branding &amp; visual identity<br>Campaign concepts<br>Print design<br>Illustration<br>Design consultation</div></div>`)}
+  ${st(`<div class="row2"><span>Clients</span><div>Golden Apricot International Film Festival<br>State Philharmonic of Armenia<br>Creative Armenia<br>Kitchen Lab<br>TUMO / TUMO Studios / Special labs<br>Artbox Hub</div></div>`)}
+  ${st(`<div class="row2"><span>Awards</span><div>Vahe&amp;Lucie 2020</div></div>`)}
+  ${st(`<div class="v-foot"><span></span><button onclick="openContact()">Contact →</button></div>`)}`);
+const openContact = () => openText("Contact", st => `
+  ${st(`<h1 class="v-title">Let’s build the next one.</h1>`)}
+  ${st(`<div class="row2"><span>Business</span><div><a class="big" href="mailto:${EMAIL}">${EMAIL}</a></div></div>`)}
+  ${st(`<div class="row2"><span>Social</span><div class="links"><a href="https://www.instagram.com/lilitmardanian/" target="_blank" rel="noopener">Instagram ↗</a><a href="https://www.linkedin.com/in/lilit-mardanyan-438687136/" target="_blank" rel="noopener">LinkedIn ↗</a><a href="https://www.behance.net/lilartulilartu" target="_blank" rel="noopener">Behance ↗</a></div></div>`)}
+  ${st(`<div class="row2"><span>Get in touch</span><form class="contact" onsubmit="sendForm(event)"><input name="name" placeholder="Name" required><input name="email" type="email" placeholder="Email" required><input name="event" placeholder="What are you planning? (event, date)"><textarea name="message" placeholder="Message" required></textarea><button type="submit">Send</button></form></div>`)}`);
+function sendForm(e){
+  e.preventDefault(); const f = new FormData(e.target);
+  const body = `${f.get("message")}\n\n— ${f.get("name")} (${f.get("email")})\nPlanning: ${f.get("event")||"-"}`;
+  location.href = `mailto:${EMAIL}?subject=${encodeURIComponent("Website enquiry — " + f.get("name"))}&body=${encodeURIComponent(body)}`;
+}
+
+/* Index */
+const thumbOf = p => p.tiles ? p.tiles[0].poster : A(p.slug,"cover");
+const rows = list => list.map(p => `<button class="row" data-i="${P.indexOf(p)}"><span class="g">${pad2(P.indexOf(p)+1)}</span><span class="th"><img loading="lazy" src="${thumbOf(p)}" alt=""></span><span>${p.name}</span><span>${p.client}</span><span>${p.cats.join(", ")}</span><span>${p.year}</span></button>`).join("");
+$("#listRows").innerHTML = `<h2>Events</h2>${rows(P.filter(p=>p.cats[0]==="Event"))}<h2>Identity &amp; illustration</h2>${rows(P.filter(p=>p.cats[0]!=="Event"))}`;
+$("#listRows").addEventListener("click", e => { const r = e.target.closest(".row"); if(!r) return; const i = +r.dataset.i; closeList(); const el = document.querySelector(`.proj[data-i="${i}"]`); openProject(i, el); });
+const setSeg = list => document.querySelectorAll(".seg").forEach(g => { g.querySelector("[data-map]").classList.toggle("on", !list); g.querySelector("[data-list]").classList.toggle("on", list); });
+function openList(){ closeView(); $("#list").classList.add("open"); overlay = true; setSeg(true); }
+function closeList(){ if (!$("#list").classList.contains("open")) return; $("#list").classList.remove("open"); overlay = view.classList.contains("open"); setSeg(false); $("#lprev").classList.remove("on"); }
+document.querySelectorAll("[data-map]").forEach(b => b.addEventListener("click", closeList));
+/* hovering a row shows a preview that follows the cursor */
+const lprev = $("#lprev");
+$("#listRows").addEventListener("pointermove", e => { const r = e.target.closest(".row"); if (!r || e.pointerType !== "mouse"){ lprev.classList.remove("on"); return; }
+  const src = thumbOf(P[+r.dataset.i]); const im = lprev.querySelector("img"); if (!im.src.endsWith(src)) im.src = src;
+  lprev.style.transform = `translate(${Math.min(e.clientX + 24, innerWidth - 280)}px,${Math.min(e.clientY - 60, innerHeight - 360)}px)`; lprev.classList.add("on"); });
+$("#listRows").addEventListener("pointerleave", () => lprev.classList.remove("on"));
+document.querySelectorAll("[data-list]").forEach(b => b.addEventListener("click", openList));
+$("#listClose").onclick = closeList;
+document.querySelector("[data-open=about]").onclick = openAbout;
+document.querySelector("[data-open=contact]").onclick = openContact;
+
+/* hover cursor: a red circle with ↗ that follows the mouse over a work */
+const cur = $("#cur");
+if (matchMedia("(hover:hover)").matches){
+  document.body.classList.add("cur-on");
+  addEventListener("pointermove", e => {
+    if (e.pointerType !== "mouse") return;
+    cur.style.transform = `translate(${e.clientX}px,${e.clientY}px)`; cur.classList.add("vis");
+    const over = !overlay && !ptrs.size && e.target.closest && e.target.closest("#blocks .proj");
+    cur.classList.toggle("on", !!over);
+  }, { passive: true });
+  document.addEventListener("pointerleave", () => cur.classList.remove("on", "vis"));
+  addEventListener("pointerdown", () => cur.classList.remove("on"));
+}
+document.querySelectorAll(".chips button").forEach(b => b.addEventListener("click", () => {
+  document.querySelectorAll(".chips button").forEach(x => x.classList.toggle("on", x === b));
+  if (b.dataset.f) document.body.dataset.f = b.dataset.f; else delete document.body.dataset.f;
+}));
+const clock = () => $("#clock").textContent = new Date().toLocaleTimeString("en-GB",{timeZone:"Asia/Yerevan",hour:"2-digit",minute:"2-digit"});
+clock(); setInterval(clock, 15000);
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
