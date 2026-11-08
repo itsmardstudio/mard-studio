@@ -40,7 +40,7 @@ img{display:block;max-width:100%}
 a:hover,button:hover{color:var(--g1)}
 
 /* ===== Loader (0% → 100%) ===== */
-#loader{position:fixed;inset:0;z-index:99;background:rgba(236,236,236,.8);backdrop-filter:blur(1.5px);-webkit-backdrop-filter:blur(1.5px);display:grid;place-items:center;font-variant-numeric:tabular-nums;transition:opacity .8s var(--quint)}
+#loader{position:fixed;inset:0;z-index:99;background:rgba(236,236,236,.9);backdrop-filter:blur(1.5px);-webkit-backdrop-filter:blur(1.5px);display:grid;place-items:center;font-variant-numeric:tabular-nums;transition:opacity .8s var(--quint)}
 #loader.done{opacity:0;pointer-events:none}
 /* during the intro the whole map streams past behind the words, at full colour */
 body.intro .proj.ghost{opacity:1;filter:none} body.intro #fig,body.intro #bubble{opacity:0}
@@ -988,7 +988,7 @@ function frame(now){
 function startIntro(){
   const h = homeView();
   F.x = CX; F.y = CY;                                        // the figure stands in the middle, surrounded by the work
-  if (INTRO){ INTRO = null; flyTo(h, 900); } else { Object.assign(cam, h); Object.assign(tgt, h); }
+  if (INTRO){ INTRO = null; if (Math.abs(cam.y - h.y) > 2) flyTo(h, 700); } else { Object.assign(cam, h); Object.assign(tgt, h); }
   document.body.classList.remove("intro");
   render();
   $("#loader").classList.add("done");
@@ -1001,9 +1001,8 @@ function startIntro(){
 let INTRO = null;
 (function introPan(){                                        // start far away, zoomed out, and stream across the infinite map to the start
   if (RM) return;
-  const h = homeView(), s0 = h.s*.62;
-  const wx = CX - BW*2.3, wy = CY - BH*.9;                    // a point two map-copies away
-  INTRO = { t0: performance.now(), ms: 3300, a: { s: s0, x: innerWidth/2 - wx*s0, y: innerHeight/2 - wy*s0 }, t: { s: h.s*.85, x: innerWidth/2 - CX*h.s*.85, y: innerHeight/2 - CY*h.s*.85 } };
+  const h = homeView(), wy = CY - BH*2.2;                    // two map-copies straight above the figure, same size the whole way
+  INTRO = { t0: performance.now(), ms: 3000, a: { s: h.s, x: h.x, y: innerHeight/2 - wy*h.s }, t: { ...h } };
   Object.assign(cam, INTRO.a); Object.assign(tgt, cam);
   document.body.classList.add("intro"); revealStart = performance.now() - 99999;   // every work already shown
 })();
