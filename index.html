@@ -1091,17 +1091,10 @@ function revealWorld(uiDelay){
   teachLook();
 }
 /* first visit: she walks in from just off screen to the middle, then says "Take a walk." */
-function enterWalk(h){
-  // farthest start first (ideally just off screen), from below, then the sides, then any direction
-  const edge = ang => { const c = Math.cos(ang), sn = Math.sin(ang); return Math.min(Math.abs(c) > .01 ? (innerWidth/2/h.s + 40)/Math.abs(c) : 1e9, Math.abs(sn) > .01 ? (innerHeight/2/h.s + 40)/Math.abs(sn) : 1e9); };
-  const angs = [90, 75, 105, 60, 120, 45, 135, 0, 180, 30, 150, 15, 165, 210, 330, 240, 300, 270].map(d => d*Math.PI/180), tries = [];
-  for (const f of [1, .8, .6, .45]) for (const g of angs){ const r = Math.min(edge(g), 900)*f; if (r > 180) tries.push([Math.cos(g)*r, Math.sin(g)*r]); }
-  for (const [dx, dy] of tries){
-    const sx = CX + dx, sy = CY + dy; if (!freeAt(sx, sy)) continue;
-    const path = findPath(sx, sy, CX, CY); if (!path.length) continue;
-    F.x = sx; F.y = sy; F.a = Math.atan2(-dy, -dx); F.queue = path; F.fast = false; F.wander = false; F.entering = true;
-    newStroke(); scratch(F.x, F.y); return;
-  }
+function enterWalk(h){                                       // straight up from below the screen; the works are hidden, so nothing is in her way
+  const sy = CY + innerHeight/2/h.s + 50;
+  F.x = CX; F.y = sy; F.a = -Math.PI/2; F.queue = [[CX, CY]]; F.fast = false; F.wander = false; F.entering = true;
+  newStroke(); scratch(F.x, F.y);
 }
 let SEEN = false; try { SEEN = sessionStorage.getItem("mard-seen") === "1"; } catch (_) {}   // only skipped on a reload in the same tab
 const QUICK = !/[?&]intro/.test(location.search) && (SEEN || location.hash.length > 1);   // reload in this tab, or came for one project: no show. mard.studio/?intro always plays it
