@@ -20,7 +20,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet" media="print" onload="this.media='all';window.fontCssOk=1;window.fontCss&&fontCss()">
 <style>
 :root{
   --bg:#ececec; --fg:#111; --red:#ff2a1a; --trail:#ffb3a6; --g1:#888; --g2:#d2d2d2; --g3:#e2e2e2;
@@ -40,7 +40,7 @@ img{display:block;max-width:100%}
 a:hover,button:hover{color:var(--g1)}
 
 /* ===== Loader (0% → 100%) ===== */
-#loader{position:fixed;inset:0;z-index:99;background:rgba(236,236,236,.9);backdrop-filter:blur(1.5px);-webkit-backdrop-filter:blur(1.5px);display:grid;place-items:center;font-variant-numeric:tabular-nums;transition:opacity .8s var(--quint)}
+#loader{position:fixed;inset:0;z-index:99;background:#ececec;display:grid;place-items:center;font-variant-numeric:tabular-nums;transition:opacity .8s var(--quint)}
 #loader.done{opacity:0;pointer-events:none}
 /* during the intro the whole map streams past behind the words, at full colour */
 .proj:not(.in){opacity:0} body.intro .proj.ghost{opacity:1;filter:none} body.intro #fig,body.intro #bubble,body.pre #fig{opacity:0}
@@ -55,7 +55,7 @@ a:hover,button:hover{color:var(--g1)}
 #loader .ld{position:relative}
 @media (prefers-reduced-motion:reduce){ #loader .blobs i{animation:none} }
 #loader .ld{display:grid;gap:6px;justify-items:center;font-size:clamp(16px,1.6vw,22px);letter-spacing:-.01em;white-space:pre}
-#loader p{opacity:0;animation:wIn 1s var(--quint) .1s forwards}
+#loader p{opacity:0;will-change:opacity,transform} #loader.go p{animation:wIn 1s var(--quint) forwards}
 #loader p.fade{transition:opacity .6s ease}
 @keyframes wIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 
@@ -320,6 +320,7 @@ form.contact .note{min-height:1.2em;font-size:13px}
 <body>
 
 <div id="loader" style="--c1:#e83816;--c2:#2c66ad;--c3:#e3731b;--c4:#2c4477;--c5:#bf342f"><div class="ld"><p id="ldText" aria-live="polite">A one person studio</p></div></div>
+<script>(function(){var l=document.getElementById("loader"),go=function(){l.classList.add("go")};try{Promise.race([new Promise(function(r){if(window.fontCssOk)r();else window.fontCss=r}).then(function(){return document.fonts.load("20px Inter")}),new Promise(function(r){setTimeout(r,900)})]).then(function(){requestAnimationFrame(go)})}catch(e){go()}})();</script>
 
 <header>
   <div class="reveal"><button data-home>Lilit Mardanian</button><br><span class="g">mard studio</span></div>
@@ -1085,7 +1086,7 @@ if (!QUICK) document.body.classList.add("pre");             // first visit: an e
   srcs.forEach(s => { const im = new Image(); im.onload = im.onerror = () => n++; im.src = s; });
   const t0 = performance.now(), loaded = () => n >= srcs.length*.8;
   const done = () => { if (loaded() || performance.now() - t0 > 5000) startIntro(); else setTimeout(done, 100); };
-  setTimeout(done, QUICK ? 350 : 2400);                      // first visit: time to read "A one person studio"
+  setTimeout(done, QUICK ? 350 : 2800);                      // first visit: time to read "A one person studio"
 })();
 
 /* =====================================================================
