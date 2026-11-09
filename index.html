@@ -95,6 +95,7 @@ body[data-f="Branding"] .proj[data-c~="Branding"],body[data-f="Illustration"] .p
 #cur i{display:grid;place-items:center;width:20px;height:20px;margin:-10px 0 0 -10px;background:var(--red);color:#fff;font-style:normal;font-size:11px;line-height:1;transform:scale(.45);transition:transform .35s var(--expo)}
 #cur i b{font-weight:400;opacity:0;transition:opacity .2s}
 #cur.on i{transform:scale(1)} #cur.on i b{opacity:1}
+#cur span{position:absolute;left:16px;top:-9px;white-space:nowrap;font-size:12px;line-height:18px;padding:0 7px;background:var(--fg,#111);color:#fff;opacity:0;transform:translateX(-4px);transition:opacity .2s,transform .35s var(--expo)} #cur.on span{opacity:1;transform:none}
 @media (hover:hover){ body.cur-on, body.cur-on *{cursor:none!important} }
 @media (hover:none){ .proj.in h2,.proj.in .cap{opacity:1;transform:none} .proj h2{font-size:14px;color:var(--g1)} #cur{display:none} }
 .proj.in .sq img,.proj.in .sq video{opacity:1}
@@ -343,7 +344,7 @@ form.contact .note{min-height:1.2em;font-size:13px}
     </div></div>
   </div>
 </div></div>
-<div id="cur"><i><b>↗</b></i></div>
+<div id="cur"><i><b>↗</b></i><span>Open project</span></div>
 <div id="bubble">Let’s go</div>
 <div id="gest" aria-hidden="true"><svg class="swipe" viewBox="0 0 40 50"><g>
   <rect x="11.5" y="3" width="7.4" height="26" rx="3.7"/><rect x="19.6" y="1" width="7.4" height="28" rx="3.7"/>
@@ -833,7 +834,7 @@ let lastInput = performance.now(), hasWalked = false, wanderT = 0;
 const markWalked = () => { if (hasWalked && !hasWalkedBefore){ hasWalkedBefore = true; try { localStorage.setItem("mard-walked", "1"); } catch (_) {} } };
 function walkTo(x, y){
   const path = findPath(F.x, F.y, x, y); if (!path.length) return;
-  if (F.entering){ F.entering = false; revealWorld(300); } F.queue = path; F.wander = false; F.fast = true; F.targetKey = null; hasWalked = true; markWalked(); newStroke(); scratch(F.x, F.y);
+  if (F.entering){ F.entering = false; revealWorld(300); } F.queue = path; F.wander = false; F.fast = true; F.targetKey = null; hasWalked = true; WALKS++; markWalked(); newStroke(); scratch(F.x, F.y);
 }
 const FR = 12;                                            // figure "radius" for steering collisions
 function freeAt(x, y){
@@ -845,7 +846,7 @@ function steer(dt){
   const n = Math.hypot(dx, dy); dx /= n; dy /= n;
   if (F.queue.length || F.wander){ F.queue = []; F.wander = false; }
   if (F.entering){ F.entering = false; revealWorld(300); }
-  if (!F.steering){ F.steering = true; newStroke(); scratch(F.x, F.y); }
+  if (!F.steering){ F.steering = true; WALKS++; newStroke(); scratch(F.x, F.y); }
   hasWalked = true; markWalked();
   const st = SPEED*.8*dt, nx = F.x + dx*st, ny = F.y + dy*st;
   if (freeAt(nx, ny)){ F.x = nx; F.y = ny; }               // slide along the works instead of entering them
@@ -1055,11 +1056,12 @@ function frame(now){
   // speech bubble when zoomed in
   const needWalk = !hasWalked && !LOOK.done, needLook = !LOOK.done && now - LOOK.since > 2200;
   const hello = !overlay && F.arrived && now - F.arrived < 2600;   // just walked in
-  const hint = introDone && !overlay && !F.entering && !hello && (needWalk || needLook);
+  const needOpen = !OPENED && WALKS >= 2 && !walking;               // walked around but never opened a work
+  const hint = introDone && !overlay && !F.entering && !hello && (needWalk || needLook || needOpen);
   const lookTurn = needLook && (!needWalk || Math.floor((now - LOOK.since)/4500) % 2 === 1);
   const thought = introDone && !overlay && !hint && !hello && !F.entering ? think(now, state) : null;
   const zoomed = !overlay && introDone && !F.entering && (hello || hint || thought || cam.s >= fitS*1.35);
-  const txt = hello ? "Take a walk." : hint ? (lookTurn ? (LOOK.swiped ? (TOUCH ? "Pinch to zoom out" : "Pinch to zoom out and see more") : TOUCH ? "Drag or pinch to look around" : "Swipe to move, pinch to zoom out") : TOUCH ? "Tap anywhere to walk me" : "Click anywhere to walk me") : thought || "Let’s go";
+  const txt = hello ? "Take a walk." : hint ? (needOpen && !needWalk && (!needLook || Math.floor(now/5000) % 2) ? (TOUCH ? "Tap a work to open it" : "Click a work to open it") : lookTurn ? (LOOK.swiped ? (TOUCH ? "Pinch to zoom out" : "Pinch to zoom out and see more") : TOUCH ? "Drag or pinch to look around" : "Swipe to move, pinch to zoom out") : TOUCH ? "Tap anywhere to walk me" : "Click anywhere to walk me") : thought || "Let’s go";
   if (bubble.textContent !== txt) bubble.textContent = txt;
   bubble.classList.toggle("think", !!thought);
   bubble.classList.toggle("on", !!zoomed);
@@ -1244,7 +1246,9 @@ function flyCard(src, from, to, delay, ms, dir){
         { transform: `translate(${to.left}px,${to.top}px) scale(1,1) rotateY(0deg) rotateX(0deg)` }
   ], { duration: ms, delay, easing: "cubic-bezier(.65,0,.25,1)", fill: "both" }).finished.then(() => c);
 }
+let OPENED = false, WALKS = 0;
 async function openProject(i, el){
+  OPENED = true;
   if (busy) return; busy = true;
   closeList(); current = i; overlay = true; bubble.classList.remove("on");
   view.classList.remove("out","in");
