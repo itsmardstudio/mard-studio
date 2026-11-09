@@ -21,7 +21,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" href="assets/fonts/host-grotesk-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet" media="print" onload="this.media='all';window.fontCssOk=1;window.fontCss&&fontCss()">
 <style>
 /* Host Grotesk, self-hosted (SIL Open Font License, see assets/fonts) */
 @font-face{font-family:"Host Grotesk";font-style:normal;font-weight:400;font-display:swap;src:url(assets/fonts/host-grotesk-latin-400-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
@@ -30,18 +29,19 @@
 @font-face{font-family:"Host Grotesk";font-style:normal;font-weight:500;font-display:swap;src:url(assets/fonts/host-grotesk-latin-ext-500-normal.woff2) format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
 @font-face{font-family:"Host Grotesk";font-style:normal;font-weight:700;font-display:swap;src:url(assets/fonts/host-grotesk-latin-700-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:"Host Grotesk";font-style:normal;font-weight:700;font-display:swap;src:url(assets/fonts/host-grotesk-latin-ext-700-normal.woff2) format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:"Martian Mono";font-style:normal;font-weight:400;font-display:swap;src:url(assets/fonts/martian-mono-latin-400-normal.woff2) format("woff2")}
 
 :root{
   --bg:#ececec; --fg:#111; --red:#ff2a1a; --trail:#ffb3a6; --g1:#666; --g2:#d2d2d2; --g3:#e2e2e2;
   --font:"Host Grotesk", system-ui, -apple-system, sans-serif;
-  --mono:"IBM Plex Mono", ui-monospace, Menlo, monospace;
+  --mono:"Martian Mono", ui-monospace, Menlo, monospace;
   --pad:12px;
   --expo:cubic-bezier(.19,1,.22,1);     /* easings read from gilhuybrecht.com */
   --quint:cubic-bezier(.23,1,.32,1);
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;overflow:hidden;overscroll-behavior:none;background:var(--bg)}
-body{color:var(--fg);font:400 12px/1.3 var(--font);letter-spacing:-.005em;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+body{color:var(--fg);font:400 14px/1.3 var(--font);letter-spacing:-.005em;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
 a{color:inherit;text-decoration:none}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;text-align:inherit;letter-spacing:inherit}
 img{display:block;max-width:100%}
@@ -63,7 +63,7 @@ a:hover,button:hover{color:var(--g1)}
 @keyframes drift{0%{transform:translate(0,0) scale(1)}50%{transform:translate(6vmax,-4vmax) scale(1.12)}100%{transform:translate(-5vmax,5vmax) scale(.94)}}
 #loader .ld{position:relative}
 @media (prefers-reduced-motion:reduce){ #loader .blobs i{animation:none} }
-#loader .ld{display:grid;gap:6px;justify-items:center;font-size:clamp(16px,1.6vw,22px);letter-spacing:-.01em;white-space:pre}
+#loader .ld{display:grid;gap:6px;justify-items:center;font-size:clamp(18px,1.9vw,26px);letter-spacing:-.01em;white-space:pre}
 #loader p{opacity:0;will-change:opacity,transform} #loader.go p{animation:wIn 1s var(--quint) forwards}
 #loader p.fade{transition:opacity .6s ease}
 @keyframes wIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
@@ -85,10 +85,10 @@ a:hover,button:hover{color:var(--g1)}
 .proj .sq img,.proj .sq video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;opacity:0;transition:opacity 1s ease-out}
 .proj.in:hover h2,body.near .proj.in h2{opacity:1;transform:none}
 .proj{isolation:isolate}
-.mono{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+.mono{font-family:var(--mono);font-size:11.5px;letter-spacing:.02em;text-transform:uppercase}
 .proj h2 .mono{align-self:flex-end;padding-bottom:2px}
 /* small archive labels under each work (client · type, number) */
-.proj .cap{position:absolute;left:0;right:0;top:100%;margin-top:9px;display:flex;justify-content:space-between;gap:10px;font:400 11px/1.2 var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--g1);white-space:nowrap;
+.proj .cap{position:absolute;left:0;right:0;top:100%;margin-top:9px;display:flex;justify-content:space-between;gap:10px;font:400 11.5px/1.2 var(--mono);letter-spacing:.02em;text-transform:uppercase;color:var(--g1);white-space:nowrap;
   opacity:0;transform:translateY(-4px);transition:opacity .6s var(--quint),transform .8s var(--expo);pointer-events:none}
 .proj .cap span:first-child{overflow:hidden;text-overflow:ellipsis}
 .proj.in:hover .cap,body.near .proj.in .cap{opacity:1;transform:none}
@@ -104,7 +104,7 @@ body[data-f="Branding"] .proj[data-c~="Branding"],body[data-f="Illustration"] .p
 #cur i{display:grid;place-items:center;width:20px;height:20px;margin:-10px 0 0 -10px;background:var(--red);color:#fff;font-style:normal;font-size:11px;line-height:1;transform:scale(.45);transition:transform .35s var(--expo)}
 #cur i b{font-weight:400;opacity:0;transition:opacity .2s}
 #cur.on i{transform:scale(1)} #cur.on i b{opacity:1}
-#cur span{position:absolute;left:16px;top:-9px;white-space:nowrap;font-size:12px;line-height:18px;padding:0 7px;background:var(--fg,#111);color:#fff;opacity:0;transform:translateX(-4px);transition:opacity .2s,transform .35s var(--expo)} #cur.on span{opacity:1;transform:none}
+#cur span{position:absolute;left:16px;top:-9px;white-space:nowrap;font-size:13px;line-height:20px;padding:0 8px;background:var(--fg,#111);color:#fff;opacity:0;transform:translateX(-4px);transition:opacity .2s,transform .35s var(--expo)} #cur.on span{opacity:1;transform:none}
 @media (hover:hover){ body.cur-on, body.cur-on *{cursor:none!important} }
 @media (hover:none){ .proj.in h2,.proj.in .cap{opacity:1;transform:none} .proj h2{font-size:14px;color:var(--g1)} #cur{display:none} }
 .proj.in .sq img,.proj.in .sq video{opacity:1}
@@ -132,7 +132,7 @@ body[data-f="Branding"] .proj[data-c~="Branding"],body[data-f="Illustration"] .p
 .deco{position:absolute;pointer-events:none}
 .deco svg{width:100%;height:100%;display:block;fill:#ececec;transition:fill .8s var(--quint)}
 .deco.lit svg{fill:var(--trail)}
-#bubble{position:fixed;left:0;top:0;z-index:12;pointer-events:none;background:#111;color:#fff;font-size:13px;font-weight:500;padding:6px 11px;border-radius:14px;white-space:nowrap;
+#bubble{position:fixed;left:0;top:0;z-index:12;pointer-events:none;background:#111;color:#fff;font-size:15px;font-weight:500;padding:7px 13px;border-radius:16px;white-space:nowrap;
   transform-origin:50% 100%;opacity:0;transition:opacity .35s var(--quint)}
 #bubble::after{content:"";position:absolute;left:50%;bottom:-5px;width:10px;height:10px;background:#111;transform:translateX(-50%) rotate(45deg);border-radius:1px}
 #bubble.on{opacity:1}
@@ -194,7 +194,7 @@ header,footer,#fig,#traces{transition:opacity .5s var(--quint)}
 .row2 > span{color:var(--g1)}
 .built{display:flex;flex-wrap:wrap;gap:6px}
 .built li{list-style:none;border:1px solid var(--g2);padding:4px 9px;border-radius:20px}
-.prose{font-size:14px;line-height:1.5;max-width:58ch}
+.prose{font-size:16px;line-height:1.5;max-width:58ch}
 .prose p+p{margin-top:10px}
 .media{display:grid;gap:8px;margin-top:18px}
 .media img,.media video,.media iframe{display:block;width:100%;background:var(--g3);border:0}
@@ -216,19 +216,19 @@ header,footer,#fig,#traces{transition:opacity .5s var(--quint)}
 .big{display:block;font-size:clamp(22px,3.6vw,40px);font-weight:500;letter-spacing:-.03em;margin:4px 0 26px;word-break:break-all}
 .links a{display:block;margin:3px 0}
 form.contact{display:grid;gap:10px}
-form.contact input,form.contact textarea{font:inherit;font-size:14px;color:var(--fg);background:transparent;border:0;border-bottom:1px solid var(--g2);padding:10px 0;outline:none;width:100%}
+form.contact input,form.contact textarea{font:inherit;font-size:16px;color:var(--fg);background:transparent;border:0;border-bottom:1px solid var(--g2);padding:10px 0;outline:none;width:100%}
 form.contact textarea{min-height:110px;resize:vertical}
 form.contact input:focus,form.contact textarea:focus{border-color:var(--fg)}
 form.contact button{justify-self:start;background:var(--fg);color:var(--bg);padding:9px 18px;border-radius:20px;margin-top:6px}
 .steps{display:grid;gap:10px;counter-reset:s}
-.steps li{list-style:none;display:grid;grid-template-columns:28px 1fr;font-size:14px;line-height:1.45}
+.steps li{list-style:none;display:grid;grid-template-columns:32px 1fr;font-size:16px;line-height:1.45}
 .steps li::before{counter-increment:s;content:counter(s,decimal-leading-zero);color:var(--g1);font-size:12px;padding-top:2px}
 .steps b{font-weight:500;display:block}
 
 #list{position:fixed;inset:0;z-index:33;background:var(--bg);padding:56px var(--pad) var(--pad);overflow-y:auto;opacity:0;pointer-events:none;transition:opacity .5s var(--quint)}
 #list.open{opacity:1;pointer-events:auto}
-#list h2{font-size:12px;font-weight:400;color:var(--g1);margin:24px 0 6px}
-#list .row{display:grid;grid-template-columns:40px 64px 2fr 1.4fr 1fr 90px;gap:var(--pad);align-items:center;padding:8px 0;border-top:1px solid var(--g2);width:100%;font-size:14px}
+#list h2{font-size:14px;font-weight:400;color:var(--g1);margin:24px 0 6px}
+#list .row{display:grid;grid-template-columns:40px 64px 2fr 1.4fr 1fr 90px;gap:var(--pad);align-items:center;padding:8px 0;border-top:1px solid var(--g2);width:100%;font-size:16px}
 #list .row .th{width:64px;height:48px;background:var(--g3);overflow:hidden}
 #list .row .th img{width:100%;height:100%;object-fit:cover}
 #list .row:hover span{color:var(--fg)}
@@ -272,7 +272,7 @@ form.contact button{justify-self:start;background:var(--fg);color:var(--bg);padd
 /* filters + map/list: top row, under the name */
 .hrow{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;margin-top:6px}
 .hrow .chips,.hrow .seg{gap:6px} .hrow .rt{display:flex;gap:6px;align-items:center}
-.hrow button{border:1px solid #bdbdbd;border-radius:20px;padding:4px 11px;color:#555;background:rgba(236,236,236,.88);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);transition:background .25s,color .25s,border-color .25s}
+.hrow button{border:1px solid #bdbdbd;border-radius:20px;padding:6px 14px;color:#555;background:rgba(236,236,236,.88);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);transition:background .25s,color .25s,border-color .25s}
 .hrow button:hover{color:var(--fg);border-color:var(--g1)}
 .hrow button.on{background:var(--fg);border-color:var(--fg);color:var(--bg)}
 .hrow button{white-space:nowrap}
@@ -280,7 +280,7 @@ form.contact button{justify-self:start;background:var(--fg);color:var(--bg);padd
 /* project page: short texts between the images */
 .media .txt{padding:22px 0 26px}
 .media .txt .k{display:block;color:var(--g1);margin-bottom:8px}
-.media .txt p{font-size:16px;line-height:1.45;letter-spacing:-.01em}
+.media .txt p{font-size:18px;line-height:1.45;letter-spacing:-.01em}
 .media .txt p+p{margin-top:10px}
 .media .cap2{margin:-2px 0 6px;color:var(--g1)}
 .media img{height:auto}
@@ -305,17 +305,17 @@ form.contact button{justify-self:start;background:var(--fg);color:var(--bg);padd
 #shade .srot{width:100%;height:100%;transform-origin:50% 50%}
 
 .case{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--pad);padding:16px 0 4px;border-top:1px solid var(--g2)}
-.case span{display:block;margin-bottom:8px} .case p{font-size:15px;line-height:1.42;letter-spacing:-.01em}
+.case span{display:block;margin-bottom:8px} .case p{font-size:17px;line-height:1.42;letter-spacing:-.01em}
 @media (max-width:760px){ .case{grid-template-columns:1fr;gap:14px} }
 .avail{display:inline-flex;align-items:center;gap:6px;margin-top:3px} .avail i{width:6px;height:6px;background:var(--red);display:inline-block;animation:kp 2.4s ease-in-out infinite}
 form.contact .note{min-height:1.2em;font-size:13px}
 /* project page: bigger reading text */
-.facts{font-size:16px} .facts b{font-size:17px}
-.v-text .row2{font-size:17px}
-.case p{font-size:18px;line-height:1.4}
-.media .txt p{font-size:19px;line-height:1.42}
+.facts{font-size:18px} .facts b{font-size:19px}
+.v-text .row2{font-size:19px}
+.case p{font-size:20px;line-height:1.4}
+.media .txt p{font-size:21px;line-height:1.42}
 .media .txt.wide{max-width:none}
-.built.wide{gap:8px} .built.wide li{font-size:16px;padding:7px 15px}
+.built.wide{gap:8px} .built.wide li{font-size:17px;padding:8px 16px}
 .media .txt:has(.built){max-width:none}
 /* a project can open on black */
 #view.dark{--bg:#0a0a0a;--fg:#f1f1f1;--g1:#8d8d8d;--g2:#2a2a2a;--g3:#151515;color:var(--fg)}
