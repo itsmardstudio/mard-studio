@@ -41,7 +41,7 @@
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;overflow:hidden;overscroll-behavior:none;background:var(--bg)}
-body{color:var(--fg);font:400 14px/1.3 var(--font);letter-spacing:-.005em;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+body{color:var(--fg);font:400 16px/1.3 var(--font);letter-spacing:-.005em;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
 a{color:inherit;text-decoration:none}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;text-align:inherit;letter-spacing:inherit}
 img{display:block;max-width:100%}
@@ -85,7 +85,7 @@ a:hover,button:hover{color:var(--g1)}
 .proj .sq img,.proj .sq video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;opacity:0;transition:opacity 1s ease-out}
 .proj.in:hover h2,body.near .proj.in h2{opacity:1;transform:none}
 .proj{isolation:isolate}
-.mono{font-family:var(--mono);font-size:11.5px;letter-spacing:.02em;text-transform:uppercase}
+.mono{font-family:var(--mono);font-size:13px;letter-spacing:.02em;text-transform:uppercase}
 .proj h2 .mono{align-self:flex-end;padding-bottom:2px}
 /* small archive labels under each work (client · type, number) */
 .proj .cap{position:absolute;left:0;right:0;top:100%;margin-top:9px;display:flex;justify-content:space-between;gap:10px;font:400 11.5px/1.2 var(--mono);letter-spacing:.02em;text-transform:uppercase;color:var(--g1);white-space:nowrap;
@@ -158,7 +158,7 @@ header::before{top:0;height:110px;background:linear-gradient(#ececec,rgba(236,23
 footer::before{bottom:0;height:150px;background:linear-gradient(rgba(236,236,236,0),rgba(222,222,222,.85) 55%,#cfcfcf)}
 .reveal{opacity:0;transform:translateY(10px);transition:opacity .9s var(--quint),transform 1.1s var(--expo)}
 .on .reveal,.reveal.on{opacity:1;transform:none}
-footer .fr{grid-column:-2/-1} footer .avail{margin-top:0}
+footer .fr{grid-column:-3/-1} header .reveal,footer .reveal{white-space:nowrap} footer .avail{margin-top:0}
 footer .tools{display:flex;gap:14px;justify-content:center;font-variant-numeric:tabular-nums}
 
 /* ===== Project view (opens with a shared-element flight) ===== */
@@ -273,10 +273,11 @@ form.contact button{justify-self:start;background:var(--fg);color:var(--bg);padd
 /* filters + map/list: top row, under the name */
 .hrow{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;margin-top:6px}
 .hrow .chips,.hrow .seg{gap:6px} .hrow .rt{display:flex;gap:6px;align-items:center}
-.hrow button{border:1px solid #bdbdbd;border-radius:20px;padding:6px 14px;color:#555;background:rgba(236,236,236,.88);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);transition:background .25s,color .25s,border-color .25s}
+.hrow button{border:1px solid #bdbdbd;border-radius:22px;padding:7px 16px;color:#555;background:rgba(236,236,236,.88);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);transition:background .25s,color .25s,border-color .25s}
 .hrow button:hover{color:var(--fg);border-color:var(--g1)}
 .hrow button.on{background:var(--fg);border-color:var(--fg);color:var(--bg)}
 .hrow button{white-space:nowrap}
+@media (max-width:1360px) and (min-width:761px){ .hrow button{padding:6px 12px;font-size:15px} }
 @media (max-width:760px){ .hrow{flex-wrap:wrap;gap:6px} .hrow .chips{display:flex;width:100%;overflow-x:auto;scrollbar-width:none} .hrow .chips::-webkit-scrollbar{display:none} .hrow button{padding:4px 10px} .hrow .rt{margin-left:auto} #zFit{display:none} }
 /* project page: short texts between the images */
 .media .txt{padding:22px 0 26px}
