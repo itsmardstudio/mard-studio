@@ -20,11 +20,20 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet" media="print" onload="this.media='all';window.fontCssOk=1;window.fontCss&&fontCss()">
+<link rel="preload" href="assets/fonts/host-grotesk-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet" media="print" onload="this.media='all';window.fontCssOk=1;window.fontCss&&fontCss()">
 <style>
+/* Host Grotesk, self-hosted (SIL Open Font License, see assets/fonts) */
+@font-face{font-family:"Host Grotesk";font-style:normal;font-weight:400;font-display:swap;src:url(assets/fonts/host-grotesk-latin-400-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Host Grotesk";font-style:normal;font-weight:400;font-display:swap;src:url(assets/fonts/host-grotesk-latin-ext-400-normal.woff2) format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:"Host Grotesk";font-style:normal;font-weight:500;font-display:swap;src:url(assets/fonts/host-grotesk-latin-500-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Host Grotesk";font-style:normal;font-weight:500;font-display:swap;src:url(assets/fonts/host-grotesk-latin-ext-500-normal.woff2) format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:"Host Grotesk";font-style:normal;font-weight:700;font-display:swap;src:url(assets/fonts/host-grotesk-latin-700-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Host Grotesk";font-style:normal;font-weight:700;font-display:swap;src:url(assets/fonts/host-grotesk-latin-ext-700-normal.woff2) format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+
 :root{
   --bg:#ececec; --fg:#111; --red:#ff2a1a; --trail:#ffb3a6; --g1:#666; --g2:#d2d2d2; --g3:#e2e2e2;
-  --font:"Inter", system-ui, -apple-system, sans-serif;
+  --font:"Host Grotesk", system-ui, -apple-system, sans-serif;
   --mono:"IBM Plex Mono", ui-monospace, Menlo, monospace;
   --pad:12px;
   --expo:cubic-bezier(.19,1,.22,1);     /* easings read from gilhuybrecht.com */
@@ -321,7 +330,7 @@ form.contact .note{min-height:1.2em;font-size:13px}
 <body>
 
 <div id="loader" style="--c1:#e83816;--c2:#2c66ad;--c3:#e3731b;--c4:#2c4477;--c5:#bf342f"><div class="ld"><p id="ldText" aria-live="polite">A one person studio</p></div></div>
-<script>(function(){var l=document.getElementById("loader"),go=function(){l.classList.add("go")};try{Promise.race([new Promise(function(r){if(window.fontCssOk)r();else window.fontCss=r}).then(function(){return document.fonts.load("20px Inter")}),new Promise(function(r){setTimeout(r,900)})]).then(function(){requestAnimationFrame(go)})}catch(e){go()}})();</script>
+<script>(function(){var l=document.getElementById("loader"),go=function(){l.classList.add("go")};try{Promise.race([document.fonts.load("20px 'Host Grotesk'"),new Promise(function(r){setTimeout(r,900)})]).then(function(){requestAnimationFrame(go)})}catch(e){go()}})();</script>
 
 <header>
   <div class="reveal"><button data-home>Lilit Mardanian</button><br><span class="g">mard studio</span></div>
