@@ -676,19 +676,20 @@ function unlockView(now){
 }
 /* teaching the move: the map nudges once, a small trackpad icon swipes, the figure says it — all gone after the first move */
 const TOUCH = matchMedia("(hover:none)").matches;
-const LOOK = { done: false, acc: 0, since: 0 };
+const LOOK = { done: false, swiped: false, acc: 0, since: 0 };   // done = they have zoomed (pinch); the hint stays until then
 const gest = $("#gest");
 function looked(){ if (LOOK.done) return; LOOK.done = true; gest.classList.remove("on"); clearInterval(LOOK.iv); }
+function swiped(){ if (LOOK.swiped || LOOK.done) return; LOOK.swiped = true; clearInterval(LOOK.iv); gest.classList.add("pz"); }   // moved around: now only teach the pinch
 function teachLook(){
   LOOK.since = performance.now();
-  setTimeout(() => { if (LOOK.done) return; gest.classList.add("on"); LOOK.iv = setInterval(() => gest.classList.toggle("pz"), 4000); }, 2200);
+  setTimeout(() => { if (LOOK.done) return; gest.classList.add("on"); if (LOOK.swiped) gest.classList.add("pz"); else LOOK.iv = setInterval(() => gest.classList.toggle("pz"), 4000); }, 2200);
 }
 /* ---- input ---- */
 canvas.addEventListener("wheel", e => {
   e.preventDefault(); if (!introDone) return;
   if (e.ctrlKey || e.metaKey){ zoomAt(Math.exp(-e.deltaY*.006), e.clientX, e.clientY); looked(); }
-  else if (e.deltaMode === 1) zoomAt(Math.exp(-e.deltaY*.08), e.clientX, e.clientY);
-  else { tgt.x -= e.deltaX; tgt.y -= e.deltaY; flying = null; LOOK.acc += Math.abs(e.deltaX) + Math.abs(e.deltaY); if (LOOK.acc > 60) looked(); }
+  else if (e.deltaMode === 1){ zoomAt(Math.exp(-e.deltaY*.08), e.clientX, e.clientY); looked(); }
+  else { tgt.x -= e.deltaX; tgt.y -= e.deltaY; flying = null; LOOK.acc += Math.abs(e.deltaX) + Math.abs(e.deltaY); if (LOOK.acc > 60) swiped(); }
 }, {passive:false});
 
 const ptrs = new Map(); let moved = 0, pinch = null, vel = {x:0,y:0}, lastMove = 0;
@@ -711,7 +712,7 @@ canvas.addEventListener("pointermove", e => {
 });
 const up = e => {
   ptrs.delete(e.pointerId); if (ptrs.size < 2) pinch = null;
-  if (!ptrs.size && moved > 30) looked();
+  if (!ptrs.size && moved > 30) swiped();
   if (!ptrs.size){ canvas.classList.remove("dragging"); if (performance.now() - lastMove < 80){ tgt.x += vel.x*14; tgt.y += vel.y*14; } }
 };
 canvas.addEventListener("pointerup", up); canvas.addEventListener("pointercancel", up);
@@ -729,8 +730,8 @@ canvas.addEventListener("click", e => {
 canvas.addEventListener("dblclick", e => { if (introDone && !projAt(e.clientX, e.clientY)) zoomAt(1.7, e.clientX, e.clientY); });
 
 
-$("#zIn").onclick = () => zoomAt(1.4, innerWidth/2, innerHeight/2);
-$("#zOut").onclick = () => zoomAt(1/1.4, innerWidth/2, innerHeight/2);
+$("#zIn").onclick = () => { zoomAt(1.4, innerWidth/2, innerHeight/2); looked(); };
+$("#zOut").onclick = () => { zoomAt(1/1.4, innerWidth/2, innerHeight/2); looked(); };
 $("#zFit").onclick = () => flyTo(nearestHome());
 document.querySelector("[data-home]").onclick = () => { closeView(); closeList(); flyTo(nearestHome()); };
 /* "home" = the copy of the cluster closest to where you are */
@@ -1042,7 +1043,7 @@ function frame(now){
   const lookTurn = needLook && (!needWalk || Math.floor((now - LOOK.since)/4500) % 2 === 1);
   const thought = introDone && !overlay && !hint && !hello && !F.entering ? think(now, state) : null;
   const zoomed = !overlay && introDone && !F.entering && (hello || hint || thought || cam.s >= fitS*1.35);
-  const txt = hello ? "Take a walk." : hint ? (lookTurn ? (TOUCH ? "Drag or pinch to look around" : "Swipe to move, pinch to zoom out") : TOUCH ? "Tap anywhere to walk me" : "Click anywhere to walk me") : thought || "Let’s go";
+  const txt = hello ? "Take a walk." : hint ? (lookTurn ? (LOOK.swiped ? (TOUCH ? "Pinch to zoom out" : "Pinch to zoom out and see more") : TOUCH ? "Drag or pinch to look around" : "Swipe to move, pinch to zoom out") : TOUCH ? "Tap anywhere to walk me" : "Click anywhere to walk me") : thought || "Let’s go";
   if (bubble.textContent !== txt) bubble.textContent = txt;
   bubble.classList.toggle("think", !!thought);
   bubble.classList.toggle("on", !!zoomed);
