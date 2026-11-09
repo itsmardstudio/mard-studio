@@ -132,14 +132,15 @@ body[data-f="Branding"] .proj[data-c~="Branding"],body[data-f="Illustration"] .p
 .deco{position:absolute;pointer-events:none}
 .deco svg{width:100%;height:100%;display:block;fill:#ececec;transition:fill .8s var(--quint)}
 .deco.lit svg{fill:var(--trail)}
-#bubble{position:fixed;left:0;top:0;z-index:12;pointer-events:none;background:#111;color:#fff;font-size:15px;font-weight:500;padding:7px 13px;border-radius:16px;white-space:nowrap;
+#bubble{position:fixed;left:0;top:0;z-index:12;pointer-events:none;background:#111;color:#fff;font-size:18px;font-weight:500;padding:10px 17px;border-radius:22px;white-space:nowrap;
   transform-origin:50% 100%;opacity:0;transition:opacity .35s var(--quint)}
-#bubble::after{content:"";position:absolute;left:50%;bottom:-5px;width:10px;height:10px;background:#111;transform:translateX(-50%) rotate(45deg);border-radius:1px}
+#bubble::after{content:"";position:absolute;left:50%;bottom:-6px;width:13px;height:13px;background:#111;transform:translateX(-50%) rotate(45deg);border-radius:1px}
 #bubble.on{opacity:1}
+@media (max-width:760px){ #bubble{font-size:16px;padding:8px 14px} }
 /* thought cloud: same bubble, little circles instead of the pointer */
 #bubble.think{background:#111;color:#fff;font-weight:400;font-style:italic}
-#bubble.think::after{width:7px;height:7px;bottom:-9px;border-radius:50%;transform:translateX(-30%)}
-#bubble.think::before{content:"";position:absolute;left:50%;bottom:-16px;width:4px;height:4px;background:#111;border-radius:50%;transform:translateX(10%)}
+#bubble.think::after{width:9px;height:9px;bottom:-12px;border-radius:50%;transform:translateX(-30%)}
+#bubble.think::before{content:"";position:absolute;left:50%;bottom:-21px;width:5px;height:5px;background:#111;border-radius:50%;transform:translateX(10%)}
 
 /* ===== Chrome ===== */
 .corner{position:fixed;width:26vw;height:26vh;pointer-events:none;z-index:8;background:rgba(236,236,236,.35);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
