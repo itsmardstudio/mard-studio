@@ -1057,7 +1057,7 @@ function startIntro(){
   const h = homeView();
   F.x = CX; F.y = CY;                                        // the figure ends up in the middle, surrounded by the work
   if (!QUICK) enterWalk(h);
-  try { localStorage.setItem("mard-seen", "1"); } catch (_) {}
+  try { sessionStorage.setItem("mard-seen", "1"); } catch (_) {}
   if (INTRO){ INTRO = null; if (Math.abs(cam.y - h.y) > 2) flyTo(h, 550); } else { Object.assign(cam, h); Object.assign(tgt, h); }
   document.body.classList.remove("intro", "pre");
   render();
@@ -1086,8 +1086,8 @@ function enterWalk(h){
     newStroke(); scratch(F.x, F.y); return;
   }
 }
-let SEEN = false; try { SEEN = localStorage.getItem("mard-seen") === "1"; } catch (_) {}
-const QUICK = !/[?&]intro/.test(location.search) && (RM || SEEN || location.hash.length > 1);   // mard.studio/?intro always plays it      // been here before, or came for one project: no show
+let SEEN = false; try { SEEN = sessionStorage.getItem("mard-seen") === "1"; } catch (_) {}   // only skipped on a reload in the same tab
+const QUICK = !/[?&]intro/.test(location.search) && (SEEN || location.hash.length > 1);   // reload in this tab, or came for one project: no show. mard.studio/?intro always plays it
 let INTRO = null;
 if (!QUICK) document.body.classList.add("pre");             // first visit: an empty field until she walks in
 (function load(){
