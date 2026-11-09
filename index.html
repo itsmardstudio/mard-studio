@@ -23,7 +23,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet" media="print" onload="this.media='all';window.fontCssOk=1;window.fontCss&&fontCss()">
 <style>
 :root{
-  --bg:#ececec; --fg:#111; --red:#ff2a1a; --trail:#ffb3a6; --g1:#888; --g2:#d2d2d2; --g3:#e2e2e2;
+  --bg:#ececec; --fg:#111; --red:#ff2a1a; --trail:#ffb3a6; --g1:#666; --g2:#d2d2d2; --g3:#e2e2e2;
   --font:"Inter", system-ui, -apple-system, sans-serif;
   --mono:"IBM Plex Mono", ui-monospace, Menlo, monospace;
   --pad:12px;
@@ -79,7 +79,7 @@ a:hover,button:hover{color:var(--g1)}
 .mono{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase}
 .proj h2 .mono{align-self:flex-end;padding-bottom:2px}
 /* small archive labels under each work (client · type, number) */
-.proj .cap{position:absolute;left:0;right:0;top:100%;margin-top:9px;display:flex;justify-content:space-between;gap:10px;font:400 10px/1.2 var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--g1);white-space:nowrap;
+.proj .cap{position:absolute;left:0;right:0;top:100%;margin-top:9px;display:flex;justify-content:space-between;gap:10px;font:400 11px/1.2 var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--g1);white-space:nowrap;
   opacity:0;transform:translateY(-4px);transition:opacity .6s var(--quint),transform .8s var(--expo);pointer-events:none}
 .proj .cap span:first-child{overflow:hidden;text-overflow:ellipsis}
 .proj.in:hover .cap,body.near .proj.in .cap{opacity:1;transform:none}
@@ -263,7 +263,7 @@ form.contact button{justify-self:start;background:var(--fg);color:var(--bg);padd
 /* filters + map/list: top row, under the name */
 .hrow{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;margin-top:6px}
 .hrow .chips,.hrow .seg{gap:6px} .hrow .rt{display:flex;gap:6px;align-items:center}
-.hrow button{border:1px solid #bdbdbd;border-radius:20px;padding:4px 11px;color:#777;background:rgba(236,236,236,.88);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);transition:background .25s,color .25s,border-color .25s}
+.hrow button{border:1px solid #bdbdbd;border-radius:20px;padding:4px 11px;color:#555;background:rgba(236,236,236,.88);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);transition:background .25s,color .25s,border-color .25s}
 .hrow button:hover{color:var(--fg);border-color:var(--g1)}
 .hrow button.on{background:var(--fg);border-color:var(--fg);color:var(--bg)}
 .hrow button{white-space:nowrap}
@@ -361,10 +361,10 @@ form.contact .note{min-height:1.2em;font-size:13px}
 </footer>
 
 <div id="mask"></div>
-<div id="flyer"><img alt=""></div>
+<div id="flyer"><img alt="" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"></div>
 <div id="view" aria-hidden="true"></div>
 <div id="list"><button class="close" id="listClose">Back to map</button><div id="listRows"></div></div>
-<div id="lprev"><img alt=""></div>
+<div id="lprev"><img alt="" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"></div>
 
 <script>
 const EMAIL = "its.mard.studio@gmail.com";
