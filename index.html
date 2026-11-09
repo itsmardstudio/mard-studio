@@ -143,7 +143,7 @@ body[data-f="Branding"] .proj[data-c~="Branding"],body[data-f="Illustration"] .p
 #bubble.think::before{content:"";position:absolute;left:50%;bottom:-21px;width:5px;height:5px;background:#111;border-radius:50%;transform:translateX(10%)}
 
 /* ===== Chrome ===== */
-.corner{position:fixed;width:26vw;height:26vh;pointer-events:none;z-index:8;background:rgba(236,236,236,.35);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
+.corner{position:fixed;width:26vw;height:26vh;pointer-events:none;z-index:8;background:rgba(236,236,236,.6)}
 .corner.tl{left:0;top:0;-webkit-mask-image:radial-gradient(circle at 0 0,#000 0,transparent 70%);mask-image:radial-gradient(circle at 0 0,#000 0,transparent 70%)}
 .corner.tr{right:0;top:0;-webkit-mask-image:radial-gradient(circle at 100% 0,#000 0,transparent 70%);mask-image:radial-gradient(circle at 100% 0,#000 0,transparent 70%)}
 .corner.bl{left:0;bottom:0;-webkit-mask-image:radial-gradient(circle at 0 100%,#000 0,transparent 70%);mask-image:radial-gradient(circle at 0 100%,#000 0,transparent 70%)}
@@ -273,7 +273,7 @@ form.contact button{justify-self:start;background:var(--fg);color:var(--bg);padd
 /* filters + map/list: top row, under the name */
 .hrow{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;margin-top:6px}
 .hrow .chips,.hrow .seg{gap:6px} .hrow .rt{display:flex;gap:6px;align-items:center}
-.hrow button{border:1px solid #bdbdbd;border-radius:22px;padding:7px 16px;color:#555;background:rgba(236,236,236,.88);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);transition:background .25s,color .25s,border-color .25s}
+.hrow button{border:1px solid #bdbdbd;border-radius:22px;padding:7px 16px;color:#555;background:rgba(236,236,236,.94);transition:background .25s,color .25s,border-color .25s}
 .hrow button:hover{color:var(--fg);border-color:var(--g1)}
 .hrow button.on{background:var(--fg);border-color:var(--fg);color:var(--bg)}
 .hrow button{white-space:nowrap}
@@ -1146,8 +1146,10 @@ function heroOf(i, m){
 const fitStyle = t => { const ar = t.crop || RATIO[t.r].join("/"), [a, b] = ar.split("/").map(Number);
   return `aspect-ratio:${ar};width:${t.w ? `min(${t.w}, calc((100vh - 150px)*${(a/b).toFixed(4)}))` : `min(100%, calc((100vh - 150px)*${(a/b).toFixed(4)}))`};margin-inline:auto;object-fit:cover;${t.pos ? `object-position:${t.pos};` : ""}`; };
 const fullItem = (t, name, m) => t.kind === "v"
-  ? `<video data-fm="${m}" data-src="${t.full}" poster="${t.poster}" muted loop playsinline preload="none" style="${fitStyle(t)}"></video>`
-  : `<img data-fm="${m}" src="${t.full}" alt="${name}: ${t.label}" style="${fitStyle(t)}"${m > 1 ? ' loading="lazy"' : ""}>`;
+  ? `<video data-fm="${m}" data-src="${t.tile || t.full}"${t.tile && t.tile !== t.full ? ` data-full="${t.full}"` : ""} poster="${t.poster}" muted loop playsinline preload="none" style="${fitStyle(t)}"></video>`
+  : t.tile && t.tile !== t.full
+    ? `<img data-fm="${m}" src="${t.tile}" data-full="${t.full}" alt="${name}: ${t.label}" style="${fitStyle(t)}" decoding="async">`
+    : `<img data-fm="${m}" src="${t.full}" alt="${name}: ${t.label}" style="${fitStyle(t)}"${m > 1 ? ' loading="lazy"' : ""} decoding="async">`;
 function projectHTML(i){
   const p = P[i];
   const slots = slotsFor(p).map(s => `<div class="slot" style="aspect-ratio:${s.r}"><span class="tag">To add</span><div><b>${s.t}</b><p>${s.d}</p><span class="spec">${s.s}</span></div></div>`);
@@ -1186,11 +1188,21 @@ function projectHTML(i){
 }
 /* videos in a project page start only when they come near the screen, and pause when they leave */
 let vidObs = null;
+/* page videos start with the small copy (quick), and switch to the full-quality file once it can play through */
+function upgradeVideo(v){
+  const full = v.dataset.full; if (!full) return; delete v.dataset.full;
+  const pre = document.createElement("video"); pre.muted = true; pre.preload = "auto"; pre.src = full;
+  pre.addEventListener("canplaythrough", () => { const t = v.currentTime; v.src = full; v.currentTime = t; v.play().catch(() => {}); pre.removeAttribute("src"); pre.load(); }, { once: true });
+}
 function watchVideos(){
   if (vidObs) vidObs.disconnect();
   vidObs = new IntersectionObserver(es => es.forEach(e => { const v = e.target;
-    if (e.isIntersecting){ if (!v.src && v.dataset.src) v.src = v.dataset.src; v.play().catch(() => {}); } else if (!v.paused) v.pause(); }), { root: view, rootMargin: "300px 0px" });
+    if (e.isIntersecting){ if (!v.src && v.dataset.src){ v.src = v.dataset.src; upgradeVideo(v); } v.play().catch(() => {}); } else if (!v.paused) v.pause(); }), { root: view, rootMargin: "300px 0px" });
   view.querySelectorAll(".media video[data-src]").forEach(v => vidObs.observe(v));
+  const imgObs = new IntersectionObserver(es => es.forEach(e => { if (!e.isIntersecting) return; const im = e.target; imgObs.unobserve(im);
+    const big = new Image(); big.src = im.dataset.full; (big.decode ? big.decode() : Promise.resolve()).then(() => { im.src = big.src; delete im.dataset.full; }, () => {}); }),
+    { root: view, rootMargin: "900px 0px" });
+  view.querySelectorAll(".media img[data-full]").forEach(im => imgObs.observe(im));
 }
 /* ---- a link for each project: mard.studio/#the-noosh opens it straight away ---- */
 function setHash(slug, replace){
