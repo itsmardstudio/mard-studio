@@ -76,7 +76,7 @@ a:hover,button:hover{color:var(--g1)}
 #tilt,#world,.block,#blocks{pointer-events:none} .proj{pointer-events:auto}
 #canvas.dragging{cursor:grabbing}
 #world{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform;transform-style:preserve-3d}
-#headline{position:absolute;left:0;top:0;white-space:nowrap;font:500 84px/.95 var(--font);letter-spacing:-.045em;color:var(--fg);pointer-events:none;opacity:0;transition:opacity 1.2s var(--quint)}
+#headline{position:absolute;left:0;top:0;white-space:nowrap;font:400 52px/1.1 var(--font);letter-spacing:-.015em;color:var(--fg);pointer-events:none;opacity:0;transition:opacity 1.2s var(--quint)}
 #headline.on{opacity:1} body.pre #headline,body.intro #headline{opacity:0}
 .block{position:absolute;left:0;top:0;transform-style:preserve-3d}
 .proj{position:absolute;width:var(--w);cursor:pointer;transform:translateZ(var(--z,0px))}   /* works sit at slightly different heights: parallax while tilting */
@@ -264,6 +264,7 @@ form.contact button{justify-self:start;background:var(--fg);color:var(--bg);padd
 
 /* the territory around the first 12 is pale until the figure walks there */
 .proj.ghost{opacity:.55;filter:grayscale(.35);pointer-events:none}
+.gd{position:absolute;max-width:none;object-fit:cover;opacity:.55;filter:grayscale(.35);pointer-events:none} body[data-f] .gd{opacity:.15}
 .proj.ghost h2,.proj.ghost .cap{visibility:hidden} .proj.ghost .sq{transform:scale(.24)}
 .proj.unlock{transition:opacity 1.4s var(--quint),filter 1.4s var(--quint)}
 /* four tiny arrows around the figure: you can walk it with the keys or by clicking */
@@ -344,7 +345,7 @@ form.contact .note{min-height:1.2em;font-size:13px}
 </head>
 <body>
 
-<div id="loader" style="--c1:#e83816;--c2:#2c66ad;--c3:#e3731b;--c4:#2c4477;--c5:#bf342f"><div class="ld"><p id="ldText" aria-live="polite">Take a walk.</p></div></div>
+<div id="loader" style="--c1:#e83816;--c2:#2c66ad;--c3:#e3731b;--c4:#2c4477;--c5:#bf342f"><div class="ld"><p id="ldText" aria-live="polite">mard.studio</p></div></div>
 <script>(function(){var l=document.getElementById("loader"),go=function(){l.classList.add("go")};try{Promise.race([document.fonts.load("20px 'Host Grotesk'"),new Promise(function(r){setTimeout(r,900)})]).then(function(){requestAnimationFrame(go)})}catch(e){go()}})();</script>
 
 <header>
@@ -566,7 +567,8 @@ for (let fill = .8; fill > .3; fill -= .03){
   BH = Math.round(Math.sqrt(AREA/fill/1.45)); BW = Math.round(BH*1.45);
   const W = BW, H = BH, OFF = [[-W,-H],[0,-H],[W,-H],[-W,0],[0,0],[W,0],[-W,H],[0,H],[W,H]];
   const wrap = (v, L) => ((v % L) + L) % L, cdist = (v, L) => { v = wrap(v, L); return v > L/2 ? v - L : v; };
-  placed = [{ ...filler, away: true, x: W/2 - filler.w/2, y: H/2 - tall(filler)/2 }];
+  const RW = Math.max(filler.w, 780), RH = Math.max(tall(filler), 600);   // keep a wide clear field around her and the headline
+  placed = [{ ...filler, away: true, w: RW, h: RH - LABEL, x: W/2 - RW/2, y: H/2 - RH/2 }];
   let ok = true;
   for (const it of all){
     const spots = [];
@@ -611,6 +613,7 @@ for (let fill = .8; fill > .3; fill -= .03){
     const before = cost(a) + cost(b); swap(a, b); if (cost(a) + cost(b) > before) swap(a, b);
   }
 })();
+{ const f = placed[0], cx = f.x + f.w/2, cy = f.y + tall(f)/2; f.w = filler.w; f.h = filler.h; f.x = cx - f.w/2; f.y = cy - tall(f)/2; }   // the filler tile itself keeps its own size
 const CX = placed[0].x + placed[0].w/2, CY = placed[0].y + tall(placed[0])/2;   // where the figure starts
 const RING = placed.filter(p => p.ring || p.away);           // the first view frames these
 const RB = { x0: Math.min(...RING.map(p => p.x)) - CX, x1: Math.max(...RING.map(p => p.x + p.w)) - CX,
@@ -622,10 +625,25 @@ const DECO = {};
 /* lit = visible; everything outside the first 12 stays a pale ghost until the figure walks near it */
 const UNLOCK = new Set();
 const LIT_R = 1.45*Math.max(-RB.x0, RB.x1, -RB.y0, RB.y1);
-const placeHeadline = () => { const h = document.getElementById("headline"); if (h) h.style.transform = `translate(${CX}px,${CY - 185}px) translate(-50%,-100%)`; };
+const placeHeadline = () => { const h = document.getElementById("headline"); if (h) h.style.transform = `translate(${CX}px,${CY - 245}px) translate(-50%,-100%)`; };
 const isLit = (bx, by, k, p) => bx === 0 && by === 0;     // each work is lit once; the repeats around it stay ghosts
 placeHeadline();
-const blockHTML = (bx, by) => placed.map((p, k) => {
+/* every other copy of the map: a dense scatter of tiny, unclickable thumbnails of the work (decorative) */
+const GPOOL = CV.flat().map(f => ({ src: f.kind === "v" ? f.poster : f.tile, r: f.r }));
+function ghostBlockHTML(bx, by){
+  let h = (bx*73856093) ^ (by*19349663); const rr = () => { h = (h*1103515245 + 12345) & 0x7fffffff; return h/0x7fffffff; };
+  const home = (Math.abs(bx) <= 1 && Math.abs(by) <= 1) ? placed.filter(p => !p.deco && !(p.away)).map(p => ({ x: p.x - bx*BW, y: p.y - by*BH, w: p.w, h: tall(p) })) : [];
+  const SP = 190, out = [];
+  for (let gy = 0; gy < BH; gy += SP) for (let gx = 0; gx < BW; gx += SP){
+    if (rr() < .3) continue;
+    const g = GPOOL[Math.floor(rr()*GPOOL.length)], w = 34 + rr()*40, ht = w/g.r;
+    const x = gx + rr()*(SP - w), y = gy + rr()*(SP - ht);
+    if (home.some(q => x < q.x + q.w + 26 && x + w + 26 > q.x && y < q.y + q.h + 26 && y + ht + 26 > q.y)) continue;
+    out.push(`<img class="gd" src="${g.src}" alt="" draggable="false" decoding="async" style="left:${x.toFixed(0)}px;top:${y.toFixed(0)}px;width:${w.toFixed(0)}px;height:${ht.toFixed(0)}px">`);
+  }
+  return out.join("");
+}
+const blockHTML = (bx, by) => (bx || by) ? ghostBlockHTML(bx, by) : placed.map((p, k) => {
   if (p.away && isStart(bx, by)) return "";
   const pos = `left:${p.x}px;top:${p.y}px;--w:${p.w}px;--h:${p.h}px;--z:${((k*37)%9 - 4)*8}px`;
   if (p.deco) return `<div class="deco" data-k="${k}" style="${pos};width:${p.w}px;height:${p.h}px">${DECO[p.deco]}</div>`;
@@ -765,7 +783,7 @@ canvas.addEventListener("pointerup", up); canvas.addEventListener("pointercancel
 const projAt = (x, y) => { const h = document.elementFromPoint(x, y); return h && h.closest(".proj"); };
 canvas.addEventListener("click", e => {
   if (moved > 6 || !introDone) return;
-  if (F.entering){ walkTo((e.clientX - cam.x)/cam.s, (e.clientY - cam.y)/cam.s); if (F.entering){ F.entering = false; revealWorld(300); } return; }   // works not shown yet
+  if (F.entering) return;                                   // her first walk in can't be interrupted
   const el = projAt(e.clientX, e.clientY);
   if (!el){ walkTo((e.clientX - cam.x)/cam.s, (e.clientY - cam.y)/cam.s); return; }
   if (el.classList.contains("ghost")){ const r = el.querySelector(".sq").getBoundingClientRect(); flyTo({ s: cam.s, x: cam.x + innerWidth/2 - (r.left + r.width/2), y: cam.y + innerHeight/2 - (r.top + r.height/2) }, 900); return; }
@@ -863,7 +881,7 @@ const markWalked = () => { if (hasWalked && !hasWalkedBefore){ hasWalkedBefore =
 function walkTo(x, y){
   { const dx = x - CX, dy = y - CY, d = Math.hypot(dx, dy), m = LIT_R*.9; if (d > m){ x = CX + dx/d*m; y = CY + dy/d*m; } }
   const path = findPath(F.x, F.y, x, y); if (!path.length) return;
-  if (F.entering){ F.entering = false; revealWorld(300); } F.queue = path; F.wander = false; F.fast = true; F.targetKey = null; hasWalked = true; WALKS++; markWalked(); newStroke(); scratch(F.x, F.y);
+  if (F.entering) return; F.queue = path; F.wander = false; F.fast = true; F.targetKey = null; hasWalked = true; WALKS++; markWalked(); newStroke(); scratch(F.x, F.y);
 }
 const FR = 12;                                            // figure "radius" for steering collisions
 function freeAt(x, y){
@@ -872,9 +890,9 @@ function freeAt(x, y){
 function steer(dt){
   let dx = (held.has("r") - held.has("l")), dy = (held.has("d") - held.has("u"));
   if (!dx && !dy) return false;
+  if (F.entering) return false;
   const n = Math.hypot(dx, dy); dx /= n; dy /= n;
   if (F.queue.length || F.wander){ F.queue = []; F.wander = false; }
-  if (F.entering){ F.entering = false; revealWorld(300); }
   if (!F.steering){ F.steering = true; WALKS++; newStroke(); scratch(F.x, F.y); }
   hasWalked = true; markWalked();
   const st = SPEED*.8*dt, nx = F.x + dx*st, ny = F.y + dy*st;
@@ -1038,7 +1056,7 @@ function frame(now){
   // a stroll, not a run: ease in at the start, ease out near the end
   const EASE = F.fast ? 240 : 140;
   let remain = 0; for (let q = 0, px = F.x, py = F.y; q < F.queue.length && remain < EASE; q++){ remain += Math.hypot(F.queue[q][0] - px, F.queue[q][1] - py); px = F.queue[q][0]; py = F.queue[q][1]; }
-  const want = F.queue.length ? SPEED*(F.fast ? 2.7 : 1)*Math.min(1, .18 + remain/EASE) : 0;
+  const want = F.queue.length ? SPEED*(F.fast ? 2.7 : F.entering ? .5 : 1)*Math.min(1, .18 + remain/EASE) : 0;
   F.v = (F.v || 0) + (want - (F.v || 0))*Math.min(1, dt*(want > (F.v || 0) ? 3 : 8));
   let budget = Math.max(F.queue.length ? 18 : 0, F.v)*dt; const walking = steering || F.queue.length > 0;
   while (F.queue.length && budget > 0){
