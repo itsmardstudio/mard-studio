@@ -813,7 +813,7 @@ DECO.flower = `<svg viewBox="${FIG.flower.vb.join(" ")}">${pathsOf(FIG.flower)}<
 DECO.pattern = `<svg viewBox="${FIG.pattern.vb.join(" ")}">${pathsOf(FIG.pattern)}</svg>`;
 const F = { x:0, y:0, a:-Math.PI/2, dist:0, queue:[], targetKey:null, atKey:null, strokes:null, pts:null };
 const visited = new Set();
-const SPEED = 240, NS = "http://www.w3.org/2000/svg", rnd = (a,b) => a + Math.random()*(b-a);
+const SPEED = 330, NS = "http://www.w3.org/2000/svg", rnd = (a,b) => a + Math.random()*(b-a);
 const keyOf = el => { const b = el.closest(".block"); return `${b.dataset.bx},${b.dataset.by},${el.dataset.k}`; };
 function worldRectOf(el){
   const b = el.closest(".block"), bx = +b.dataset.bx, by = +b.dataset.by, p = placed[+el.dataset.k];
@@ -1033,7 +1033,7 @@ function frame(now){
   // a stroll, not a run: ease in at the start, ease out near the end
   const EASE = F.fast ? 240 : 140;
   let remain = 0; for (let q = 0, px = F.x, py = F.y; q < F.queue.length && remain < EASE; q++){ remain += Math.hypot(F.queue[q][0] - px, F.queue[q][1] - py); px = F.queue[q][0]; py = F.queue[q][1]; }
-  const want = F.queue.length ? SPEED*(F.fast ? 2.5 : 1)*Math.min(1, .18 + remain/EASE) : 0;
+  const want = F.queue.length ? SPEED*(F.fast ? 2.7 : 1)*Math.min(1, .18 + remain/EASE) : 0;
   F.v = (F.v || 0) + (want - (F.v || 0))*Math.min(1, dt*(want > (F.v || 0) ? 3 : 8));
   let budget = Math.max(F.queue.length ? 18 : 0, F.v)*dt; const walking = steering || F.queue.length > 0;
   while (F.queue.length && budget > 0){
@@ -1068,7 +1068,7 @@ function frame(now){
   }
   // walk cycle: about 2 steps a second when strolling, up to ~3.4 when hurrying; step, pass, other step, pass
   const spd = walking ? Math.max(F.v || 0, steering ? SPEED*.8 : 0) : 0;
-  if (walking) F.ph = (F.ph || 0) + dt*Math.min(20.4, 6.6 + spd/23); else F.ph = 0;   // 12 frames = 2 steps
+  if (walking) F.ph = (F.ph || 0) + dt*Math.min(26, 7 + spd/24); else F.ph = 0;   // 12 frames = 2 steps
   const pose = walking ? Math.floor(F.ph) % 12 : 0;
   const frameN = walking ? pose : 1;                 // frame 1: feet together = standing
   if (F.pose !== frameN){ rot.style.setProperty('--mp', `${(frameN/11*100).toFixed(3)}% 0`); F.pose = frameN; }
