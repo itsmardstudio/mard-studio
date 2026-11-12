@@ -344,7 +344,7 @@ form.contact .note{min-height:1.2em;font-size:13px}
 </head>
 <body>
 
-<div id="loader" style="--c1:#e83816;--c2:#2c66ad;--c3:#e3731b;--c4:#2c4477;--c5:#bf342f"><div class="ld"><p id="ldText" aria-live="polite">A one person studio</p></div></div>
+<div id="loader" style="--c1:#e83816;--c2:#2c66ad;--c3:#e3731b;--c4:#2c4477;--c5:#bf342f"><div class="ld"><p id="ldText" aria-live="polite">Take a walk.</p></div></div>
 <script>(function(){var l=document.getElementById("loader"),go=function(){l.classList.add("go")};try{Promise.race([document.fonts.load("20px 'Host Grotesk'"),new Promise(function(r){setTimeout(r,900)})]).then(function(){requestAnimationFrame(go)})}catch(e){go()}})();</script>
 
 <header>
@@ -361,7 +361,7 @@ form.contact .note{min-height:1.2em;font-size:13px}
 <div id="canvas"><div id="tilt">
   <div id="world">
     <svg id="traces"></svg>
-    <div id="headline" aria-hidden="true">A one person studio</div>
+    <div id="headline" aria-hidden="true">Take a walk.</div>
     <div id="blocks"></div>
     <div id="fig"><div id="shade"><div class="srot"></div></div><div id="keys"><i></i><i></i><i></i><i></i></div><div class="rot">
       <!-- the walker: red silhouette of a filmed walk cycle (12 frames), dark red head on top -->
@@ -1090,7 +1090,7 @@ function frame(now){
   const lookTurn = needLook && (!needWalk || Math.floor((now - LOOK.since)/4500) % 2 === 1);
   const thought = introDone && !overlay && !hint && !hello && !F.entering ? think(now, state) : null;
   const zoomed = !overlay && introDone && !F.entering && (hello || hint || thought || cam.s >= fitS*1.35);
-  const txt = hello ? "Take a walk." : hint ? (needOpen && !needWalk && (!needLook || Math.floor(now/5000) % 2) ? (TOUCH ? "Tap a work to open it" : "Click a work to open it") : lookTurn ? (LOOK.swiped ? (TOUCH ? "Pinch to zoom out" : "Pinch to zoom out and see more") : TOUCH ? "Drag or pinch to look around" : "Swipe to move, pinch to zoom out") : TOUCH ? "Tap anywhere to walk me" : "Click anywhere to walk me") : thought || "Let’s go";
+  const txt = hello ? "Hi, I’m Lilit. Come along" : hint ? (needOpen && !needWalk && (!needLook || Math.floor(now/5000) % 2) ? (TOUCH ? "Tap a work to open it" : "Click a work to open it") : lookTurn ? (LOOK.swiped ? (TOUCH ? "Pinch to zoom out" : "Pinch to zoom out and see more") : TOUCH ? "Drag or pinch to look around" : "Swipe to move, pinch to zoom out") : TOUCH ? "Tap anywhere to walk me" : "Click anywhere to walk me") : thought || "Let’s go";
   if (bubble.textContent !== txt) bubble.textContent = txt;
   bubble.classList.toggle("think", !!thought);
   bubble.classList.toggle("on", !!zoomed);
@@ -1137,7 +1137,7 @@ if (!QUICK) document.body.classList.add("pre");             // first visit: an e
   srcs.forEach(s => { const im = new Image(); im.onload = im.onerror = () => n++; im.src = s; });
   const t0 = performance.now(), loaded = () => n >= srcs.length*.8;
   const done = () => { if (loaded() || performance.now() - t0 > 5000) startIntro(); else setTimeout(done, 100); };
-  setTimeout(done, QUICK ? 350 : 2800);                      // first visit: time to read "A one person studio"
+  setTimeout(done, QUICK ? 350 : 2800);                      // first visit: time to read "Take a walk."
 })();
 
 /* =====================================================================
