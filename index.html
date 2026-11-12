@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <title>Lilit Mardanian — mard studio</title>
 <meta name="description" content="Lilit Mardanian — a one-person studio in Yerevan. Event identities, branding, illustration and creative direction. Take a walk through the work.">
-<meta name="theme-color" content="#ececec">
+<meta name="theme-color" content="#cecece">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="icon" href="favicon.png" type="image/png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -32,7 +32,7 @@
 @font-face{font-family:"Martian Mono";font-style:normal;font-weight:400;font-display:swap;src:url(assets/fonts/martian-mono-latin-400-normal.woff2) format("woff2")}
 
 :root{
-  --bg:#ececec; --fg:#111; --red:#ff2a1a; --trail:#ffb3a6; --g1:#666; --g2:#d2d2d2; --g3:#e2e2e2;
+  --bg:#cecece; --fg:#111; --red:#ff2a1a; --trail:#ffb3a6; --g1:#4f4f4f; --g2:#b3b3b3; --g3:#c4c4c4;
   --font:"Host Grotesk", system-ui, -apple-system, sans-serif;
   --mono:"Martian Mono", ui-monospace, Menlo, monospace;
   --pad:12px;
@@ -49,7 +49,7 @@ img{display:block;max-width:100%}
 a:hover,button:hover{color:var(--g1)}
 
 /* ===== Loader (0% → 100%) ===== */
-#loader{position:fixed;inset:0;z-index:99;background:#ececec;display:grid;place-items:center;font-variant-numeric:tabular-nums;transition:opacity .8s var(--quint)}
+#loader{position:fixed;inset:0;z-index:99;background:#cecece;display:grid;place-items:center;font-variant-numeric:tabular-nums;transition:opacity .8s var(--quint)}
 #loader.done{opacity:0;pointer-events:none}
 /* during the intro the whole map streams past behind the words, at full colour */
 .proj:not(.in){opacity:0} body.intro .proj.ghost{opacity:1;filter:none} body.intro #fig,body.intro #bubble,body.pre #fig{opacity:0}
@@ -82,8 +82,7 @@ a:hover,button:hover{color:var(--g1)}
   opacity:0;transform:translateY(14px);transition:opacity .9s var(--quint),transform 1.1s var(--expo)}
 .proj h2 span:first-child{overflow:hidden;text-overflow:ellipsis}
 .proj .sq{position:relative;width:var(--w);height:var(--h);overflow:hidden;background:var(--g3);transition:transform .7s var(--expo)}
-.proj .sq::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(255,255,255,.12) 0%,rgba(255,255,255,.18) 45%,rgba(255,255,255,.72) 100%);transition:opacity .5s}
-.proj:hover .sq::after{opacity:.25} .proj.empty .sq::after{display:none}
+
 .proj .sq img,.proj .sq video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;opacity:0;transition:opacity 1s ease-out}
 .proj.in:hover h2,body.near .proj.in h2{opacity:1;transform:none}
 .proj{isolation:isolate}
@@ -134,7 +133,7 @@ body[data-f] .proj.ghost,.proj.ghost{opacity:.08!important;pointer-events:none!i
 #shade svg path{fill:#000}
 /* small pixel drawings hidden in the gaps: they light up when the figure walks by */
 .deco{position:absolute;pointer-events:none}
-.deco svg{width:100%;height:100%;display:block;fill:#ececec;transition:fill .8s var(--quint)}
+.deco svg{width:100%;height:100%;display:block;fill:#cecece;transition:fill .8s var(--quint)}
 .deco.lit svg{fill:var(--trail)}
 #bubble{position:fixed;left:0;top:0;z-index:12;pointer-events:none;background:#111;color:#fff;font-size:21px;font-weight:500;padding:12px 20px;border-radius:26px;white-space:nowrap;
   transform-origin:50% 100%;opacity:0;transition:opacity .35s var(--quint)}
@@ -147,7 +146,7 @@ body[data-f] .proj.ghost,.proj.ghost{opacity:.08!important;pointer-events:none!i
 #bubble.think::before{content:"";position:absolute;left:50%;bottom:-21px;width:5px;height:5px;background:#111;border-radius:50%;transform:translateX(10%)}
 
 /* ===== Chrome ===== */
-.corner{position:fixed;width:26vw;height:26vh;pointer-events:none;z-index:8;background:rgba(236,236,236,.6)}
+.corner{position:fixed;width:26vw;height:26vh;pointer-events:none;z-index:8;background:rgba(206,206,206,.6)}
 .corner.tl{left:0;top:0;-webkit-mask-image:radial-gradient(circle at 0 0,#000 0,transparent 70%);mask-image:radial-gradient(circle at 0 0,#000 0,transparent 70%)}
 .corner.tr{right:0;top:0;-webkit-mask-image:radial-gradient(circle at 100% 0,#000 0,transparent 70%);mask-image:radial-gradient(circle at 100% 0,#000 0,transparent 70%)}
 .corner.bl{left:0;bottom:0;-webkit-mask-image:radial-gradient(circle at 0 100%,#000 0,transparent 70%);mask-image:radial-gradient(circle at 0 100%,#000 0,transparent 70%)}
@@ -158,8 +157,8 @@ footer{bottom:0;padding-bottom:max(var(--pad),env(safe-area-inset-bottom));align
 header .r,footer .r{text-align:right}
 header > *,footer > *{pointer-events:auto}
 header::before,footer::before{content:"";position:absolute;left:0;right:0;z-index:-1;pointer-events:none}
-header::before{top:0;height:110px;background:linear-gradient(#ececec,rgba(236,236,236,.75) 60%,transparent)}
-footer::before{bottom:0;height:150px;background:linear-gradient(rgba(236,236,236,0),rgba(222,222,222,.85) 55%,#cfcfcf)}
+header::before{top:0;height:110px;background:linear-gradient(#cecece,rgba(206,206,206,.75) 60%,transparent)}
+footer::before{bottom:0;height:150px;background:linear-gradient(rgba(206,206,206,0),rgba(200,200,200,.85) 55%,#c4c4c4)}
 .reveal{opacity:0;transform:translateY(10px);transition:opacity .9s var(--quint),transform 1.1s var(--expo)}
 .on .reveal,.reveal.on{opacity:1;transform:none}
 footer .fr{grid-column:-3/-1} header .reveal,footer .reveal{white-space:nowrap} footer .avail{margin-top:0}
@@ -277,7 +276,7 @@ form.contact button{justify-self:start;background:var(--fg);color:var(--bg);padd
 /* filters + map/list: top row, under the name */
 .hrow{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;margin-top:6px}
 .hrow .chips,.hrow .seg{gap:6px} .hrow .rt{display:flex;gap:6px;align-items:center}
-.hrow button{border:1px solid #bdbdbd;border-radius:22px;padding:7px 16px;color:#555;background:rgba(236,236,236,.94);transition:background .25s,color .25s,border-color .25s}
+.hrow button{border:1px solid #a8a8a8;border-radius:22px;padding:7px 16px;color:#3f3f3f;background:rgba(206,206,206,.94);transition:background .25s,color .25s,border-color .25s}
 .hrow button:hover{color:var(--fg);border-color:var(--g1)}
 .hrow button.on{background:var(--fg);border-color:var(--fg);color:var(--bg)}
 .hrow button{white-space:nowrap}
