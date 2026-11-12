@@ -266,7 +266,7 @@ form.contact button{justify-self:start;background:var(--fg);color:var(--bg);padd
 
 /* the territory around the first 12 is pale until the figure walks there */
 .proj.ghost{opacity:.55;filter:grayscale(.35);pointer-events:none}
-.gd{position:absolute;max-width:none;object-fit:cover;opacity:.55;filter:grayscale(.35);pointer-events:none} body[data-f] .gd{opacity:.15}
+.gd{position:absolute;max-width:none;object-fit:cover;opacity:.28;filter:grayscale(.35);pointer-events:none} body[data-f] .gd{opacity:.08}
 .proj.ghost h2,.proj.ghost .cap{visibility:hidden} .proj.ghost .sq{transform:scale(.24)}
 .proj.unlock{transition:opacity 1.4s var(--quint),filter 1.4s var(--quint)}
 /* four tiny arrows around the figure: you can walk it with the keys or by clicking */
@@ -549,7 +549,7 @@ const CV = CV0.map(list => list.map(c => ({ ...c, tile: LITE(c.tile), poster: LI
 const sizeFor = (S, r) => [Math.round(S*Math.sqrt(r)), Math.round(S/Math.sqrt(r))];
 const ring = [], extras = [];
 CV.forEach((list, i) => list.forEach((c, n) => {
-  const S = n === 0 ? 290 : 158*(.9 + R()*.2), [w, h] = sizeFor(S, c.r);   // three levels: the 11 main works one size, their other files about half, the tiny scatter beyond
+  const S = n === 0 ? 370 : 158*(.9 + R()*.2), [w, h] = sizeFor(S, c.r);   // three levels: the 11 main works one size, their other files about half, the tiny scatter beyond
   (n === 0 ? ring : extras).push({ i, c: n, w, h, ring: n === 0 });
 }));
 /* the start: the figure stands in an empty spot. In every OTHER copy of the map a tile fills that spot, so looping shows no hole */
