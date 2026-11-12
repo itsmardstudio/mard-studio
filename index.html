@@ -81,8 +81,9 @@ a:hover,button:hover{color:var(--g1)}
 .proj h2{display:flex;justify-content:space-between;gap:10px;height:30px;align-items:flex-end;padding-bottom:8px;font-size:18px;font-weight:400;white-space:nowrap;
   opacity:0;transform:translateY(14px);transition:opacity .9s var(--quint),transform 1.1s var(--expo)}
 .proj h2 span:first-child{overflow:hidden;text-overflow:ellipsis}
-.proj .sq{position:relative;width:var(--w);height:var(--h);overflow:hidden;background:var(--g3);border-radius:14px;transition:transform .7s var(--expo),opacity .5s}
-.proj.in:not(.ghost) .sq{opacity:.86} .proj.in:not(.ghost):hover .sq{opacity:1}
+.proj .sq{position:relative;width:var(--w);height:var(--h);overflow:hidden;background:var(--g3);transition:transform .7s var(--expo)}
+.proj .sq::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(255,255,255,.12) 0%,rgba(255,255,255,.18) 45%,rgba(255,255,255,.72) 100%);transition:opacity .5s}
+.proj:hover .sq::after{opacity:.25} .proj.empty .sq::after{display:none}
 .proj .sq img,.proj .sq video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;opacity:0;transition:opacity 1s ease-out}
 .proj.in:hover h2,body.near .proj.in h2{opacity:1;transform:none}
 .proj{isolation:isolate}
@@ -97,6 +98,7 @@ a:hover,button:hover{color:var(--g1)}
 .proj{transition:opacity .5s var(--quint)}
 body[data-f] .proj{opacity:.1;pointer-events:none}
 body[data-f="Branding"] .proj[data-c~="Branding"],body[data-f="Illustration"] .proj[data-c~="Illustration"],body[data-f="Creative-Direction"] .proj[data-c~="Creative-Direction"],body[data-f="Event-Design"] .proj[data-c~="Event-Design"]{opacity:1;pointer-events:auto}
+body[data-f] .proj.ghost,.proj.ghost{opacity:.08!important;pointer-events:none!important}
 .chips{display:inline-flex;gap:10px} .chips button{color:var(--g1)} .chips button.on{color:var(--fg)}
 /* hover: the cursor becomes a small red circle with an arrow */
 #cur{position:fixed;left:0;top:0;z-index:40;pointer-events:none}
@@ -855,6 +857,7 @@ let hasWalkedBefore = false; try { hasWalkedBefore = localStorage.getItem("mard-
 let lastInput = performance.now(), hasWalked = false, wanderT = 0;
 const markWalked = () => { if (hasWalked && !hasWalkedBefore){ hasWalkedBefore = true; try { localStorage.setItem("mard-walked", "1"); } catch (_) {} } };
 function walkTo(x, y){
+  { const dx = x - CX, dy = y - CY, d = Math.hypot(dx, dy), m = LIT_R*.9; if (d > m){ x = CX + dx/d*m; y = CY + dy/d*m; } }
   const path = findPath(F.x, F.y, x, y); if (!path.length) return;
   if (F.entering){ F.entering = false; revealWorld(300); } F.queue = path; F.wander = false; F.fast = true; F.targetKey = null; hasWalked = true; WALKS++; markWalked(); newStroke(); scratch(F.x, F.y);
 }
