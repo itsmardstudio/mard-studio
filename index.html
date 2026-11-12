@@ -630,12 +630,14 @@ const isLit = (bx, by, k, p) => bx === 0 && by === 0;     // each work is lit on
 placeHeadline();
 /* every other copy of the map: a dense scatter of tiny, unclickable thumbnails of the work (decorative) */
 const GPOOL = CV.flat().map(f => ({ src: f.kind === "v" ? f.poster : f.tile, r: f.r }));
-function ghostBlockHTML(bx, by){
+function ghostBlockHTML(bx, by, inner){
   let h = (bx*73856093) ^ (by*19349663); const rr = () => { h = (h*1103515245 + 12345) & 0x7fffffff; return h/0x7fffffff; };
-  const home = (Math.abs(bx) <= 1 && Math.abs(by) <= 1) ? placed.filter(p => !p.deco && !(p.away)).map(p => ({ x: p.x - bx*BW, y: p.y - by*BH, w: p.w, h: tall(p) })) : [];
-  const SP = 190, out = [];
+  const home = inner ? [] : (Math.abs(bx) <= 1 && Math.abs(by) <= 1) ? placed.filter(p => !p.deco && !(p.away)).map(p => ({ x: p.x - bx*BW, y: p.y - by*BH, w: p.w, h: tall(p) })) : [];
+  if (inner) home.length = 0, placed.forEach(p => { if (!p.deco && !p.away) home.push({ x: p.x, y: p.y, w: p.w, h: tall(p) }); });
+  const SP = inner ? 170 : 190, out = [];
   for (let gy = 0; gy < BH; gy += SP) for (let gx = 0; gx < BW; gx += SP){
     if (rr() < .3) continue;
+    if (inner){ const d = Math.hypot(gx - CX, gy - CY); if (d < 520 || rr() > Math.min(.85, (d - 520)/900)) continue; }   // fewer close to her, more toward the edges
     const g = GPOOL[Math.floor(rr()*GPOOL.length)], w = 34 + rr()*40, ht = w/g.r;
     const x = gx + rr()*(SP - w), y = gy + rr()*(SP - ht);
     if (home.some(q => x < q.x + q.w + 26 && x + w + 26 > q.x && y < q.y + q.h + 26 && y + ht + 26 > q.y)) continue;
@@ -643,7 +645,7 @@ function ghostBlockHTML(bx, by){
   }
   return out.join("");
 }
-const blockHTML = (bx, by) => (bx || by) ? ghostBlockHTML(bx, by) : placed.map((p, k) => {
+const blockHTML = (bx, by) => (bx || by) ? ghostBlockHTML(bx, by) : ghostBlockHTML(0, 0, true) + placed.map((p, k) => {
   if (p.away && isStart(bx, by)) return "";
   const pos = `left:${p.x}px;top:${p.y}px;--w:${p.w}px;--h:${p.h}px;--z:${((k*37)%9 - 4)*8}px`;
   if (p.deco) return `<div class="deco" data-k="${k}" style="${pos};width:${p.w}px;height:${p.h}px">${DECO[p.deco]}</div>`;
