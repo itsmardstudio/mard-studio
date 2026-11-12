@@ -76,6 +76,8 @@ a:hover,button:hover{color:var(--g1)}
 #tilt,#world,.block,#blocks{pointer-events:none} .proj{pointer-events:auto}
 #canvas.dragging{cursor:grabbing}
 #world{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform;transform-style:preserve-3d}
+#headline{position:absolute;left:0;top:0;white-space:nowrap;font:500 84px/.95 var(--font);letter-spacing:-.045em;color:var(--fg);pointer-events:none;opacity:0;transition:opacity 1.2s var(--quint)}
+#headline.on{opacity:1} body.pre #headline,body.intro #headline{opacity:0}
 .block{position:absolute;left:0;top:0;transform-style:preserve-3d}
 .proj{position:absolute;width:var(--w);cursor:pointer;transform:translateZ(var(--z,0px))}   /* works sit at slightly different heights: parallax while tilting */
 .proj h2{display:flex;justify-content:space-between;gap:10px;height:30px;align-items:flex-end;padding-bottom:8px;font-size:18px;font-weight:400;white-space:nowrap;
@@ -97,7 +99,7 @@ a:hover,button:hover{color:var(--g1)}
 .proj{transition:opacity .5s var(--quint)}
 body[data-f] .proj{opacity:.1;pointer-events:none}
 body[data-f="Branding"] .proj[data-c~="Branding"],body[data-f="Illustration"] .proj[data-c~="Illustration"],body[data-f="Creative-Direction"] .proj[data-c~="Creative-Direction"],body[data-f="Event-Design"] .proj[data-c~="Event-Design"]{opacity:1;pointer-events:auto}
-body[data-f] .proj.ghost,.proj.ghost{opacity:.08!important;pointer-events:none!important}
+body[data-f] .proj.ghost{opacity:.18!important} .proj.ghost{pointer-events:none!important}
 .chips{display:inline-flex;gap:10px} .chips button{color:var(--g1)} .chips button.on{color:var(--fg)}
 /* hover: the cursor becomes a small red circle with an arrow */
 #cur{position:fixed;left:0;top:0;z-index:40;pointer-events:none}
@@ -261,8 +263,8 @@ form.contact button{justify-self:start;background:var(--fg);color:var(--bg);padd
 }
 
 /* the territory around the first 12 is pale until the figure walks there */
-.proj.ghost{opacity:.08;filter:grayscale(1);pointer-events:none}
-.proj.ghost h2,.proj.ghost .cap{visibility:hidden}
+.proj.ghost{opacity:.55;filter:grayscale(.35);pointer-events:none}
+.proj.ghost h2,.proj.ghost .cap{visibility:hidden} .proj.ghost .sq{transform:scale(.24)}
 .proj.unlock{transition:opacity 1.4s var(--quint),filter 1.4s var(--quint)}
 /* four tiny arrows around the figure: you can walk it with the keys or by clicking */
 #keys{position:absolute;left:50%;top:50%;width:0;height:0;transition:opacity .6s var(--quint)}
@@ -359,6 +361,7 @@ form.contact .note{min-height:1.2em;font-size:13px}
 <div id="canvas"><div id="tilt">
   <div id="world">
     <svg id="traces"></svg>
+    <div id="headline" aria-hidden="true">A one person studio</div>
     <div id="blocks"></div>
     <div id="fig"><div id="shade"><div class="srot"></div></div><div id="keys"><i></i><i></i><i></i><i></i></div><div class="rot">
       <!-- the walker: red silhouette of a filmed walk cycle (12 frames), dark red head on top -->
@@ -619,7 +622,9 @@ const DECO = {};
 /* lit = visible; everything outside the first 12 stays a pale ghost until the figure walks near it */
 const UNLOCK = new Set();
 const LIT_R = 1.45*Math.max(-RB.x0, RB.x1, -RB.y0, RB.y1);
+const placeHeadline = () => { const h = document.getElementById("headline"); if (h) h.style.transform = `translate(${CX}px,${CY - 185}px) translate(-50%,-100%)`; };
 const isLit = (bx, by, k, p) => bx === 0 && by === 0;     // each work is lit once; the repeats around it stay ghosts
+placeHeadline();
 const blockHTML = (bx, by) => placed.map((p, k) => {
   if (p.away && isStart(bx, by)) return "";
   const pos = `left:${p.x}px;top:${p.y}px;--w:${p.w}px;--h:${p.h}px;--z:${((k*37)%9 - 4)*8}px`;
@@ -1111,6 +1116,7 @@ function startIntro(){
 }
 /* the works ripple in from where she stands, then the interface */
 function revealWorld(uiDelay){
+  setTimeout(() => $("#headline").classList.add("on"), 250);
   revealStart = performance.now();
   document.querySelectorAll(".block").forEach(revealBlock);
   setTimeout(() => document.querySelectorAll(".reveal").forEach((r,k) => setTimeout(() => r.classList.add("on"), k*60)), uiDelay);
