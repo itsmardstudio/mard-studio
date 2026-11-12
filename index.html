@@ -32,7 +32,7 @@
 @font-face{font-family:"Martian Mono";font-style:normal;font-weight:400;font-display:swap;src:url(assets/fonts/martian-mono-latin-400-normal.woff2) format("woff2")}
 
 :root{
-  --bg:#c7c7c7; --fg:#151515; --red:#ea5545; --trail:#ffb3a6; --g1:#4f4f4f; --g2:#b3b3b3; --g3:#c4c4c4;
+  --bg:#c7c7c7; --fg:#151515; --red:#e3241b; --trail:#ffb3a6; --g1:#4f4f4f; --g2:#b3b3b3; --g3:#c4c4c4;
   --font:"Host Grotesk", system-ui, -apple-system, sans-serif;
   --mono:"Martian Mono", ui-monospace, Menlo, monospace;
   --pad:12px;
@@ -76,7 +76,7 @@ a:hover,button:hover{color:var(--g1)}
 #tilt,#world,.block,#blocks{pointer-events:none} .proj{pointer-events:auto}
 #canvas.dragging{cursor:grabbing}
 #world{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform;transform-style:preserve-3d}
-#headline{position:absolute;left:0;top:0;white-space:nowrap;font:400 76px/1.05 var(--font);letter-spacing:-.025em;color:var(--fg);pointer-events:none;opacity:0;transition:opacity 1.2s var(--quint)}
+#headline{position:absolute;left:0;top:0;white-space:nowrap;font:500 98px/1 var(--font);letter-spacing:-.04em;color:var(--fg);pointer-events:none;opacity:0;transition:opacity 1.2s var(--quint)}
 #headline.on{opacity:1} #headline small{display:block;margin-top:16px;font:400 19px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--g1);text-align:center} body.pre #headline,body.intro #headline{opacity:0}
 .block{position:absolute;left:0;top:0;transform-style:preserve-3d}
 .proj{position:absolute;width:var(--w);cursor:pointer;transform:translateZ(var(--z,0px))}   /* works sit at slightly different heights: parallax while tilting */
@@ -364,7 +364,7 @@ form.contact .note{min-height:1.2em;font-size:13px}
 <div id="canvas"><div id="tilt">
   <div id="world">
     <svg id="traces"></svg>
-    <div id="headline" aria-hidden="true">Take a walk.<small>11 projects · 2022–26</small></div>
+    <div id="headline" aria-hidden="true">Take a walk.</div>
     <div id="blocks"></div>
     <div id="fig"><div id="shade"><div class="srot"></div></div><div id="keys"><i></i><i></i><i></i><i></i></div><div class="rot">
       <!-- the walker: red silhouette of a filmed walk cycle (12 frames), dark red head on top -->
@@ -572,7 +572,7 @@ for (let fill = .8; fill > .3; fill -= .03){
   BH = Math.round(Math.sqrt(AREA/fill/1.45)); BW = Math.round(BH*1.45);
   const W = BW, H = BH, OFF = [[-W,-H],[0,-H],[W,-H],[-W,0],[0,0],[W,0],[-W,H],[0,H],[W,H]];
   const wrap = (v, L) => ((v % L) + L) % L, cdist = (v, L) => { v = wrap(v, L); return v > L/2 ? v - L : v; };
-  const MOB = innerWidth < 760, RW = Math.max(filler.w, MOB ? 400 : 780), RH = Math.max(tall(filler), MOB ? 700 : 600);   // keep a wide clear field around her and the headline
+  const MOB = innerWidth < 760, RW = Math.max(filler.w, MOB ? 400 : 640), RH = Math.max(tall(filler), MOB ? 640 : 500);   // keep a wide clear field around her and the headline
   placed = [{ ...filler, away: true, w: RW, h: RH - LABEL, x: W/2 - RW/2, y: H/2 - RH/2 }];
   let ok = true;
   for (const it of all){
@@ -630,7 +630,7 @@ const DECO = {};
 /* lit = visible; everything outside the first 12 stays a pale ghost until the figure walks near it */
 const UNLOCK = new Set();
 const LIT_R = 1.45*Math.max(-RB.x0, RB.x1, -RB.y0, RB.y1);
-const placeHeadline = () => { const h = document.getElementById("headline"); if (h) h.style.transform = `translate(${CX}px,${CY - 245}px) translate(-50%,-100%)`; };
+const placeHeadline = () => { const h = document.getElementById("headline"); if (h) h.style.transform = `translate(${CX}px,${CY - 175}px) translate(-50%,-100%)`; };
 const isLit = (bx, by, k, p) => bx === 0 && by === 0;     // each work is lit once; the repeats around it stay ghosts
 placeHeadline();
 /* every other copy of the map: a dense scatter of tiny, unclickable thumbnails of the work (decorative) */
@@ -643,14 +643,17 @@ function ghostBlockHTML(bx, by, inner){
   for (let gy = 0; gy < BH; gy += SP) for (let gx = 0; gx < BW; gx += SP){
     if (rr() < .3) continue;
     if (inner){ const d = Math.hypot(gx - CX, gy - CY); if (d < 520 || rr() > Math.min(.85, (d - 520)/900)) continue; }   // fewer close to her, more toward the edges
-    const g = GPOOL[Math.floor(rr()*GPOOL.length)], w = 34 + rr()*40, ht = w/g.r;
-    const x = gx + rr()*(SP - w), y = gy + rr()*(SP - ht);
+    const g = GPOOL[Math.floor(rr()*GPOOL.length)];
+    const d = Math.hypot(bx*BW + gx + SP/2 - CX, by*BH + gy + SP/2 - CY), k = Math.min(1, Math.max(0, (d - LIT_R*.7)/(LIT_R*3)));   // 0 next to the works, 1 far away
+    if (rr() < .5 - .25*k) continue;                         // airier next to the works
+    const w = (100 - 68*k)*(.8 + rr()*.4), ht = w/g.r;
+    const x = gx + rr()*Math.max(4, SP - w), y = gy + rr()*Math.max(4, SP - ht);
     if (home.some(q => x < q.x + q.w + 26 && x + w + 26 > q.x && y < q.y + q.h + 26 && y + ht + 26 > q.y)) continue;
     out.push(`<img class="gd" src="${g.src}" alt="" draggable="false" decoding="async" style="left:${x.toFixed(0)}px;top:${y.toFixed(0)}px;width:${w.toFixed(0)}px;height:${ht.toFixed(0)}px">`);
   }
   return out.join("");
 }
-const blockHTML = (bx, by) => (bx || by) ? ghostBlockHTML(bx, by) : ghostBlockHTML(0, 0, true) + placed.map((p, k) => {
+const blockHTML = (bx, by) => (bx || by) ? ghostBlockHTML(bx, by) : placed.map((p, k) => {
   if (p.away && isStart(bx, by)) return "";
   const pos = `left:${p.x}px;top:${p.y}px;--w:${p.w}px;--h:${p.h}px;--z:${((k*37)%9 - 4)*8}px`;
   if (p.deco) return `<div class="deco" data-k="${k}" style="${pos};width:${p.w}px;height:${p.h}px">${DECO[p.deco]}</div>`;
@@ -1119,7 +1122,7 @@ function frame(now){
   if (bubble.textContent !== txt) bubble.textContent = txt;
   bubble.classList.toggle("think", !!thought);
   bubble.classList.toggle("on", !!zoomed);
-  if (zoomed){ if (innerWidth > 760){ const sx = cam.x + (F.x + 46)*cam.s + 16, sy = cam.y + (F.y - 20)*cam.s; bubble.style.transform = `translate(${sx}px,${sy}px) translateY(-50%)`; }
+  if (zoomed){ if (innerWidth > 760){ const sx = cam.x + (F.x + 46)*cam.s + 16, sy = cam.y + (F.y - 52)*cam.s; bubble.style.transform = `translate(${sx}px,${sy}px) translateY(-50%)`; }
     else { const sx = cam.x + F.x*cam.s, sy = cam.y + (F.y - 100)*cam.s; bubble.style.transform = `translate(${sx}px,${sy}px) translate(-50%,-100%) translateY(-8px)`; } }
   requestAnimationFrame(frame);
 }
