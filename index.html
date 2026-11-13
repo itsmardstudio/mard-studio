@@ -549,7 +549,7 @@ const CV = CV0.map(list => list.map(c => ({ ...c, tile: LITE(c.tile), poster: LI
 const sizeFor = (S, r) => [Math.round(S*Math.sqrt(r)), Math.round(S/Math.sqrt(r))];
 const ring = [], extras = [];
 CV.forEach((list, i) => list.forEach((c, n) => {
-  const S = n === 0 ? 370 : 158*(.9 + R()*.2), [w, h] = sizeFor(S, c.r);   // three levels: the 11 main works one size, their other files about half, the tiny scatter beyond
+  const S = (n === 0 ? (P[i].tiles ? 340 : P[i].size*UP) : 300*(.92 + R()*.16))*.78, [w, h] = sizeFor(S, c.r);   // main works just a little bigger than their other files   // three levels: the 11 main works one size, their other files about half, the tiny scatter beyond
   (n === 0 ? ring : extras).push({ i, c: n, w, h, ring: n === 0 });
 }));
 /* the start: the figure stands in an empty spot. In every OTHER copy of the map a tile fills that spot, so looping shows no hole */
@@ -565,7 +565,7 @@ const lum = p => { const f = CV[p.i] && CV[p.i][p.c]; return f ? (LUM[f.poster] 
 const ringS = (() => { const first = ring.find(p => p.i === 0), rest = ring.filter(p => p !== first).sort((a, b) => lum(a) - lum(b)), out = [first];
   while (rest.length){ out.push(rest.pop()); if (rest.length) out.push(rest.shift()); } return out; })();   // light, dark, light, dark…
 extras.sort((a, b) => (b.deco ? .5 : lum(b)) + R()*.25 - (a.deco ? .5 : lum(a)) - R()*.25);   // Pati Henqy's Dale video takes the spot right next to the figure
-const GRID = true;                                         // try: main works in a clear grid
+const GRID = false;                                         // try: main works in a clear grid
 const all = [...ringS, ...extras];              // extras: lighter files closer, the dark ones further out         // the 12 projects first, closest around the figure; the other files further out
 const AREA = [filler, ...all].reduce((t, p) => t + (p.w + GAP)*(tall(p) + GAP), 0);
 let BW, BH, placed;
