@@ -565,6 +565,7 @@ const lum = p => { const f = CV[p.i] && CV[p.i][p.c]; return f ? (LUM[f.poster] 
 const ringS = (() => { const first = ring.find(p => p.i === 0), rest = ring.filter(p => p !== first).sort((a, b) => lum(a) - lum(b)), out = [first];
   while (rest.length){ out.push(rest.pop()); if (rest.length) out.push(rest.shift()); } return out; })();   // light, dark, light, dark…
 extras.sort((a, b) => (b.deco ? .5 : lum(b)) + R()*.25 - (a.deco ? .5 : lum(a)) - R()*.25);   // Pati Henqy's Dale video takes the spot right next to the figure
+const GRID = true;                                         // try: main works in a clear grid
 const all = [...ringS, ...extras];              // extras: lighter files closer, the dark ones further out         // the 12 projects first, closest around the figure; the other files further out
 const AREA = [filler, ...all].reduce((t, p) => t + (p.w + GAP)*(tall(p) + GAP), 0);
 let BW, BH, placed;
@@ -575,7 +576,18 @@ for (let fill = .8; fill > .3; fill -= .03){
   const MOB = innerWidth < 760, RW = Math.max(filler.w, MOB ? 400 : 640), RH = Math.max(tall(filler), MOB ? 640 : 500);   // keep a wide clear field around her and the headline
   placed = [{ ...filler, away: true, w: RW, h: RH - LABEL, x: W/2 - RW/2, y: H/2 - RH/2 }];
   let ok = true;
-  for (const it of all){
+  if (GRID){                                                 // the main works in a clear 5 x 3 grid, her in the middle cell
+    const CW = MOB ? 300 : 380, CH = MOB ? 360 : 400, GX = MOB ? 70 : 110, GY = MOB ? 90 : 110;
+    const cells = [[-1,0],[1,0],[-2,0],[2,0],[0,-1],[-1,-1],[1,-1],[-2,-1],[2,-1],[-1,1],[1,1]];
+    placed[0] = { ...placed[0], w: CW, h: CH, x: W/2 - CW/2, y: H/2 - (CH + LABEL)/2 };
+    ringS.forEach((it, n) => { const [cx, cy] = cells[n] || [0, 2];
+      const f = Math.min(CW/it.w, CH/it.h), w = Math.round(it.w*f), h = Math.round(it.h*f);
+      const x0 = W/2 + cx*(CW + GX) - CW/2, y0 = H/2 + cy*(CH + LABEL + GY) - (CH + LABEL)/2;
+      placed.push({ ...it, w, h, x: x0 + (CW - w)/2, y: y0 + (CH - h) }); });   // bottom-aligned in each row
+    const bw = 5*CW + 4*GX + 2*GX, bh = 3*(CH + LABEL) + 2*GY + 2*GY;   // keep the other files outside the grid
+    placed.push({ blocker: true, w: bw, h: bh - LABEL, x: W/2 - bw/2, y: H/2 - bh/2 });
+  }
+  for (const it of (GRID ? extras : all)){
     const spots = [];
     placed.forEach(p => {
       const ys = [p.y, p.y + tall(p) - tall(it), p.y + (tall(p) - tall(it))/2 + (R()-.5)*80];
@@ -599,6 +611,7 @@ for (let fill = .8; fill > .3; fill -= .03){
   }
   if (ok) break;
 }
+placed = placed.filter(p => !p.blocker);
 /* spread: swap files between same-shape spots so a project rarely touches itself (also across the repeat seams) */
 (function spread(){
   const near = (A, B, ox, oy) => {                              // "beside": sharing a side, across a normal gap
@@ -679,7 +692,7 @@ const MIN_S = .12, MAX_S = 5;
 
 function homeScale(){                                       // fit the 12 projects around the figure on screen
   const hw = Math.max(-RB.x0, RB.x1), hh = Math.max(-RB.y0, RB.y1), mob = innerWidth < 760;
-  const s = Math.min((innerWidth/2 - 30)/hw, (innerHeight/2 - (mob ? 60 : 110))/hh)*(mob ? 1.15 : 1.45);    // closer in: the nearest works around the figure
+  const s = Math.min((innerWidth/2 - 30)/hw, (innerHeight/2 - (mob ? 60 : 110))/hh)*(GRID ? (mob ? 1.5 : 1.02) : (mob ? 1.15 : 1.45));    // closer in: the nearest works around the figure
   return mob ? Math.max(s, innerWidth*.3/290) : s;
 }
 function homeView(){ fitS = homeScale(); return { s: fitS, x: innerWidth/2 - CX*fitS, y: innerHeight/2 - CY*fitS }; }
