@@ -1052,7 +1052,9 @@ function frame(now){
   } else if (flying){
     const k = Math.min(1, (now - flying.t0)/flying.ms), e = expo(k), a = flying.a, t = flying.t;
     cam.s = Math.exp(Math.log(a.s) + (Math.log(t.s) - Math.log(a.s))*e);
-    cam.x = a.x + (t.x - a.x)*e; cam.y = a.y + (t.y - a.y)*e; Object.assign(tgt, cam);
+    const W2 = innerWidth/2, H2 = innerHeight/2;               // move the point at the screen centre, so zooming never drifts sideways
+    const cx = (W2 - a.x)/a.s + ((W2 - t.x)/t.s - (W2 - a.x)/a.s)*e, cy = (H2 - a.y)/a.s + ((H2 - t.y)/t.s - (H2 - a.y)/a.s)*e;
+    cam.x = W2 - cx*cam.s; cam.y = H2 - cy*cam.s; Object.assign(tgt, cam);
     if (k >= 1){ const d = flying.done; flying = null; d && d(); }
   } else {
     const f = 1 - Math.pow(.0009, dt);                    // smooth follow (like a smooth-scroll)
@@ -1123,9 +1125,9 @@ function frame(now){
   const needWalk = !hasWalked && !LOOK.done, needLook = !LOOK.done && now - LOOK.since > 2200;
   const hello = !overlay && F.tour;                                 // the short introduction to how the site works
   const needOpen = !OPENED && WALKS >= 2 && !walking;               // walked around but never opened a work
-  const hint = introDone && !overlay && !F.entering && !hello && !F.easing && (needWalk || needLook || needOpen);
+  const hint = introDone && !overlay && !F.entering && !hello && !F.easing && (F.toured ? needOpen : (needWalk || needLook || needOpen));
   const lookTurn = needLook && (!needWalk || Math.floor((now - LOOK.since)/4500) % 2 === 1);
-  const thought = introDone && !overlay && !hint && !hello && !F.entering && !F.easing ? think(now, state) : null;
+  const thought = introDone && !overlay && !hint && !hello && !F.entering && !F.easing && !(F.toured && now - F.toured < 20000) ? think(now, state) : null;
   const zoomed = !overlay && introDone && !F.entering && (hello || hint || thought || cam.s >= fitS*1.35);
   const txt = hello ? TOUR[Math.min(TOUR.length - 1, F.tourI)] : hint ? (needOpen && !needWalk && (!needLook || Math.floor(now/5000) % 2) ? (TOUCH ? "Tap a work to open it" : "Click a work to open it") : lookTurn ? (LOOK.swiped ? (TOUCH ? "Pinch to zoom out" : "Pinch to zoom out and see more") : TOUCH ? "Drag or pinch to look around" : "Swipe to move, pinch to zoom out") : TOUCH ? "Tap anywhere to walk me" : "Click anywhere to walk me") : thought || "Let’s go";
   if (bubble.textContent !== txt) bubble.textContent = txt;
@@ -1170,7 +1172,7 @@ const TOUR_MS = 1600, TOUR = ["Hi, I’m Lilit.", TOUCH ? "Swipe to look around,
 function nextLine(){ if (!F.tour) return; F.tourI++; F.tourT = performance.now(); if (F.tourI >= TOUR.length) endTour(); }
 addEventListener("pointerdown", () => { if (F.tour && performance.now() - F.tourT > 250) nextLine(); });   // a click skips to the next line
 addEventListener("keydown", () => { if (F.tour && performance.now() - F.tourT > 250) nextLine(); });
-function endTour(){ if (!F.tour) return; F.tour = false; F.easing = true; flyTo(homeView(), 1000, () => { F.easing = false; document.body.classList.remove("locked"); teachLook(); }); }
+function endTour(){ if (!F.tour) return; F.tour = false; F.toured = performance.now(); F.easing = true; flyTo(homeView(), 1000, () => { F.easing = false; document.body.classList.remove("locked"); teachLook(); }); }
 function enterWalk(h){                                       // straight up from below the screen; the works are hidden, so nothing is in her way
   const sy = CY + innerHeight/2/(h.s*2.4) + 50;
   F.x = CX; F.y = sy; F.a = -Math.PI/2; F.queue = [[CX, CY]]; F.fast = false; F.wander = false; F.entering = true;
