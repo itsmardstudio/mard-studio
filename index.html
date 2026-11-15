@@ -71,7 +71,6 @@ a:hover,button:hover{color:var(--g1)}
 /* ===== Canvas ===== */
 #canvas{position:fixed;inset:0;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab;perspective:1500px}
 /* while you drag, the map leans like a sheet of paper pushed across a table, then settles flat */
-#dots{position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(circle,#8e8e92 1.4px,transparent 1.9px)}
 #tilt{position:absolute;inset:0;transform-origin:50% 50%;transform-style:preserve-3d;will-change:transform}
 /* the 3D layers must not catch the mouse: only the works do (otherwise tiles set "behind" the layer cannot be hovered or clicked) */
 #tilt,#world,.block,#blocks{pointer-events:none} .proj{pointer-events:auto}
@@ -363,7 +362,7 @@ form.contact .note{min-height:1.2em;font-size:13px}
     <span class="rt"><span style="display:none"><button id="zOut">−</button><span id="zoom">100%</span><button id="zIn">+</button></span><button id="zFit">Fit</button><span class="seg"><button data-map class="on">Map</button><button data-list>List</button></span></span></div>
 </header>
 
-<div id="canvas"><div id="dots"></div><div id="tilt">
+<div id="canvas"><div id="tilt">
   <div id="world">
     <svg id="traces"></svg>
     <div id="headline" aria-hidden="true">Take a walk.</div>
@@ -575,7 +574,7 @@ for (let fill = .8; fill > .3; fill -= .03){
   BH = Math.round(Math.sqrt(AREA/fill/1.45)); BW = Math.round(BH*1.45);
   const W = BW, H = BH, OFF = [[-W,-H],[0,-H],[W,-H],[-W,0],[0,0],[W,0],[-W,H],[0,H],[W,H]];
   const wrap = (v, L) => ((v % L) + L) % L, cdist = (v, L) => { v = wrap(v, L); return v > L/2 ? v - L : v; };
-  const MOB = innerWidth < 760, RW = Math.max(filler.w, MOB ? 400 : 640), RH = Math.max(tall(filler), MOB ? 640 : 500);   // keep a wide clear field around her and the headline
+  const MOB = innerWidth < 760, RW = Math.max(filler.w, MOB ? 460 : 820), RH = Math.max(tall(filler), MOB ? 720 : 620);   // keep a wide clear field around her and the headline
   placed = [{ ...filler, away: true, w: RW, h: RH - LABEL, x: W/2 - RW/2, y: H/2 - RH/2 }];
   let ok = true;
   if (GRID){                                                 // the main works in a clear 5 x 3 grid, her in the middle cell
@@ -650,19 +649,19 @@ const isLit = (bx, by, k, p) => bx === 0 && by === 0;     // each work is lit on
 placeHeadline();
 /* every other copy of the map: a dense scatter of tiny, unclickable thumbnails of the work (decorative) */
 const GPOOL = CV.flat().map(f => ({ src: f.kind === "v" ? f.poster : f.tile, r: f.r }));
-/* outside the main works: an empty dotted field with a few index lines, like the contents page of a magazine */
-const DX = BW/Math.round(BW/120), DY = BH/Math.round(BH/120), dotsEl = document.getElementById("dots");
-const IDX = P.map((p, i) => `No. ${String(i + 1).padStart(2, "0")} — ${p.name}, ${p.year}`);
-function ghostBlockHTML(bx, by){
-  let h = (bx*73856093) ^ (by*19349663) ^ 0x5bd1e995; const rr = () => { h = (h*1103515245 + 12345) & 0x7fffffff; return h/0x7fffffff; };
-  const out = [], nx = Math.round(BW/DX), ny = Math.round(BH/DY), n = 3 + Math.floor(rr()*3);
-  for (let t = 0; t < n; t++){
-    const cx = Math.floor(rr()*nx), cy = Math.floor(rr()*ny), x = cx*DX + DX/2 + 14, y = cy*DY + DY/2 - 11;
-    const txt = rr() < .75 ? IDX[Math.floor(rr()*IDX.length)] : `(${String(Math.floor(rr()*999)).padStart(3, "0")})`;
-    out.push(`<span class="gx" style="left:${x.toFixed(0)}px;top:${y.toFixed(0)}px">${txt}</span>`);
-  }
-  return out.join("");
+/* outside the main works there is nothing, and the map stops at the last work */
+const WB = (() => { const r = placed.filter(p => !p.away); const pad = 70;
+  return { x0: Math.min(...r.map(p => p.x)) - pad, y0: Math.min(...r.map(p => p.y)) - pad, x1: Math.max(...r.map(p => p.x + p.w)) + pad, y1: Math.max(...r.map(p => p.y + tall(p))) + pad }; })();
+function ghostBlockHTML(){ return ""; }
+function clampCam(t){
+  const fit = Math.min(innerWidth/(WB.x1 - WB.x0), innerHeight/(WB.y1 - WB.y0));
+  if (t.s < fit) t.s = fit;
+  const vw = innerWidth/t.s, vh = innerHeight/t.s, wx = -t.x/t.s, wy = -t.y/t.s;
+  const nx = (WB.x1 - WB.x0) <= vw ? (WB.x0 + WB.x1)/2 - vw/2 : Math.min(Math.max(wx, WB.x0), WB.x1 - vw);
+  const ny = (WB.y1 - WB.y0) <= vh ? (WB.y0 + WB.y1)/2 - vh/2 : Math.min(Math.max(wy, WB.y0), WB.y1 - vh);
+  t.x = -nx*t.s; t.y = -ny*t.s;
 }
+const inWB = (x, y) => [Math.min(Math.max(x, WB.x0 + 40), WB.x1 - 40), Math.min(Math.max(y, WB.y0 + 60), WB.y1 - 40)];
 const blockHTML = (bx, by) => (bx || by) ? ghostBlockHTML(bx, by) : placed.map((p, k) => {
   if (p.away && isStart(bx, by)) return "";
   const pos = `left:${p.x}px;top:${p.y}px;--w:${p.w}px;--h:${p.h}px;--z:${((k*37)%9 - 4)*8}px`;
@@ -741,7 +740,6 @@ function manageVideos(now){
 }
 function render(){
   world.style.transform = `translate3d(${cam.x}px,${cam.y}px,0) scale(${cam.s})`;
-  { const st = dotsEl.style, dx = DX*cam.s, dy = DY*cam.s; st.backgroundSize = `${dx}px ${dy}px`; st.backgroundPosition = `${cam.x - dx/2}px ${cam.y - dy/2}px`; }
   $("#zoom").textContent = Math.round(cam.s/fitS*100) + "%";
   syncBlocks();
 }
@@ -900,7 +898,7 @@ let hasWalkedBefore = false; try { hasWalkedBefore = localStorage.getItem("mard-
 let lastInput = performance.now(), hasWalked = false, wanderT = 0;
 const markWalked = () => { if (hasWalked && !hasWalkedBefore){ hasWalkedBefore = true; try { localStorage.setItem("mard-walked", "1"); } catch (_) {} } };
 function walkTo(x, y){
-  { const dx = x - CX, dy = y - CY, d = Math.hypot(dx, dy), m = LIT_R*.9; if (d > m){ x = CX + dx/d*m; y = CY + dy/d*m; } }
+  [x, y] = inWB(x, y);
   const path = findPath(F.x, F.y, x, y); if (!path.length) return;
   if (F.entering) return; F.queue = path; F.wander = false; F.fast = true; F.targetKey = null; hasWalked = true; WALKS++; markWalked(); newStroke(); scratch(F.x, F.y);
 }
@@ -916,7 +914,8 @@ function steer(dt){
   if (F.queue.length || F.wander){ F.queue = []; F.wander = false; }
   if (!F.steering){ F.steering = true; WALKS++; newStroke(); scratch(F.x, F.y); }
   hasWalked = true; markWalked();
-  const st = SPEED*.8*dt, nx = F.x + dx*st, ny = F.y + dy*st;
+  const st = SPEED*.8*dt; let nx = F.x + dx*st, ny = F.y + dy*st;
+  [nx, ny] = inWB(nx, ny);
   if (freeAt(nx, ny)){ F.x = nx; F.y = ny; }               // slide along the works instead of entering them
   else if (dx && freeAt(nx, F.y)) F.x = nx;
   else if (dy && freeAt(F.x, ny)) F.y = ny;
@@ -1060,6 +1059,7 @@ function frame(now){
     if (k >= 1){ const d = flying.done; flying = null; d && d(); }
   } else {
     const f = 1 - Math.pow(.0009, dt);                    // smooth follow (like a smooth-scroll)
+    if (introDone) clampCam(tgt);
     cam.x += (tgt.x - cam.x)*f; cam.y += (tgt.y - cam.y)*f; cam.s += (tgt.s - cam.s)*f;
   }
   // the lean: from how fast the map is moving under the middle of the screen
