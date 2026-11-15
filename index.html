@@ -77,7 +77,7 @@ a:hover,button:hover{color:var(--g1)}
 #canvas.dragging{cursor:grabbing}
 #world{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform;transform-style:preserve-3d}
 #headline{position:absolute;left:0;top:0;white-space:nowrap;font:500 98px/1 var(--font);letter-spacing:-.04em;color:#c1c1c4;pointer-events:none;opacity:0;transition:opacity 1.2s var(--quint)}
-#headline.on{opacity:1} #headline small{display:block;margin-top:16px;font:400 19px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--g1);text-align:center} body.pre #headline,body.intro #headline{opacity:0}
+#headline.on{opacity:1} body.locked header,body.locked footer,body.locked #canvas{pointer-events:none!important} #headline small{display:block;margin-top:16px;font:400 19px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--g1);text-align:center} body.pre #headline,body.intro #headline{opacity:0}
 .block{position:absolute;left:0;top:0;transform-style:preserve-3d}
 .proj{position:absolute;width:var(--w);cursor:pointer;transform:translateZ(var(--z,0px))}   /* works sit at slightly different heights: parallax while tilting */
 .proj h2{display:flex;justify-content:space-between;gap:10px;height:30px;align-items:flex-end;padding-bottom:8px;font-size:18px;font-weight:400;white-space:nowrap;
@@ -768,7 +768,7 @@ function teachLook(){
 }
 /* ---- input ---- */
 canvas.addEventListener("wheel", e => {
-  e.preventDefault(); if (!introDone) return;
+  e.preventDefault(); if (LOCK()) return;
   if (e.ctrlKey || e.metaKey){ zoomAt(Math.exp(-e.deltaY*.006), e.clientX, e.clientY); looked(); }
   else if (e.deltaMode === 1){ zoomAt(Math.exp(-e.deltaY*.08), e.clientX, e.clientY); looked(); }
   else { tgt.x -= e.deltaX; tgt.y -= e.deltaY; flying = null; LOOK.acc += Math.abs(e.deltaX) + Math.abs(e.deltaY); if (LOOK.acc > 60) swiped(); }
@@ -776,7 +776,7 @@ canvas.addEventListener("wheel", e => {
 
 const ptrs = new Map(); let moved = 0, pinch = null, vel = {x:0,y:0}, lastMove = 0;
 canvas.addEventListener("pointerdown", e => {
-  if (!introDone) return;
+  if (LOCK()) return;
   canvas.setPointerCapture(e.pointerId); ptrs.set(e.pointerId, {x:e.clientX, y:e.clientY});
   moved = 0; flying = null; vel = {x:0,y:0}; canvas.classList.add("dragging");
   if (ptrs.size === 2){ const [a,b] = [...ptrs.values()]; pinch = {d:Math.hypot(a.x-b.x,a.y-b.y)}; }
@@ -801,7 +801,7 @@ canvas.addEventListener("pointerup", up); canvas.addEventListener("pointercancel
 
 const projAt = (x, y) => { const h = document.elementFromPoint(x, y); return h && h.closest(".proj"); };
 canvas.addEventListener("click", e => {
-  if (moved > 6 || !introDone) return;
+  if (moved > 6 || LOCK()) return;
   if (F.entering) return;                                   // her first walk in can't be interrupted
   const el = projAt(e.clientX, e.clientY);
   if (!el){ walkTo((e.clientX - cam.x)/cam.s, (e.clientY - cam.y)/cam.s); return; }
@@ -824,7 +824,7 @@ function nearestHome(){
 }
 addEventListener("keydown", e => {
   if (e.key === "Escape"){ closeView(); closeList(); return; }
-  if (overlay || !introDone) return;
+  if (overlay || LOCK()) return;
   const k = KEYS[e.key.length === 1 ? e.key.toLowerCase() : e.key];
   if (k){ e.preventDefault(); held.add(k); }
   if (e.key === "+" || e.key === "=") $("#zIn").click();
@@ -1118,7 +1118,7 @@ function frame(now){
   const frameN = walking ? pose : 1;                 // frame 1: feet together = standing
   if (F.pose !== frameN){ rot.style.setProperty('--mp', `${(frameN/11*100).toFixed(3)}% 0`); F.pose = frameN; }
   const sway = walking ? Math.sin(F.ph*Math.PI/6)*.05 : 0;   // the shoulders turn a little with each step
-  fig.style.transform = `translate(${F.x}px,${F.y}px)`; fig.classList.toggle("walked", hasWalked || LOOK.done);
+  fig.style.transform = `translate(${F.x}px,${F.y}px)`; fig.classList.toggle("walked", hasWalked || LOOK.done || F.tour || F.easing || F.entering);
   if (!LOOK.done) gest.style.transform = `translate(${(cam.x + F.x*cam.s).toFixed(1)}px,${(cam.y + (F.y + 70)*cam.s + 24).toFixed(1)}px)`;
   rot.style.transform = `rotate(${F.a + Math.PI/2 + sway}rad)`;  // drawing faces up
 
@@ -1126,9 +1126,9 @@ function frame(now){
   const needWalk = !hasWalked && !LOOK.done, needLook = !LOOK.done && now - LOOK.since > 2200;
   const hello = !overlay && F.tour;                                 // the short introduction to how the site works
   const needOpen = !OPENED && WALKS >= 2 && !walking;               // walked around but never opened a work
-  const hint = introDone && !overlay && !F.entering && !hello && (needWalk || needLook || needOpen);
+  const hint = introDone && !overlay && !F.entering && !hello && !F.easing && (needWalk || needLook || needOpen);
   const lookTurn = needLook && (!needWalk || Math.floor((now - LOOK.since)/4500) % 2 === 1);
-  const thought = introDone && !overlay && !hint && !hello && !F.entering ? think(now, state) : null;
+  const thought = introDone && !overlay && !hint && !hello && !F.entering && !F.easing ? think(now, state) : null;
   const zoomed = !overlay && introDone && !F.entering && (hello || hint || thought || cam.s >= fitS*1.35);
   const txt = hello ? TOUR[Math.min(TOUR.length - 1, Math.floor((now - F.arrived)/TOUR_MS))] : hint ? (needOpen && !needWalk && (!needLook || Math.floor(now/5000) % 2) ? (TOUCH ? "Tap a work to open it" : "Click a work to open it") : lookTurn ? (LOOK.swiped ? (TOUCH ? "Pinch to zoom out" : "Pinch to zoom out and see more") : TOUCH ? "Drag or pinch to look around" : "Swipe to move, pinch to zoom out") : TOUCH ? "Tap anywhere to walk me" : "Click anywhere to walk me") : thought || "Let’s go";
   if (bubble.textContent !== txt) bubble.textContent = txt;
@@ -1145,9 +1145,9 @@ function frame(now){
 function startIntro(){
   const h = homeView();
   F.x = CX; F.y = CY;                                        // the figure ends up in the middle, surrounded by the work
-  if (!QUICK) enterWalk(h);
+  if (!QUICK){ enterWalk(h); document.body.classList.add("locked"); }
   try { sessionStorage.setItem("mard-seen", "1"); } catch (_) {}
-  const z = { s: h.s*1.4 }; z.x = innerWidth/2 - CX*z.s; z.y = innerHeight/2 - CY*z.s;   // first visit: a little closer on her
+  const z = { s: h.s*2.4 }; z.x = innerWidth/2 - CX*z.s; z.y = innerHeight/2 - CY*z.s;   // first visit: a little closer on her
   const v = F.entering ? z : h;
   if (INTRO){ INTRO = null; flyTo(v, 550); } else { Object.assign(cam, v); Object.assign(tgt, v); }
   document.body.classList.remove("intro", "pre");
@@ -1163,16 +1163,15 @@ function revealWorld(uiDelay){
   revealStart = performance.now();
   document.querySelectorAll(".block").forEach(revealBlock);
   setTimeout(() => document.querySelectorAll(".reveal").forEach((r,k) => setTimeout(() => r.classList.add("on"), k*60)), uiDelay);
-  teachLook();
+  if (!F.tour) teachLook();
 }
 /* first visit: she walks in from just off screen to the middle, then says "Take a walk." */
 /* after walking in she explains the rules, then the view eases out to the whole map */
 const TOUR_MS = 2000, TOUR = ["Hi, I’m Lilit.", TOUCH ? "Swipe to look around" : "Swipe or drag to move around", "Pinch to zoom in and out",
   TOUCH ? "Tap anywhere to walk me" : "Click anywhere to walk me", TOUCH ? "Tap a work to open it" : "Click a work to open it", "Let’s go."];
-function endTour(){ if (!F.tour) return; F.tour = false; LOOK.since = performance.now(); flyTo(homeView(), 1400); }
-["pointerdown", "wheel", "keydown"].forEach(ev => addEventListener(ev, () => { if (F.tour && performance.now() - F.arrived > 600) endTour(); }, { passive: true }));
+function endTour(){ if (!F.tour) return; F.tour = false; F.easing = true; flyTo(homeView(), 1500, () => { F.easing = false; document.body.classList.remove("locked"); teachLook(); }); }
 function enterWalk(h){                                       // straight up from below the screen; the works are hidden, so nothing is in her way
-  const sy = CY + innerHeight/2/(h.s*1.4) + 50;
+  const sy = CY + innerHeight/2/(h.s*2.4) + 50;
   F.x = CX; F.y = sy; F.a = -Math.PI/2; F.queue = [[CX, CY]]; F.fast = false; F.wander = false; F.entering = true;
   newStroke(); scratch(F.x, F.y);
 }
@@ -1337,6 +1336,7 @@ function flyCard(src, from, to, delay, ms, dir){
   ], { duration: ms, delay, easing: "cubic-bezier(.65,0,.25,1)", fill: "both" }).finished.then(() => c);
 }
 let OPENED = false, WALKS = 0;
+const LOCK = () => !introDone || F.entering || F.tour || F.easing;   // nothing until she has finished speaking
 async function openProject(i, el){
   OPENED = true;
   if (busy) return; busy = true;
@@ -1483,7 +1483,7 @@ if (matchMedia("(hover:hover)").matches){
     if (e.pointerType !== "mouse") return;
     cur.style.transform = `translate(${e.clientX}px,${e.clientY}px)`; cur.classList.add("vis");
     const over = !overlay && !ptrs.size && e.target.closest && e.target.closest("#blocks .proj");
-    cur.classList.toggle("on", !!over && introDone && !F.entering && !document.body.classList.contains("pre"));
+    cur.classList.toggle("on", !!over && !LOCK() && !document.body.classList.contains("pre"));
   }, { passive: true });
   document.addEventListener("pointerleave", () => cur.classList.remove("on", "vis"));
   addEventListener("pointerdown", () => cur.classList.remove("on"));
