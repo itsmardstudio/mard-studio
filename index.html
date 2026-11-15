@@ -137,17 +137,14 @@ body[data-f] .proj.ghost{opacity:.18!important} .proj.ghost{pointer-events:none!
 .deco{position:absolute;pointer-events:none}
 .deco svg{width:100%;height:100%;display:block;fill:#d3d3d5;transition:fill .8s var(--quint)}
 .deco.lit svg{fill:var(--trail)}
-#bubble{position:fixed;left:0;top:0;z-index:12;pointer-events:none;background:#111;color:#fff;font-size:21px;font-weight:500;padding:12px 20px;border-radius:26px;white-space:nowrap;
-  transform-origin:50% 100%;opacity:0;transition:opacity .35s var(--quint)}
-#bubble::after{content:"";position:absolute;left:50%;bottom:-6px;width:13px;height:13px;background:#111;transform:translateX(-50%) rotate(45deg);border-radius:1px}
+#bubble{position:fixed;left:0;top:0;z-index:12;pointer-events:none;color:#fff;font-size:21px;font-weight:500;padding:13px 24px 15px;white-space:nowrap;
+  opacity:0;transition:opacity .35s var(--quint)}
+/* slanted bubble with a soft tail at the bottom-left, pointing to her */
+#bubble::before{content:"";position:absolute;inset:0;z-index:-1;background:#111;border-radius:22px 22px 22px 10px;transform:skewX(-12deg)}
+#bubble::after{content:"";position:absolute;left:-9px;bottom:-11px;width:26px;height:16px;background:#111;clip-path:path("M9 0 H26 C17 1 10 7 5 13 C3 16 -1 15 0 11 C1 7 4 3 9 0 Z")}
 #bubble.on{opacity:1}
-@media (min-width:761px){ #bubble::after{left:-5px;top:50%;bottom:auto;transform:translateY(-50%) rotate(45deg)}
-  #bubble.think::after{left:-14px;top:50%;bottom:auto;transform:translateY(-50%)} #bubble.think::before{left:-24px;top:50%;bottom:auto;transform:translateY(-50%)} }
-@media (max-width:760px){ #bubble{font-size:18px;padding:10px 16px} }
-/* thought cloud: same bubble, little circles instead of the pointer */
-#bubble.think{background:#111;color:#fff;font-weight:400;font-style:italic}
-#bubble.think::after{width:9px;height:9px;bottom:-12px;border-radius:50%;transform:translateX(-30%)}
-#bubble.think::before{content:"";position:absolute;left:50%;bottom:-21px;width:5px;height:5px;background:#111;border-radius:50%;transform:translateX(10%)}
+@media (max-width:760px){ #bubble{font-size:18px;padding:11px 20px 13px} }
+#bubble.think{font-weight:400;font-style:italic}
 
 /* ===== Chrome ===== */
 .corner{position:fixed;width:26vw;height:26vh;pointer-events:none;z-index:8;background:rgba(211,211,213,.6)}
@@ -1134,8 +1131,8 @@ function frame(now){
   if (bubble.textContent !== txt) bubble.textContent = txt;
   bubble.classList.toggle("think", !!thought);
   bubble.classList.toggle("on", !!zoomed);
-  if (zoomed){ if (innerWidth > 760){ const sx = cam.x + (F.x + 46)*cam.s + 16, sy = cam.y + (F.y - 52)*cam.s; bubble.style.transform = `translate(${sx}px,${sy}px) translateY(-50%)`; }
-    else { const sx = cam.x + F.x*cam.s, sy = cam.y + (F.y - 100)*cam.s; bubble.style.transform = `translate(${sx}px,${sy}px) translate(-50%,-100%) translateY(-8px)`; } }
+  if (zoomed){ const sx = cam.x + (F.x + 22)*cam.s + 14, sy = cam.y + (F.y - 58)*cam.s - 12;   // up and to the right of her head, tail pointing at her
+    bubble.style.transform = `translate(${sx}px,${sy}px) translate(${innerWidth > 760 ? 0 : -30}%,-100%)`; }
   requestAnimationFrame(frame);
 }
 
