@@ -143,7 +143,7 @@ body[data-f] .proj.ghost{opacity:.18!important} .proj.ghost{pointer-events:none!
 #bubble::before{content:"";position:absolute;inset:0;z-index:-1;background:#111;border-radius:22px 22px 22px 10px;transform:skewX(-12deg)}
 #bubble::after{content:"";position:absolute;left:-9px;bottom:-11px;width:26px;height:16px;background:#111;clip-path:path("M9 0 H26 C17 1 10 7 5 13 C3 16 -1 15 0 11 C1 7 4 3 9 0 Z")}
 #bubble.on{opacity:1}
-@media (max-width:760px){ #bubble{font-size:18px;padding:11px 20px 13px} }
+@media (max-width:760px){ #bubble{font-size:17px;line-height:1.25;padding:10px 18px 12px;white-space:normal} }
 #bubble.think{font-weight:400;font-style:italic}
 
 /* ===== Chrome ===== */
@@ -1074,7 +1074,7 @@ function frame(now){
   // a stroll, not a run: ease in at the start, ease out near the end
   const EASE = F.fast ? 240 : 140;
   let remain = 0; for (let q = 0, px = F.x, py = F.y; q < F.queue.length && remain < EASE; q++){ remain += Math.hypot(F.queue[q][0] - px, F.queue[q][1] - py); px = F.queue[q][0]; py = F.queue[q][1]; }
-  const want = F.queue.length ? SPEED*(F.fast ? 2.7 : F.entering ? .75 : 1)*Math.min(1, .18 + remain/EASE) : 0;
+  const want = F.queue.length ? SPEED*(F.fast ? 2.7 : F.entering ? 1.3 : 1)*Math.min(1, .18 + remain/EASE) : 0;
   F.v = (F.v || 0) + (want - (F.v || 0))*Math.min(1, dt*(want > (F.v || 0) ? 3 : 8));
   let budget = Math.max(F.queue.length ? 18 : 0, F.v)*dt; const walking = steering || F.queue.length > 0;
   while (F.queue.length && budget > 0){
@@ -1085,8 +1085,8 @@ function frame(now){
     scratch(F.x, F.y);
   }
   if (walking) markVisits(now);
-  if (F.entering && !F.queue.length){ F.entering = false; F.arrived = now; F.tour = true; revealWorld(700); }
-  if (F.tour && now - F.arrived > TOUR.length*TOUR_MS) endTour();
+  if (F.entering && !F.queue.length){ F.entering = false; F.arrived = now; F.tour = true; F.tourI = 0; F.tourT = now; revealWorld(700); }
+  if (F.tour && now - F.tourT > TOUR_MS) nextLine();
   if (F.arrived && !walking && now - F.arrived < 1500){       // after walking in she turns to stand straight, facing up
     let da = -Math.PI/2 - F.a; da = Math.atan2(Math.sin(da), Math.cos(da)); F.a += da*Math.min(1, dt*7); }
   if (walking && !F.queue.length && F.targetKey){
@@ -1127,12 +1127,13 @@ function frame(now){
   const lookTurn = needLook && (!needWalk || Math.floor((now - LOOK.since)/4500) % 2 === 1);
   const thought = introDone && !overlay && !hint && !hello && !F.entering && !F.easing ? think(now, state) : null;
   const zoomed = !overlay && introDone && !F.entering && (hello || hint || thought || cam.s >= fitS*1.35);
-  const txt = hello ? TOUR[Math.min(TOUR.length - 1, Math.floor((now - F.arrived)/TOUR_MS))] : hint ? (needOpen && !needWalk && (!needLook || Math.floor(now/5000) % 2) ? (TOUCH ? "Tap a work to open it" : "Click a work to open it") : lookTurn ? (LOOK.swiped ? (TOUCH ? "Pinch to zoom out" : "Pinch to zoom out and see more") : TOUCH ? "Drag or pinch to look around" : "Swipe to move, pinch to zoom out") : TOUCH ? "Tap anywhere to walk me" : "Click anywhere to walk me") : thought || "Let’s go";
+  const txt = hello ? TOUR[Math.min(TOUR.length - 1, F.tourI)] : hint ? (needOpen && !needWalk && (!needLook || Math.floor(now/5000) % 2) ? (TOUCH ? "Tap a work to open it" : "Click a work to open it") : lookTurn ? (LOOK.swiped ? (TOUCH ? "Pinch to zoom out" : "Pinch to zoom out and see more") : TOUCH ? "Drag or pinch to look around" : "Swipe to move, pinch to zoom out") : TOUCH ? "Tap anywhere to walk me" : "Click anywhere to walk me") : thought || "Let’s go";
   if (bubble.textContent !== txt) bubble.textContent = txt;
   bubble.classList.toggle("think", !!thought);
   bubble.classList.toggle("on", !!zoomed);
   if (zoomed){ const sx = cam.x + (F.x + 22)*cam.s + 14, sy = cam.y + (F.y - 58)*cam.s - 12;   // up and to the right of her head, tail pointing at her
-    bubble.style.transform = `translate(${sx}px,${sy}px) translate(${innerWidth > 760 ? 0 : -30}%,-100%)`; }
+    bubble.style.maxWidth = innerWidth > 760 ? "" : `${Math.max(150, innerWidth - sx - 14)}px`;
+    bubble.style.transform = `translate(${sx}px,${sy}px) translateY(-100%)`; }
   requestAnimationFrame(frame);
 }
 
@@ -1164,9 +1165,12 @@ function revealWorld(uiDelay){
 }
 /* first visit: she walks in from just off screen to the middle, then says "Take a walk." */
 /* after walking in she explains the rules, then the view eases out to the whole map */
-const TOUR_MS = 2000, TOUR = ["Hi, I’m Lilit.", TOUCH ? "Swipe to look around" : "Swipe or drag to move around", "Pinch to zoom in and out",
-  TOUCH ? "Tap anywhere to walk me" : "Click anywhere to walk me", TOUCH ? "Tap a work to open it" : "Click a work to open it", "Let’s go."];
-function endTour(){ if (!F.tour) return; F.tour = false; F.easing = true; flyTo(homeView(), 1500, () => { F.easing = false; document.body.classList.remove("locked"); teachLook(); }); }
+const TOUR_MS = 1600, TOUR = ["Hi, I’m Lilit.", TOUCH ? "Swipe to look around, pinch to zoom." : "Drag to look around, pinch to zoom.",
+  TOUCH ? "Tap anywhere to walk me, or open a work." : "Click anywhere to walk me, or open a work."];
+function nextLine(){ if (!F.tour) return; F.tourI++; F.tourT = performance.now(); if (F.tourI >= TOUR.length) endTour(); }
+addEventListener("pointerdown", () => { if (F.tour && performance.now() - F.tourT > 250) nextLine(); });   // a click skips to the next line
+addEventListener("keydown", () => { if (F.tour && performance.now() - F.tourT > 250) nextLine(); });
+function endTour(){ if (!F.tour) return; F.tour = false; F.easing = true; flyTo(homeView(), 1000, () => { F.easing = false; document.body.classList.remove("locked"); teachLook(); }); }
 function enterWalk(h){                                       // straight up from below the screen; the works are hidden, so nothing is in her way
   const sy = CY + innerHeight/2/(h.s*2.4) + 50;
   F.x = CX; F.y = sy; F.a = -Math.PI/2; F.queue = [[CX, CY]]; F.fast = false; F.wander = false; F.entering = true;
