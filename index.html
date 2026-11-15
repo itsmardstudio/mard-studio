@@ -1076,7 +1076,7 @@ function frame(now){
   // a stroll, not a run: ease in at the start, ease out near the end
   const EASE = F.fast ? 240 : 140;
   let remain = 0; for (let q = 0, px = F.x, py = F.y; q < F.queue.length && remain < EASE; q++){ remain += Math.hypot(F.queue[q][0] - px, F.queue[q][1] - py); px = F.queue[q][0]; py = F.queue[q][1]; }
-  const want = F.queue.length ? SPEED*(F.fast ? 2.7 : F.entering ? 1.3 : 1)*Math.min(1, .18 + remain/EASE) : 0;
+  const want = F.queue.length ? SPEED*(F.fast ? 2.7 : F.entering ? .8 : 1)*Math.min(1, .18 + remain/EASE) : 0;
   F.v = (F.v || 0) + (want - (F.v || 0))*Math.min(1, dt*(want > (F.v || 0) ? 3 : 8));
   let budget = Math.max(F.queue.length ? 18 : 0, F.v)*dt; const walking = steering || F.queue.length > 0;
   while (F.queue.length && budget > 0){
@@ -1125,9 +1125,9 @@ function frame(now){
   const needWalk = !hasWalked && !LOOK.done, needLook = !LOOK.done && now - LOOK.since > 2200;
   const hello = !overlay && F.tour;                                 // the short introduction to how the site works
   const needOpen = !OPENED && WALKS >= 2 && !walking;               // walked around but never opened a work
-  const hint = introDone && !overlay && !F.entering && !hello && !F.easing && (F.toured ? needOpen : (needWalk || needLook || needOpen));
+  const hint = now > 60000 && introDone && !overlay && !F.entering && !hello && !F.easing && (F.toured ? needOpen : (needWalk || needLook || needOpen));
   const lookTurn = needLook && (!needWalk || Math.floor((now - LOOK.since)/4500) % 2 === 1);
-  const thought = introDone && !overlay && !hint && !hello && !F.entering && !F.easing && !(F.toured && now - F.toured < 20000) ? think(now, state) : null;
+  const thought = introDone && !overlay && !hint && !hello && !F.entering && !F.easing && now > 60000 ? think(now, state) : null;
   const zoomed = !overlay && introDone && !F.entering && (hello || hint || thought || cam.s >= fitS*1.35);
   const txt = hello ? TOUR[Math.min(TOUR.length - 1, F.tourI)] : hint ? (needOpen && !needWalk && (!needLook || Math.floor(now/5000) % 2) ? (TOUCH ? "Tap a work to open it" : "Click a work to open it") : lookTurn ? (LOOK.swiped ? (TOUCH ? "Pinch to zoom out" : "Pinch to zoom out and see more") : TOUCH ? "Drag or pinch to look around" : "Swipe to move, pinch to zoom out") : TOUCH ? "Tap anywhere to walk me" : "Click anywhere to walk me") : thought || "Let’s go";
   if (bubble.textContent !== txt) bubble.textContent = txt;
