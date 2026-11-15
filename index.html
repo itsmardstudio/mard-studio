@@ -371,7 +371,7 @@ form.contact .note{min-height:1.2em;font-size:13px}
   </div>
 </div></div>
 <div id="cur"><i><b>Open ↗</b></i></div>
-<div id="bubble">Let’s go</div>
+<div id="bubble"></div>
 <div id="gest" aria-hidden="true"><svg class="swipe" viewBox="0 0 40 50"><g>
   <rect x="11.5" y="3" width="7.4" height="26" rx="3.7"/><rect x="19.6" y="1" width="7.4" height="28" rx="3.7"/>
   <rect x="27.4" y="11" width="6.6" height="20" rx="3.3"/>
@@ -1134,10 +1134,10 @@ function frame(now){
   const lookTurn = needLook && (!needWalk || Math.floor((now - LOOK.since)/4500) % 2 === 1);
   const thought = introDone && !overlay && !hint && !hello && !F.entering && !F.easing && now > 60000 ? think(now, state) : null;
   const zoomed = !overlay && introDone && !F.entering && (hello || hint || thought || cam.s >= fitS*1.35);
-  const txt = hello ? TOUR[Math.min(TOUR.length - 1, F.tourI)] : hint ? (needOpen && !needWalk && (!needLook || Math.floor(now/5000) % 2) ? (TOUCH ? "Tap a work to open it" : "Click a work to open it") : lookTurn ? (LOOK.swiped ? (TOUCH ? "Pinch to zoom out" : "Pinch to zoom out and see more") : TOUCH ? "Drag or pinch to look around" : "Swipe to move, pinch to zoom out") : TOUCH ? "Tap anywhere to walk me" : "Click anywhere to walk me") : thought || "Let’s go";
-  if (bubble.textContent !== txt) bubble.textContent = txt;
+  const txt = hello ? TOUR[Math.min(TOUR.length - 1, F.tourI)] : hint ? (needOpen && !needWalk && (!needLook || Math.floor(now/5000) % 2) ? (TOUCH ? "Tap a work to open it" : "Click a work to open it") : lookTurn ? (LOOK.swiped ? (TOUCH ? "Pinch to zoom out" : "Pinch to zoom out and see more") : TOUCH ? "Drag or pinch to look around" : "Swipe to move, pinch to zoom out") : TOUCH ? "Tap anywhere to walk me" : "Click anywhere to walk me") : thought || "";
+  if (txt && bubble.textContent !== txt) bubble.textContent = txt;
   bubble.classList.toggle("think", !!thought);
-  bubble.classList.toggle("on", !!zoomed);
+  bubble.classList.toggle("on", !!zoomed && !!txt);
   if (zoomed){ const sx = cam.x + (F.x + 22)*cam.s + 14, sy = cam.y + (F.y - 58)*cam.s - 12;   // up and to the right of her head, tail pointing at her
     bubble.style.maxWidth = innerWidth > 760 ? "" : `${Math.max(150, innerWidth - sx - 14)}px`;
     bubble.style.transform = `translate(${sx}px,${sy}px) translateY(-100%)`; }
