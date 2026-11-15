@@ -691,9 +691,10 @@ function homeScale(){                                       // fit the 12 projec
 function homeView(){ fitS = homeScale(); return { s: fitS, x: innerWidth/2 - CX*fitS, y: innerHeight/2 - CY*fitS }; }
 function zoomAt(f, sx, sy){
   const ns = Math.max(Math.max(MIN_S, fitS*(innerWidth < 760 ? .55 : .45)), Math.min(MAX_S, tgt.s*f)); f = ns/tgt.s;
-  tgt.x = sx - (sx - tgt.x)*f; tgt.y = sy - (sy - tgt.y)*f; tgt.s = ns; flying = null;
+  tgt.x = sx - (sx - tgt.x)*f; tgt.y = sy - (sy - tgt.y)*f; tgt.s = ns; flying = null; ZA.x = sx; ZA.y = sy;
 }
-const expo = k => k === 1 ? 1 : 1 - Math.pow(2, -10*k);
+const ZA = { x: innerWidth/2, y: innerHeight/2 };            // the point a zoom is anchored to
+const expo = k => k < .5 ? 4*k*k*k : 1 - Math.pow(-2*k + 2, 3)/2;   // smooth in and out
 function flyTo(t, ms=1200, done){ flying = { a:{...cam}, t, t0:performance.now(), ms, done }; }
 
 /* tiles fade in by distance from the centre once the intro starts */
@@ -1059,7 +1060,11 @@ function frame(now){
   } else {
     const f = 1 - Math.pow(.0009, dt);                    // smooth follow (like a smooth-scroll)
     if (introDone) clampCam(tgt);
-    cam.x += (tgt.x - cam.x)*f; cam.y += (tgt.y - cam.y)*f; cam.s += (tgt.s - cam.s)*f;
+    const fs = 1 - Math.pow(.02, dt);                     // zoom eases in slower than panning: soft, gliding zoom
+    const ns = Math.exp(Math.log(cam.s) + (Math.log(tgt.s) - Math.log(cam.s))*fs), k = ns/cam.s;
+    cam.x = ZA.x - (ZA.x - cam.x)*k; cam.y = ZA.y - (ZA.y - cam.y)*k; cam.s = ns;          // keep the point under the cursor still
+    const r = cam.s/tgt.s, tx = ZA.x - (ZA.x - tgt.x)*r, ty = ZA.y - (ZA.y - tgt.y)*r;      // where the target sits at the current zoom
+    cam.x += (tx - cam.x)*f; cam.y += (ty - cam.y)*f;
   }
   // the lean: from how fast the map is moving under the middle of the screen
   { const wx = (innerWidth/2 - cam.x)/cam.s, wy = (innerHeight/2 - cam.y)/cam.s;
@@ -1172,7 +1177,7 @@ const TOUR_MS = 1600, TOUR = ["Hi, I’m Lilit.", TOUCH ? "Swipe to look around,
 function nextLine(){ if (!F.tour) return; F.tourI++; F.tourT = performance.now(); if (F.tourI >= TOUR.length) endTour(); }
 addEventListener("pointerdown", () => { if (F.tour && performance.now() - F.tourT > 250) nextLine(); });   // a click skips to the next line
 addEventListener("keydown", () => { if (F.tour && performance.now() - F.tourT > 250) nextLine(); });
-function endTour(){ if (!F.tour) return; F.tour = false; F.toured = performance.now(); F.easing = true; flyTo(homeView(), 1000, () => { F.easing = false; document.body.classList.remove("locked"); teachLook(); }); }
+function endTour(){ if (!F.tour) return; F.tour = false; F.toured = performance.now(); F.easing = true; flyTo(homeView(), 1800, () => { F.easing = false; document.body.classList.remove("locked"); teachLook(); }); }
 function enterWalk(h){                                       // straight up from below the screen; the works are hidden, so nothing is in her way
   const sy = CY + innerHeight/2/(h.s*2.4) + 50;
   F.x = CX; F.y = sy; F.a = -Math.PI/2; F.queue = [[CX, CY]]; F.fast = false; F.wander = false; F.entering = true;
