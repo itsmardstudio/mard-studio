@@ -944,6 +944,20 @@ const THOUGHTS = [
   "մարդ means human, by the way", "walked here myself", "are you still there?", "this is my favourite spot"
 ];
 const HOVER_THOUGHTS = ["pretty good stuff here, huh?", "go on, open it", "this one’s a favourite", "good choice"];
+/* hovering a work: she tells you one small thing about it (desktop only, there is no hover on phones) */
+const FACTS = {
+  "pati-henqy": "one look, from the poster to the wristband",
+  "arevot": "the artist cards were drawn by hand",
+  "gaiff": "three festivals in a row, every badge went through me",
+  "artbox-hub": "I drew every institution as a tiny building",
+  "mesrop-sarkisian": "this one hung on the real building",
+  "east-west-residency": "three artists, one frame",
+  "state-philharmonic": "the lines come from the building’s columns",
+  "the-noosh": "I drew their logo by hand",
+  "bari-bakht": "this one became a printed cushion",
+  "christmas-blanket": "walnut, hazelnut, mandarin: the New Year table",
+  "dzen-zine": "ձեն means voice"
+};
 const mouse = { x: 0, y: 0, on: false, overProj: null };
 addEventListener("pointermove", e => { if (e.pointerType !== "mouse") return; mouse.x = e.clientX; mouse.y = e.clientY; mouse.on = true; if (F.sleeping) lastInput = performance.now();
   const h = e.target.closest && e.target.closest(".proj[data-i]"); if (h !== mouse.overProj){ mouse.overProj = h; if (h) TH.hoverAt = performance.now(); } });
@@ -954,8 +968,8 @@ function think(now, state){
   if (state === "sleep") return "z z z";
   if (state === "walk"){ TH.text = null; TH.next = Math.max(TH.next, now + 1800); return null; }
   // hovering a project for a moment → a comment about it (not every time)
-  if (TH.count < TH.MAX && now > TH.next && mouse.overProj && now - TH.hoverAt > 900 && TH.hoverShown !== TH.hoverAt && Math.random() < .25){
-    TH.hoverShown = TH.hoverAt; TH.text = pick(HOVER_THOUGHTS); TH.until = now + 2800; TH.count++;
+  if (mouse.overProj && now - TH.hoverAt > 600 && TH.hoverShown !== TH.hoverAt){
+    const pr = P[+mouse.overProj.dataset.i]; TH.hoverShown = TH.hoverAt; TH.text = (pr && FACTS[pr.slug]) || pick(HOVER_THOUGHTS); TH.until = now + 3200; TH.count++;
   } else if (mouse.overProj && TH.hoverShown !== TH.hoverAt && now - TH.hoverAt > 700) TH.hoverShown = TH.hoverAt;
   if (TH.text && now > TH.until){ TH.text = null; TH.next = now + 5000 + Math.random()*3000; }
   if (!TH.text && TH.count < TH.MAX && now > TH.next && now - F.stillSince > 1500){ TH.text = pick(THOUGHTS); TH.until = now + 4800; TH.count++; }
@@ -1132,7 +1146,7 @@ function frame(now){
   const needOpen = !OPENED && WALKS >= 2 && !walking;               // walked around but never opened a work
   const hint = now > 60000 && introDone && !overlay && !F.entering && !hello && !F.easing && (F.toured ? needOpen : (needWalk || needLook || needOpen));
   const lookTurn = needLook && (!needWalk || Math.floor((now - LOOK.since)/4500) % 2 === 1);
-  const thought = introDone && !overlay && !hint && !hello && !F.entering && !F.easing && now > 60000 ? think(now, state) : null;
+  const thought = introDone && !overlay && !hint && !hello && !F.entering && !F.easing && (now > 60000 || mouse.overProj || (TH.text && now < TH.until)) ? think(now, state) : null;
   const zoomed = !overlay && introDone && !F.entering && (hello || hint || thought || cam.s >= fitS*1.35);
   const txt = hello ? TOUR[Math.min(TOUR.length - 1, F.tourI)] : hint ? (needOpen && !needWalk && (!needLook || Math.floor(now/5000) % 2) ? (TOUCH ? "Tap a work to open it" : "Click a work to open it") : lookTurn ? (LOOK.swiped ? (TOUCH ? "Pinch to zoom out" : "Pinch to zoom out and see more") : TOUCH ? "Drag or pinch to look around" : "Swipe to move, pinch to zoom out") : TOUCH ? "Tap anywhere to walk me" : "Click anywhere to walk me") : thought || "";
   if (txt && bubble.textContent !== txt) bubble.textContent = txt;
